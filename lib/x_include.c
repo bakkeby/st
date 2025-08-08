@@ -17,9 +17,7 @@
 #if FIXKEYBOARDINPUT_PATCH
 #include "fixkeyboardinput.c"
 #endif
-#if FONT2_PATCH
 #include "font2.c"
-#endif
 #if FULLSCREEN_PATCH
 #include "fullscreen_x.c"
 #endif

@@ -33,6 +33,8 @@ PKG_CONFIG = pkg-config
 # Uncomment for the netwmicon patch / NETWMICON_PATCH
 #NETWMICON_LIBS = `$(PKG_CONFIG) --libs gdlib`
 
+CONFIG = `$(PKG_CONFIG) --libs libconfig`
+
 # includes and libs, uncomment harfbuzz for the ligatures patch
 INCS = -I$(X11INC) \
        `$(PKG_CONFIG) --cflags fontconfig` \
@@ -42,7 +44,8 @@ LIBS = -L$(X11LIB) -lm -lX11 -lutil -lXft ${SIXEL_LIBS} ${XRENDER} ${XCURSOR}\
        `$(PKG_CONFIG) --libs fontconfig` \
        `$(PKG_CONFIG) --libs freetype2` \
        $(LIGATURES_LIBS) \
-       $(NETWMICON_LIBS)
+       $(NETWMICON_LIBS) \
+       $(CONFIG)
 
 # flags
 STCPPFLAGS = -DVERSION=\"$(VERSION)\" -DICON=\"$(ICONPREFIX)/$(ICONNAME)\" -D_XOPEN_SOURCE=600

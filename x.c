@@ -64,11 +64,14 @@ static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 
-#include "patch/st_include.h"
-#include "patch/x_include.h"
+#include "lib/st_include.h"
+#include "lib/x_include.h"
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
+#include "conf.c"
+
+// #include "st.c"
 
 #if CSI_22_23_PATCH
 /* size of title stack */
@@ -80,7 +83,7 @@ static void zoomreset(const Arg *);
 #define XEMBED_FOCUS_OUT 5
 
 /* macros */
-#define IS_SET(flag)		((win.mode & (flag)) != 0)
+#define X_IS_SET(flag)		((win.mode & (flag)) != 0)
 #define TRUERED(x)		(((x) & 0xff0000) >> 8)
 #define TRUEGREEN(x)		(((x) & 0xff00))
 #define TRUEBLUE(x)		(((x) & 0xff) << 8)
@@ -244,7 +247,7 @@ static Cursor cursor;
 static XColor xmousefg, xmousebg;
 #endif // SWAPMOUSE_PATCH
 
-#include "patch/x_include.c"
+#include "lib/x_include.c"
 
 void
 clipcopy(const Arg *dummy)
@@ -267,7 +270,7 @@ clippaste(const Arg *dummy)
 	Atom clipboard;
 
 	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
-	if (IS_SET(MODE_KBDSELECT) && !kbds_issearchmode())
+	if (X_IS_SET(MODE_KBDSELECT) && !kbds_issearchmode())
 		return;
 	#endif // KEYBOARDSELECT_PATCH
 
@@ -286,7 +289,7 @@ void
 selpaste(const Arg *dummy)
 {
 	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
-	if (IS_SET(MODE_KBDSELECT) && !kbds_issearchmode())
+	if (X_IS_SET(MODE_KBDSELECT) && !kbds_issearchmode())
 		return;
 	#endif // KEYBOARDSELECT_PATCH
 
@@ -324,9 +327,7 @@ zoomabs(const Arg *arg)
 
 	xunloadfonts();
 	xloadfonts(usedfont, arg->f);
-	#if FONT2_PATCH
 	xloadsparefonts();
-	#endif // FONT2_PATCH
 
 	#if SIXEL_PATCH
 	/* delete old pixmaps so that xfinishdraw() can create new scaled ones */
@@ -450,10 +451,10 @@ mousereport(XEvent *e)
 	if (e->type == MotionNotify) {
 		if (x == ox && y == oy)
 			return;
-		if (!IS_SET(MODE_MOUSEMOTION) && !IS_SET(MODE_MOUSEMANY))
+		if (!X_IS_SET(MODE_MOUSEMOTION) && !X_IS_SET(MODE_MOUSEMANY))
 			return;
 		/* MODE_MOUSEMOTION: no reporting if no button is pressed */
-		if (IS_SET(MODE_MOUSEMOTION) && buttons == 0)
+		if (X_IS_SET(MODE_MOUSEMOTION) && buttons == 0)
 			return;
 
 		/* Set btn to lowest-numbered pressed button, or 12 if no
@@ -468,7 +469,7 @@ mousereport(XEvent *e)
 			return;
 		if (e->type == ButtonRelease) {
 			/* MODE_MOUSEX10: no button release reporting */
-			if (IS_SET(MODE_MOUSEX10))
+			if (X_IS_SET(MODE_MOUSEX10))
 				return;
 			/* Don't send release events for the scroll wheel */
 			if (btn == 4 || btn == 5)
@@ -482,7 +483,7 @@ mousereport(XEvent *e)
 
 	/* Encode btn into code. If no button is pressed for a motion event in
 	 * MODE_MOUSEMANY, then encode it as a release. */
-	if ((!IS_SET(MODE_MOUSESGR) && e->type == ButtonRelease) || btn == 12)
+	if ((!X_IS_SET(MODE_MOUSESGR) && e->type == ButtonRelease) || btn == 12)
 		code += 3;
 	else if (btn >= 8)
 		code += 128 + btn - 8;
@@ -491,13 +492,13 @@ mousereport(XEvent *e)
 	else
 		code += btn - 1;
 
-	if (!IS_SET(MODE_MOUSEX10)) {
+	if (!X_IS_SET(MODE_MOUSEX10)) {
 		code += ((state & ShiftMask  ) ?  4 : 0)
 		      + ((state & Mod1Mask   ) ?  8 : 0) /* meta key: alt */
 		      + ((state & ControlMask) ? 16 : 0);
 	}
 
-	if (IS_SET(MODE_MOUSESGR)) {
+	if (X_IS_SET(MODE_MOUSESGR)) {
 		len = snprintf(buf, sizeof(buf), "\033[<%d;%d;%d%c",
 				code, x+1, y+1,
 				e->type == ButtonRelease ? 'm' : 'M');
@@ -521,7 +522,7 @@ bpress(XEvent *e)
 	if (1 <= btn && btn <= 11)
 		buttons |= 1 << (btn-1);
 
-	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
+	if (X_IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
 		mousereport(e);
 		return;
 	}
@@ -660,7 +661,7 @@ selnotify(XEvent *e)
 		}
 
 		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
-		if (IS_SET(MODE_KBDSELECT) && kbds_issearchmode()) {
+		if (X_IS_SET(MODE_KBDSELECT) && kbds_issearchmode()) {
 			kbds_pasteintosearch(data, nitems * format / 8, append++);
 		} else {
 			/*
@@ -676,10 +677,10 @@ selnotify(XEvent *e)
 				*repl++ = '\r';
 			}
 
-			if (IS_SET(MODE_BRCKTPASTE) && ofs == 0)
+			if (X_IS_SET(MODE_BRCKTPASTE) && ofs == 0)
 				ttywrite("\033[200~", 6, 0);
 			ttywrite((char *)data, nitems * format / 8, 1);
-			if (IS_SET(MODE_BRCKTPASTE) && rem == 0)
+			if (X_IS_SET(MODE_BRCKTPASTE) && rem == 0)
 				ttywrite("\033[201~", 6, 0);
 		}
 		#else
@@ -696,10 +697,10 @@ selnotify(XEvent *e)
 			*repl++ = '\r';
 		}
 
-		if (IS_SET(MODE_BRCKTPASTE) && ofs == 0)
+		if (X_IS_SET(MODE_BRCKTPASTE) && ofs == 0)
 			ttywrite("\033[200~", 6, 0);
 		ttywrite((char *)data, nitems * format / 8, 1);
-		if (IS_SET(MODE_BRCKTPASTE) && rem == 0)
+		if (X_IS_SET(MODE_BRCKTPASTE) && rem == 0)
 			ttywrite("\033[201~", 6, 0);
 		#endif // KEYBOARDSELECT_PATCH
 		XFree(data);
@@ -830,7 +831,7 @@ brelease(XEvent *e)
 	if (1 <= btn && btn <= 11)
 		buttons &= ~(1 << (btn-1));
 
-	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
+	if (X_IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
 		mousereport(e);
 		return;
 	}
@@ -866,12 +867,12 @@ bmotion(XEvent *e)
 		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
 		#endif // SWAPMOUSE_PATCH
 		xw.pointerisvisible = 1;
-		if (!IS_SET(MODE_MOUSEMANY))
+		if (!X_IS_SET(MODE_MOUSEMANY))
 			xsetpointermotion(0);
 	}
 	#endif // HIDECURSOR_PATCH
 	#if OPENURLONCLICK_PATCH
-	if (!IS_SET(MODE_MOUSE)) {
+	if (!X_IS_SET(MODE_MOUSE)) {
 		if (!(e->xbutton.state & Button1Mask) && detecturl(evcol(e), evrow(e), 1))
 			XDefineCursor(xw.dpy, xw.win, xw.upointer);
 		else
@@ -880,7 +881,7 @@ bmotion(XEvent *e)
 	url_click = 0;
 	#endif // OPENURLONCLICK_PATCH
 
-	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
+	if (X_IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
 		mousereport(e);
 		return;
 	}
@@ -1101,14 +1102,14 @@ xclear(int x1, int y1, int x2, int y2)
 	XFillRectangle(xw.dpy, xw.buf, xw.bggc, x1, y1, x2-x1, y2-y1);
 	#elif INVERT_PATCH
 	Color c;
-	c = dc.col[IS_SET(MODE_REVERSE)? defaultfg : defaultbg];
+	c = dc.col[X_IS_SET(MODE_REVERSE)? defaultfg : defaultbg];
 	if (invertcolors) {
 		c = invertedcolor(&c);
 	}
 	XftDrawRect(xw.draw, &c, x1, y1, x2-x1, y2-y1);
 	#else
 	XftDrawRect(xw.draw,
-			&dc.col[IS_SET(MODE_REVERSE)? defaultfg : defaultbg],
+			&dc.col[X_IS_SET(MODE_REVERSE)? defaultfg : defaultbg],
 			x1, y1, x2-x1, y2-y1);
 	#endif // INVERT_PATCH
 }
@@ -1468,13 +1469,10 @@ xinit(int cols, int rows)
 	if (!FcInit())
 		die("could not init fontconfig.\n");
 
-	usedfont = (opt_font == NULL)? font : opt_font;
+	usedfont = (opt_font == NULL)? fonts[0] : opt_font;
+	fprintf(stderr, "usedfont = %s\n", usedfont);
 	xloadfonts(usedfont, 0);
-
-	#if FONT2_PATCH
-	/* spare fonts */
 	xloadsparefonts();
-	#endif // FONT2_PATCH
 
 	/* colors */
 	#if ALPHA_PATCH
@@ -2104,7 +2102,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		fg = &dc.col[base.fg + 8];
 	#endif // BOLD_IS_NOT_BRIGHT_PATCH
 
-	if (IS_SET(MODE_REVERSE)) {
+	if (X_IS_SET(MODE_REVERSE)) {
 		if (fg == &dc.col[defaultfg]) {
 			fg = &dc.col[defaultbg];
 		} else {
@@ -2721,10 +2719,10 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	#endif // LIGATURES_PATCH
 
 	#if HIDE_TERMINAL_CURSOR_PATCH
-	if (IS_SET(MODE_HIDE) || !IS_SET(MODE_FOCUSED))
+	if (X_IS_SET(MODE_HIDE) || !X_IS_SET(MODE_FOCUSED))
 		return;
 	#else
-	if (IS_SET(MODE_HIDE))
+	if (X_IS_SET(MODE_HIDE))
 		return;
 	#endif // HIDE_TERMINAL_CURSOR_PATCH
 
@@ -2743,7 +2741,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	#endif // KEYBOARDSELECT_PATCH
 	;
 
-	if (IS_SET(MODE_REVERSE)) {
+	if (X_IS_SET(MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
 		g.bg = defaultfg;
 		#if SELECTION_COLORS_PATCH
@@ -2804,7 +2802,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	#endif // KEYBOARDSELECT_PATCH
 
 	/* draw the new one */
-	if (IS_SET(MODE_FOCUSED)) {
+	if (X_IS_SET(MODE_FOCUSED)) {
 		switch (win.cursor) {
 		#if !BLINKING_CURSOR_PATCH
 		case 7: /* st extension */
@@ -2814,7 +2812,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		case 0: /* Blinking block */
 		case 1: /* Blinking block (default) */
 			#if BLINKING_CURSOR_PATCH
-			if (IS_SET(MODE_BLINK))
+			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
 			#endif // BLINKING_CURSOR_PATCH
@@ -2823,7 +2821,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 			break;
 		case 3: /* Blinking underline */
 			#if BLINKING_CURSOR_PATCH
-			if (IS_SET(MODE_BLINK))
+			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
 			#endif // BLINKING_CURSOR_PATCH
@@ -2844,7 +2842,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 			break;
 		case 5: /* Blinking bar */
 			#if BLINKING_CURSOR_PATCH
-			if (IS_SET(MODE_BLINK))
+			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
 			#endif // BLINKING_CURSOR_PATCH
@@ -2861,7 +2859,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 			break;
 		#if BLINKING_CURSOR_PATCH
 		case 7: /* Blinking st cursor */
-			if (IS_SET(MODE_BLINK))
+			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
 		case 8: /* Steady st cursor */
@@ -3003,10 +3001,10 @@ int
 xstartdraw(void)
 {
 	#if W3M_PATCH
-	if (IS_SET(MODE_VISIBLE))
+	if (X_IS_SET(MODE_VISIBLE))
 		XCopyArea(xw.dpy, xw.win, xw.buf, dc.gc, 0, 0, win.w, win.h, 0, 0);
 	#endif // W3M_PATCH
-	return IS_SET(MODE_VISIBLE);
+	return X_IS_SET(MODE_VISIBLE);
 }
 
 #if LIGATURES_PATCH && WIDE_GLYPHS_PATCH
@@ -3222,7 +3220,7 @@ xfinishdraw(void)
 
 		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 		/* do not draw the image on the search bar */
-		if (im->y == term.row-1 && IS_SET(MODE_KBDSELECT) && kbds_issearchmode())
+		if (im->y == term.row-1 && X_IS_SET(MODE_KBDSELECT) && kbds_issearchmode())
 			continue;
 		#endif // KEYBOARDSELECT_PATCH
 
@@ -3348,7 +3346,7 @@ xfinishdraw(void)
 	#if !SINGLE_DRAWABLE_BUFFER_PATCH
 	XCopyArea(xw.dpy, xw.buf, xw.win, dc.gc, 0, 0, win.w, win.h, 0, 0);
 	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
-	XSetForeground(xw.dpy, dc.gc, dc.col[IS_SET(MODE_REVERSE) ? defaultfg : defaultbg].pixel);
+	XSetForeground(xw.dpy, dc.gc, dc.col[X_IS_SET(MODE_REVERSE) ? defaultfg : defaultbg].pixel);
 }
 
 void
@@ -3471,7 +3469,7 @@ xseturgency(int add)
 void
 xbell(void)
 {
-	if (!(IS_SET(MODE_FOCUSED)))
+	if (!(X_IS_SET(MODE_FOCUSED)))
 		xseturgency(1);
 	if (bellvolume)
 		XkbBell(xw.dpy, xw.win, bellvolume, (Atom)NULL);
@@ -3503,7 +3501,7 @@ focus(XEvent *ev)
 			XSetICFocus(xw.ime.xic);
 		win.mode |= MODE_FOCUSED;
 		xseturgency(0);
-		if (IS_SET(MODE_FOCUS))
+		if (X_IS_SET(MODE_FOCUS))
 			ttywrite("\033[I", 3, 0);
 		#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
 		if (!focused) {
@@ -3516,7 +3514,7 @@ focus(XEvent *ev)
 		if (xw.ime.xic)
 			XUnsetICFocus(xw.ime.xic);
 		win.mode &= ~MODE_FOCUSED;
-		if (IS_SET(MODE_FOCUS))
+		if (X_IS_SET(MODE_FOCUS))
 			ttywrite("\033[O", 3, 0);
 		#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
 		if (focused) {
@@ -3557,12 +3555,12 @@ kmap(KeySym k, uint state)
 		if (!match(kp->mask, state))
 			continue;
 
-		if (IS_SET(MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0)
+		if (X_IS_SET(MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0)
 			continue;
-		if (IS_SET(MODE_NUMLOCK) && kp->appkey == 2)
+		if (X_IS_SET(MODE_NUMLOCK) && kp->appkey == 2)
 			continue;
 
-		if (IS_SET(MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0)
+		if (X_IS_SET(MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0)
 			continue;
 
 		return kp->s;
@@ -3607,7 +3605,7 @@ kpress(XEvent *ev)
 	}
 	#endif // HIDECURSOR_PATCH
 
-	if (IS_SET(MODE_KBDLOCK))
+	if (X_IS_SET(MODE_KBDLOCK))
 		return;
 
 	if (xw.ime.xic) {
@@ -3619,7 +3617,7 @@ kpress(XEvent *ev)
 	}
 
 	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
-	if (IS_SET(MODE_KBDSELECT) ) {
+	if (X_IS_SET(MODE_KBDSELECT) ) {
 		if (kbds_issearchmode()) {
 			for (bp = shortcuts; bp < shortcuts + LEN(shortcuts); bp++) {
 				if (ksym == bp->keysym && match(bp->mod, e->state) &&
@@ -3636,7 +3634,7 @@ kpress(XEvent *ev)
 		return;
 	}
 	#elif KEYBOARDSELECT_PATCH
-	if ( IS_SET(MODE_KBDSELECT) ) {
+	if ( X_IS_SET(MODE_KBDSELECT) ) {
 		if ( match(XK_NO_MOD, e->state) ||
 			(XK_Shift_L | XK_Shift_R) & e->state )
 			win.mode ^= trt_kbdselect(ksym, buf, len);
@@ -3665,7 +3663,7 @@ kpress(XEvent *ev)
 	if (len == 0)
 		return;
 	if (len == 1 && e->state & Mod1Mask) {
-		if (IS_SET(MODE_8BIT)) {
+		if (X_IS_SET(MODE_8BIT)) {
 			if (*buf < 0177) {
 				c = *buf | 0x80;
 				len = utf8encode(c, buf);
@@ -3890,7 +3888,7 @@ run(void)
 		if (bellon) {
 			bellon++;
 			bellon %= 3;
-			MODBIT(win.mode, !IS_SET(MODE_REVERSE), MODE_REVERSE);
+			MODBIT(win.mode, !X_IS_SET(MODE_REVERSE), MODE_REVERSE);
 			redraw();
 		}
 		else
@@ -3934,6 +3932,8 @@ main(int argc, char *argv[])
 	#else
 	xsetcursor(cursorshape);
 	#endif // BLINKING_CURSOR_PATCH
+
+	load_config();
 
 	ARGBEGIN {
 	case 'a':
@@ -4015,7 +4015,7 @@ run:
 	if (!(xw.dpy = XOpenDisplay(NULL)))
 		die("Can't open display\n");
 
-	config_init(xw.dpy);
+	xrdb_init(xw.dpy);
 	#endif // XRESOURCES_PATCH
 	#if LIGATURES_PATCH
 	hbcreatebuffer();
@@ -4053,6 +4053,7 @@ run:
 		die("Can't change to working directory %s\n", opt_dir);
 	#endif // WORKINGDIR_PATCH
 	run();
+	cleanup_config();
 	#if LIGATURES_PATCH
 	hbdestroybuffer();
 	#endif // LIGATURES_PATCH

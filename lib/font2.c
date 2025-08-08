@@ -38,7 +38,7 @@ xloadsparefonts(void)
 		die("can't embed spare fonts. cache isn't empty");
 
 	/* Calculate count of spare fonts */
-	fc = sizeof(font2) / sizeof(*font2);
+	fc = num_fonts - 1;
 	if (fc == 0)
 		return;
 
@@ -48,7 +48,7 @@ xloadsparefonts(void)
 		frc = xrealloc(frc, frccap * sizeof(Fontcache));
 	}
 
-	for (fp = font2; fp - font2 < fc; ++fp) {
+	for (fp = &fonts[1]; fp - fonts < fc; ++fp) {
 
 		if (**fp == '-')
 			pattern = XftXlfdParse(*fp, False, False);

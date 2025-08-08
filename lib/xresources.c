@@ -35,7 +35,7 @@ resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
 }
 
 void
-config_init(Display *dpy)
+xrdb_init(Display *dpy)
 {
 	char *resm;
 	XrmDatabase db;
@@ -60,15 +60,13 @@ reload_config(int sig)
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("Can't open display\n");
 
-	config_init(dpy);
+	xrdb_init(dpy);
 	xloadcols();
 
 	/* nearly like zoomabs() */
 	xunloadfonts();
-	xloadfonts(font, 0); /* font <- config_init() */
-	#if FONT2_PATCH
+	xloadfonts(fonts[0], 0); /* font <- xrdb_init() */
 	xloadsparefonts();
-	#endif // FONT2_PATCH
 	cresize(0, 0);
 	redraw();
 	xhints();
