@@ -336,12 +336,6 @@
  */
 #define REFLOW_PATCH 0
 
-/* This patch allows you to specify a border that is relative in size to the width of a cell
- * in the terminal.
- * https://st.suckless.org/patches/relativeborder/
- */
-#define RELATIVEBORDER_PATCH 0
-
 /* This patch allows you to right-click on some selected text to send it to the plumbing
  * program of choice, e.g. open a file, view an image, open a URL.
  * https://st.suckless.org/patches/right_click_to_plumb/
@@ -377,21 +371,6 @@
  * are not shown in w3m if the alpha patch is applied.
  */
 #define SINGLE_DRAWABLE_BUFFER_PATCH 0
-
-/* This patch adds SIXEL graphics support for st.
- * Note that patch/sixel.c/sixel_hls.c come from mintty, licensed under GPL.
- * Known issues:
- *    - Rendering sixel graphics may cause unusual cursor placement, this is
- *      not specific to this variant of st - the same issue is present in
- *      the xterm implementation. This is likely an issue of sixel height
- *      not being detected correctly.
- *
- * Note that you need to uncomment the corresponding lines in config.mk when including this patch.
- * This patch is incompatible with the W3M patch.
- *
- * https://gist.github.com/saitoha/70e0fdf22e3e8f63ce937c7f7da71809
- */
-#define SIXEL_PATCH 0
 
 /* This patch allows clients to embed into the st window and is useful if you tend to
  * start X applications from the terminal. For example:

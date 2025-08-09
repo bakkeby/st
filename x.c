@@ -27,10 +27,8 @@ char *argv0;
 #include <X11/Xcursor/Xcursor.h>
 #endif // THEMED_CURSOR_PATCH
 
-#if SIXEL_PATCH
 #include <Imlib2.h>
 #include "sixel.h"
-#endif // SIXEL_PATCH
 
 #if UNDERCURL_PATCH
 /* Undercurl slope types */
@@ -239,9 +237,6 @@ static int cursorblinks = 0;
 #if VISUALBELL_1_PATCH
 static int bellon = 0;    /* visual bell status */
 #endif // VISUALBELL_1_PATCH
-#if RELATIVEBORDER_PATCH
-int borderpx;
-#endif // RELATIVEBORDER_PATCH
 #if SWAPMOUSE_PATCH
 static Cursor cursor;
 static XColor xmousefg, xmousebg;
@@ -309,27 +304,20 @@ zoom(const Arg *arg)
 	Arg larg;
 
 	larg.f = usedfontsize + arg->f;
-	#if SIXEL_PATCH
 	if (larg.f >= 1.0)
 		zoomabs(&larg);
-	#else
-	zoomabs(&larg);
-	#endif // SIXEL_PATCH
 }
 
 void
 zoomabs(const Arg *arg)
 {
-	#if SIXEL_PATCH
 	int i;
 	ImageList *im;
-	#endif // SIXEL_PATCH
 
 	xunloadfonts();
 	xloadfonts(usedfont, arg->f);
 	xloadsparefonts();
 
-	#if SIXEL_PATCH
 	/* delete old pixmaps so that xfinishdraw() can create new scaled ones */
 	for (im = term.images, i = 0; i < 2; i++, im = term.images_alt) {
 		for (; im; im = im->next) {
@@ -341,7 +329,6 @@ zoomabs(const Arg *arg)
 			im->clipmask = NULL;
 		}
 	}
-	#endif // SIXEL_PATCH
 
 	cresize(0, 0);
 	redraw();
@@ -1371,9 +1358,9 @@ xloadfonts(const char *fontstr, double fontsize)
 	win.cyo = ceilf(dc.font.height * (chscale - 1) / 2);
 	#endif // VERTCENTER_PATCH
 
-	#if RELATIVEBORDER_PATCH
-	borderpx = (int) ceilf(((float)borderperc / 100) * win.cw);
-	#endif // RELATIVEBORDER_PATCH
+	if (borderperc > -1) {
+		borderpx = (int) ceilf(((float)borderperc / 100) * win.cw);
+	}
 	FcPatternDel(pattern, FC_SLANT);
 	#if !DISABLE_ITALIC_FONTS_PATCH
 	FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
@@ -3195,7 +3182,6 @@ xdrawline(Line line, int x1, int y1, int x2)
 void
 xfinishdraw(void)
 {
-	#if SIXEL_PATCH
 	ImageList *im, *next;
 	Imlib_Image origin, scaled;
 	XGCValues gcvalues;
@@ -3208,9 +3194,7 @@ xfinishdraw(void)
 	int bw = borderpx, bh = borderpx;
 	#endif // ANYSIZE_PATCH
 	Line line;
-	#endif // SIXEL_PATCH
 
-	#if SIXEL_PATCH
 	for (im = term.images; im; im = next) {
 		next = im->next;
 
@@ -3341,7 +3325,6 @@ xfinishdraw(void)
 	}
 	if (gc)
 		XFreeGC(xw.dpy, gc);
-	#endif // SIXEL_PATCH
 
 	#if !SINGLE_DRAWABLE_BUFFER_PATCH
 	XCopyArea(xw.dpy, xw.buf, xw.win, dc.gc, 0, 0, win.w, win.h, 0, 0);

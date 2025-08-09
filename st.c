@@ -26,9 +26,7 @@
 #include <X11/X.h>
 #endif // KEYBOARDSELECT_PATCH
 
-#if SIXEL_PATCH
 #include "sixel.h"
-#endif // SIXEL_PATCH
 
 #if   defined(__linux)
  #include <pty.h>
@@ -66,11 +64,9 @@ enum term_mode {
 	MODE_ECHO         = 1 << 4,
 	MODE_PRINT        = 1 << 5,
 	MODE_UTF8         = 1 << 6,
-	#if SIXEL_PATCH
 	MODE_SIXEL        = 1 << 7,
 	MODE_SIXEL_CUR_RT = 1 << 8,
 	MODE_SIXEL_SDM    = 1 << 9
-	#endif // SIXEL_PATCH
 };
 
 #if REFLOW_PATCH
@@ -110,9 +106,7 @@ enum escape_state {
 	ESC_STR_END    = 16, /* a final string was encountered */
 	ESC_TEST       = 32, /* Enter in test mode */
 	ESC_UTF8       = 64,
-	#if SIXEL_PATCH
 	ESC_DCS        =128,
-	#endif // SIXEL_PATCH
 };
 
 typedef struct {
@@ -166,9 +160,7 @@ static void ttywriteraw(const char *, size_t);
 
 static void csidump(void);
 static void csihandle(void);
-#if SIXEL_PATCH
 static void dcshandle(void);
-#endif // SIXEL_PATCH
 #if UNDERCURL_PATCH
 static void readcolonargs(char **, int, int[][CAR_PER_ARG]);
 #endif // UNDERCURL_PATCH
@@ -193,9 +185,7 @@ static void tresetcursor(void);
 #if !REFLOW_PATCH
 static void tdeletechar(int);
 #endif // REFLOW_PATCH
-#if SIXEL_PATCH
 static void tdeleteimages(void);
-#endif // SIXEL_PATCH
 static void tdeleteline(int);
 static void tinsertblank(int);
 static void tinsertblankline(int);
@@ -220,9 +210,7 @@ static void tsetattr(const int *, int);
 static void tsetchar(Rune, const Glyph *, int, int);
 static void tsetdirt(int, int);
 static void tsetscroll(int, int);
-#if SIXEL_PATCH
 static inline void tsetsixelattr(Line line, int x1, int x2);
-#endif // SIXEL_PATCH
 static void tswapscreen(void);
 static void tsetmode(int, int, const int *, int);
 static int twrite(const char *, int, int);
@@ -258,9 +246,7 @@ static int cmdfd;
 static int csdfd;
 #endif // EXTERNALPIPEIN_PATCH
 static pid_t pid;
-#if SIXEL_PATCH
 sixel_state_t sixel_st;
-#endif // SIXEL_PATCH
 
 static const uchar utfbyte[UTF_SIZ + 1] = {0x80,    0, 0xC0, 0xE0, 0xF0};
 static const uchar utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
@@ -1128,14 +1114,12 @@ tsetdirtattr(int attr)
 	}
 }
 
-#if SIXEL_PATCH
 void
 tsetsixelattr(Line line, int x1, int x2)
 {
 	for (; x1 <= x2; x1++)
 		line[x1].mode |= ATTR_SIXEL;
 }
-#endif // SIXEL_PATCH
 
 void
 tfulldirt(void)
@@ -1212,9 +1196,7 @@ treset(void)
 		tclearregion(0, 0, term.col-1, term.row-1);
 		#endif // COLUMNS_PATCH
 		#endif // REFLOW_PATCH
-		#if SIXEL_PATCH
 		tdeleteimages();
-		#endif // SIXEL_PATCH
 		tswapscreen();
 	}
 	#if REFLOW_PATCH
@@ -1237,16 +1219,12 @@ void
 tswapscreen(void)
 {
 	Line *tmp = term.line;
-	#if SIXEL_PATCH
 	ImageList *im = term.images;
-	#endif // SIXEL_PATCH
 
 	term.line = term.alt;
 	term.alt = tmp;
-	#if SIXEL_PATCH
 	term.images = term.images_alt;
 	term.images_alt = im;
-	#endif // SIXEL_PATCH
 	term.mode ^= MODE_ALTSCREEN;
 	tfulldirt();
 }
@@ -1262,7 +1240,6 @@ tscrolldown(int orig, int n)
 
 	int i;
 	Line temp;
-	#if SIXEL_PATCH
 	int bot = term.bot;
 	#if SCROLLBACK_PATCH
 	int scr = IS_SET(MODE_ALTSCREEN) ? 0 : term.scr;
@@ -1271,7 +1248,6 @@ tscrolldown(int orig, int n)
 	#endif // SCROLLBACK_PATCH
 	int itop = orig + scr, ibot = bot + scr;
 	ImageList *im, *next;
-	#endif // SIXEL_PATCH
 
 	LIMIT(n, 0, term.bot-orig+1);
 
@@ -1288,7 +1264,6 @@ tscrolldown(int orig, int n)
 		term.line[i-n] = temp;
 	}
 
-	#if SIXEL_PATCH
 	/* move images, if they are inside the scrolling region */
 	for (im = term.images; im; im = next) {
 		next = im->next;
@@ -1298,7 +1273,6 @@ tscrolldown(int orig, int n)
 				delete_image(im);
 		}
 	}
-	#endif // SIXEL_PATCH
 
 	#if SCROLLBACK_PATCH
 	if (term.scr == 0)
@@ -1323,7 +1297,6 @@ tscrollup(int orig, int n)
 
 	int i;
 	Line temp;
-	#if SIXEL_PATCH
 	int bot = term.bot;
 	#if SCROLLBACK_PATCH
 	int scr = IS_SET(MODE_ALTSCREEN) ? 0 : term.scr;
@@ -1332,7 +1305,6 @@ tscrollup(int orig, int n)
 	#endif // SCROLLBACK_PATCH
 	int itop = orig + scr, ibot = bot + scr;
 	ImageList *im, *next;
-	#endif // SIXEL_PATCH
 
 	LIMIT(n, 0, term.bot-orig+1);
 
@@ -1364,7 +1336,6 @@ tscrollup(int orig, int n)
 		term.line[i+n] = temp;
 	}
 
-	#if SIXEL_PATCH
 	#if SCROLLBACK_PATCH
 	if (IS_SET(MODE_ALTSCREEN) || !copyhist || orig != 0) {
 		/* move images, if they are inside the scrolling region */
@@ -1405,7 +1376,6 @@ tscrollup(int orig, int n)
 		}
 	}
 	#endif // SCROLLBACK_PATCH
-	#endif // SIXEL_PATCH
 
 	#if SCROLLBACK_PATCH
 	if (term.scr == 0)
@@ -1667,7 +1637,6 @@ tinsertblankline(int n)
 		tscrolldown(term.c.y, n);
 }
 
-#if SIXEL_PATCH
 void
 tdeleteimages(void)
 {
@@ -1678,7 +1647,6 @@ tdeleteimages(void)
 		delete_image(im);
 	}
 }
-#endif // SIXEL_PATCH
 
 void
 tdeleteline(int n)
@@ -2038,14 +2006,12 @@ tsetmode(int priv, int set, const int *args, int narg)
 				      and can be mistaken for other control
 				      codes. */
 				break;
-			#if SIXEL_PATCH
 			case 80: /* DECSDM -- Sixel Display Mode */
 				MODBIT(term.mode, set, MODE_SIXEL_SDM);
 				break;
 			case 8452: /* sixel scrolling leaves cursor to right of graphic */
 				MODBIT(term.mode, set, MODE_SIXEL_CUR_RT);
 				break;
-			#endif // SIXEL_PATCH
 			#if SYNC_PATCH
 			case 2026:
 				if (set) {
@@ -2092,10 +2058,8 @@ csihandle(void)
 {
 	char buffer[40];
 	int n = 0, len;
-	#if SIXEL_PATCH
 	ImageList *im, *next;
 	int pi, pa;
-	#endif // SIXEL_PATCH
 	#if REFLOW_PATCH
 	int x;
 	#endif // REFLOW_PATCH
@@ -2226,9 +2190,7 @@ csihandle(void)
 			#if REFLOW_PATCH
 			if (IS_SET(MODE_ALTSCREEN)) {
 				tclearregion(0, 0, term.col-1, term.row-1, 1);
-				#if SIXEL_PATCH
 				tdeleteimages();
-				#endif // SIXEL_PATCH
 				break;
 			}
 			/* vte does this:
@@ -2236,10 +2198,8 @@ csihandle(void)
 			/* alacritty does this: */
 			for (n = term.row-1; n >= 0 && tlinelen(term.line[n]) == 0; n--)
 				;
-			#if SIXEL_PATCH
 			for (im = term.images; im; im = im->next)
 				n = MAX(im->y - term.scr, n);
-			#endif // SIXEL_PATCH
 			if (n >= 0)
 				tscrollup(0, term.row-1, n+1, SCROLL_SAVEHIST);
 			tscrollup(0, term.row-1, term.row-n-1, SCROLL_NOSAVEHIST);
@@ -2271,9 +2231,7 @@ csihandle(void)
 			#endif // SCROLLBACK_PATCH
 
 			tclearregion(0, 0, maxcol-1, term.row-1);
-			#if SIXEL_PATCH
 			tdeleteimages();
-			#endif // SIXEL_PATCH
 			#endif // REFLOW_PTCH
 			break;
 		case 3: /* scrollback */
@@ -2284,13 +2242,11 @@ csihandle(void)
 			term.scr = 0;
 			term.histi = 0;
 			term.histf = 0;
-			#if SIXEL_PATCH
 			for (im = term.images; im; im = next) {
 				next = im->next;
 				if (im->y < 0)
 					delete_image(im);
 			}
-			#endif // SIXEL_PATCH
 			break;
 			#else // !REFLOW_PATCH
 			#if SCROLLBACK_PATCH
@@ -2305,21 +2261,17 @@ csihandle(void)
 				}
 			}
 			#endif // SCROLLBACK_PATCH
-			#if SIXEL_PATCH
 			for (im = term.images; im; im = next) {
 				next = im->next;
 				if (im->y < 0)
 					delete_image(im);
 			}
-			#endif // SIXEL_PATCH
 			break;
 			#endif // REFLOW_PATCH
-		#if SIXEL_PATCH
 		case 6: /* sixels */
 			tdeleteimages();
 			tfulldirt();
 			break;
-		#endif // SIXEL_PATCH
 		default:
 			goto unknown;
 		}
@@ -2352,7 +2304,6 @@ csihandle(void)
 		break;
 	case 'S': /* SU -- Scroll <n> line up ; XTSMGRAPHICS */
 		if (csiescseq.priv) {
-			#if SIXEL_PATCH
 			if (csiescseq.narg > 1) {
 				/* XTSMGRAPHICS */
 				pi = csiescseq.arg[0];
@@ -2376,17 +2327,14 @@ csihandle(void)
 				n = snprintf(buffer, sizeof buffer, "\033[?%d;3;0S", pi); /* failure */
 				ttywrite(buffer, n, 1);
 			}
-			#endif // SIXEL_PATCH
 			goto unknown;
 		}
 		DEFAULT(csiescseq.arg[0], 1);
 		#if REFLOW_PATCH
 		/* xterm, urxvt, alacritty save this in history */
 		tscrollup(term.top, term.bot, csiescseq.arg[0], SCROLL_SAVEHIST);
-		#elif SIXEL_PATCH && SCROLLBACK_PATCH
-		tscrollup(term.top, csiescseq.arg[0], 1);
 		#elif SCROLLBACK_PATCH
-		tscrollup(term.top, csiescseq.arg[0], 0);
+		tscrollup(term.top, csiescseq.arg[0], 1);
 		#else
 		tscrollup(term.top, csiescseq.arg[0]);
 		#endif // SCROLLBACK_PATCH
@@ -2481,10 +2429,8 @@ csihandle(void)
 	case 's': /* DECSC -- Save cursor position (ANSI.SYS) */
 		tcursor(CURSOR_SAVE);
 		break;
-	#if CSI_22_23_PATCH | SIXEL_PATCH
 	case 't': /* title stack operations ; XTWINOPS */
 		switch (csiescseq.arg[0]) {
-		#if SIXEL_PATCH
 		case 14: /* text area size in pixels */
 			if (csiescseq.narg > 1)
 				goto unknown;
@@ -2500,7 +2446,6 @@ csihandle(void)
 			n = snprintf(buffer, sizeof buffer, "\033[8;%d;%dt", term.row, term.col);
 			ttywrite(buffer, n, 1);
 			break;
-		#endif // SIXEL_PATCH
 		#if CSI_22_23_PATCH
 		case 22: /* pust current title on stack */
 			switch (csiescseq.arg[1]) {
@@ -2529,7 +2474,6 @@ csihandle(void)
 			goto unknown;
 		}
 		break;
-	#endif // CSI_22_23_PATCH | SIXEL_PATCH
 	case 'u': /* DECRC -- Restore cursor position (ANSI.SYS) */
 		if (csiescseq.priv) {
 			goto unknown;
@@ -2615,7 +2559,7 @@ strhandle(void)
 		{ defaultbg, "background" },
 		{ defaultcs, "cursor" }
 	};
-	#if SIXEL_PATCH
+
 	ImageList *im, *newimages, *next, *tail = NULL;
 	int i, x1, y1, x2, y2, y, numimages;
 	int cx, cy;
@@ -2625,7 +2569,6 @@ strhandle(void)
 	#else
 	int scr = 0;
 	#endif // SCROLLBACK_PATCH
-	#endif // SIXEL_PATCH
 
 	term.esc &= ~(ESC_STR_END|ESC_STR);
 	strparse();
@@ -2746,7 +2689,6 @@ strhandle(void)
 		#endif // CSI_22_23_PATCH
 		return;
 	case 'P': /* DCS -- Device Control String */
-		#if SIXEL_PATCH
 		if (IS_SET(MODE_SIXEL)) {
 			term.mode &= ~MODE_SIXEL;
 			if (!sixel_st.image.data) {
@@ -2842,7 +2784,6 @@ strhandle(void)
 					term.c.x = MIN(term.c.x + newimages->cols, term.col-1);
 			}
 		}
-		#endif // SIXEL_PATCH
 		#if SYNC_PATCH
 		/* https://gitlab.com/gnachman/iterm2/-/wikis/synchronized-updates-spec */
 		if (strstr(strescseq.buf, "=1s") == strescseq.buf)
@@ -2850,9 +2791,7 @@ strhandle(void)
 		else if (strstr(strescseq.buf, "=2s") == strescseq.buf)
 			tsync_end();  /* ESU */
 		#endif // SYNC_PATCH
-		#if SIXEL_PATCH || SYNC_PATCH
 		return;
-		#endif // SIXEL_PATCH | SYNC_PATCH
 	case '_': /* APC -- Application Program Command */
 	case '^': /* PM -- Privacy Message */
 		return;
@@ -3061,16 +3000,12 @@ tdectest(char c)
 void
 tstrsequence(uchar c)
 {
-	#if SIXEL_PATCH
 	strreset();
-	#endif // SIXEL_PATCH
 
 	switch (c) {
 	case 0x90:   /* DCS -- Device Control String */
 		c = 'P';
-		#if SIXEL_PATCH
 		term.esc |= ESC_DCS;
-		#endif // SIXEL_PATCH
 		break;
 	case 0x9f:   /* APC -- Application Program Command */
 		c = '_';
@@ -3082,9 +3017,7 @@ tstrsequence(uchar c)
 		c = ']';
 		break;
 	}
-	#if !SIXEL_PATCH
-	strreset();
-	#endif // SIXEL_PATCH
+
 	strescseq.type = c;
 	term.esc |= ESC_STR;
 }
@@ -3187,7 +3120,6 @@ tcontrolcode(uchar ascii)
 	term.esc &= ~(ESC_STR_END|ESC_STR);
 }
 
-#if SIXEL_PATCH
 void
 dcshandle(void)
 {
@@ -3230,7 +3162,6 @@ dcshandle(void)
 		break;
 	}
 }
-#endif // SIXEL_PATCH
 
 /*
  * returns 1 when the sequence is finished and it hasn't to read
@@ -3250,9 +3181,7 @@ eschandle(uchar ascii)
 		term.esc |= ESC_UTF8;
 		return 0;
 	case 'P': /* DCS -- Device Control String */
-		#if SIXEL_PATCH
 		term.esc |= ESC_DCS;
-		#endif // SIXEL_PATCH
 	case '_': /* APC -- Application Program Command */
 	case '^': /* PM -- Privacy Message */
 	case ']': /* OSC -- Operating System Command */
@@ -3370,21 +3299,14 @@ tputc(Rune u)
 	 * character.
 	 */
 	if (term.esc & ESC_STR) {
-		if (u == '\a' || u == 030 || u == 032 || u == 033 ||
-		   ISCONTROLC1(u)) {
-			#if SIXEL_PATCH
+		if (u == '\a' || u == 030 || u == 032 || u == 033 || ISCONTROLC1(u)) {
 			term.esc &= ~(ESC_START|ESC_STR|ESC_DCS);
-			#else
-			term.esc &= ~(ESC_START|ESC_STR);
-			#endif // SIXEL_PATCH
 			term.esc |= ESC_STR_END;
 			goto check_control_code;
 		}
 
-		#if SIXEL_PATCH
 		if (term.esc & ESC_DCS)
 			goto check_control_code;
-		#endif // SIXEL_PATCH
 
 		if (strescseq.len+len >= strescseq.siz) {
 			/*
@@ -3439,7 +3361,6 @@ check_control_code:
 				csihandle();
 			}
 			return;
-		#if SIXEL_PATCH
 		} else if (term.esc & ESC_DCS) {
 			csiescseq.buf[csiescseq.len++] = u;
 			if (BETWEEN(u, 0x40, 0x7E)
@@ -3449,7 +3370,6 @@ check_control_code:
 				dcshandle();
 			}
 			return;
-		#endif // SIXEL_PATCH
 		} else if (term.esc & ESC_UTF8) {
 			tdefutf8(u);
 		} else if (term.esc & ESC_ALTCHARSET) {
@@ -3538,15 +3458,10 @@ twrite(const char *buf, int buflen, int show_ctrl)
 	#endif // SYNC_PATCH
 
 	for (n = 0; n < buflen; n += charsize) {
-		#if SIXEL_PATCH
 		if (IS_SET(MODE_SIXEL) && sixel_st.state != PS_ESC) {
 			charsize = sixel_parser_parse(&sixel_st, (const unsigned char*)buf + n, buflen - n);
 			continue;
-		} else if (IS_SET(MODE_UTF8))
-		#else
-		if (IS_SET(MODE_UTF8))
-		#endif // SIXEL_PATCH
-		{
+		} else if (IS_SET(MODE_UTF8)) {
 			/* process a complete utf8 char */
 			charsize = utf8decode(buf + n, &u, buflen - n);
 			if (charsize == 0)
@@ -3595,11 +3510,9 @@ tresize(int col, int row)
 	int mincol = MIN(col, term.col);
 	#endif // COLUMNS_PATCH
 	int *bp;
-	#if SIXEL_PATCH
 	int x2;
 	Line line;
 	ImageList *im, *next;
-	#endif // SIXEL_PATCH
 
 	#if KEYBOARDSELECT_PATCH
 	if ( row < term.row  || col < term.col )
@@ -3702,7 +3615,6 @@ tresize(int col, int row)
 		tcursor(CURSOR_LOAD);
 	}
 
-	#if SIXEL_PATCH
 	/* expand images into new text cells */
 	for (i = 0; i < 2; i++) {
 		for (im = term.images; im; im = next) {
@@ -3734,7 +3646,6 @@ tresize(int col, int row)
 		}
 		tswapscreen();
 	}
-	#endif // SIXEL_PATCH
 }
 #endif // REFLOW_PATCH
 

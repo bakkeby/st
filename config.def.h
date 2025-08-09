@@ -23,13 +23,13 @@ static const char *bgfile = "/path/to/image.ff";
 static const int pseudotransparency = 0;
 #endif // BACKGROUND_IMAGE_PATCH
 
-#if RELATIVEBORDER_PATCH
 /* borderperc: percentage of cell width to use as a border
- *             0 = no border, 100 = border width is same as cell width */
-int borderperc = 20;
-#else
+ *     -1 = use fixed borderpx,
+ *      0 = no border
+ *    100 = border width is same as cell width
+ */
+static int borderperc = -1;
 static int borderpx = 2;
-#endif // RELATIVEBORDER_PATCH
 
 #if OPENURLONCLICK_PATCH
 /* modkey options: ControlMask, ShiftMask or XK_ANY_MOD */
@@ -37,29 +37,13 @@ static uint url_opener_modkey = XK_ANY_MOD;
 static char *url_opener = "xdg-open";
 #endif // OPENURLONCLICK_PATCH
 
-/*
- * What program is execed by st depends of these precedence rules:
- * 1: program passed with -e
- * 2: scroll and/or utmp
- * 3: SHELL environment variable
- * 4: value of shell in /etc/passwd
- * 5: value of shell in config.h
- */
-static char *shell = "/bin/sh";
-char *utmp = NULL;
-/* scroll program: to enable use a string like "scroll" */
-char *scroll = NULL;
-char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
+char *stty_def_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */
-#if SIXEL_PATCH
 char *vtiden = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
 
 /* sixel rgb byte order: LSBFirst or MSBFirst */
 int const sixelbyteorder = LSBFirst;
-#else
-char *vtiden = "\033[?6c";
-#endif
 
 /* Kerning / character bounding-box multipliers */
 static float cwscale = 1.0;

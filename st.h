@@ -69,9 +69,7 @@ enum glyph_attribute {
 	#if LIGATURES_PATCH
 	ATTR_LIGA           = 1 << 15,
 	#endif // LIGATURES_PATCH
-	#if SIXEL_PATCH
 	ATTR_SIXEL          = 1 << 16,
-	#endif // SIXEL_PATCH
 	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	ATTR_HIGHLIGHT      = 1 << 17,
 	#endif // KEYBOARDSELECT_PATCH
@@ -81,7 +79,6 @@ enum glyph_attribute {
 	#endif // OSC133_PATCH
 };
 
-#if SIXEL_PATCH
 typedef struct _ImageList {
 	struct _ImageList *next, *prev;
 	unsigned char *pixels;
@@ -99,7 +96,6 @@ typedef struct _ImageList {
 	int ch;
 	int transparent;
 } ImageList;
-#endif // SIXEL_PATCH
 
 #if WIDE_GLYPHS_PATCH
 enum drawing_mode {
@@ -206,10 +202,8 @@ typedef struct {
 	int charset;  /* current charset */
 	int icharset; /* selected charset for sequence */
 	int *tabs;
-	#if SIXEL_PATCH
 	ImageList *images;     /* sixel images */
 	ImageList *images_alt; /* sixel images for alternate screen */
-	#endif // SIXEL_PATCH
 	Rune lastc;   /* last printed char outside of sequence, 0 if control */
 	#if OSC7_PATCH
 	char* cwd;    /* current working directory */

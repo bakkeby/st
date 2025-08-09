@@ -5,6 +5,10 @@ const char *progname = "st";
 /* Configuration variables */
 char **fonts = NULL;
 int num_fonts;
+char *shell = NULL;
+char *utmp = NULL;
+char *scroll = NULL;
+char *stty_args = NULL;
 
 void set_config_path(const char* filename, char *config_path, char *config_file);
 int setting_length(const config_setting_t *cfg);
@@ -196,6 +200,10 @@ cleanup_config(void)
 		free(fonts[i]);
 	free(fonts);
 
+	free(shell);
+	free(utmp);
+	free(scroll);
+	free(stty_args);
 
 }
 
@@ -212,13 +220,25 @@ load_fallback_config(void)
 			fonts[i] = strdup(font2[i - 1]);
 		}
 	}
+
+	if (!shell)
+		shell = strdup("/bin/sh");
+	if (!stty_args)
+		stty_args = strdup(stty_def_args);
+
 }
 
 void
 load_misc(config_t *cfg)
 {
-	config_lookup_unsigned_int(cfg, "tabspaces", &tabspaces);
-	fprintf(stderr, "loaded tabspaces as %d\n", tabspaces);
+	config_lookup_int(cfg, "border.percent", &borderperc);
+	config_lookup_int(cfg, "border.width", &borderpx);
+	config_lookup_strdup(cfg, "shell", &shell);
+	config_lookup_strdup(cfg, "utmp", &utmp);
+	config_lookup_strdup(cfg, "scroll", &scroll);
+	config_lookup_strdup(cfg, "stty_args", &stty_args);
+
+
 }
 
 void
@@ -241,3 +261,18 @@ load_fonts(config_t *cfg)
 	}
 }
 
+
+
+
+/* Not done
+
+# background image patch
+bgfile
+pseudotransparency
+
+
+# openurlonclick
+url_opener_modkey
+url_opener
+
+*/

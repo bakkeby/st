@@ -26,9 +26,9 @@ PKG_CONFIG = pkg-config
 #LIGATURES_INC = `$(PKG_CONFIG) --cflags harfbuzz`
 #LIGATURES_LIBS = `$(PKG_CONFIG) --libs harfbuzz`
 
-# Uncomment this for the SIXEL patch / SIXEL_PATCH
-#SIXEL_C = sixel.c sixel_hls.c
-#SIXEL_LIBS = `$(PKG_CONFIG) --libs imlib2`
+# Required for sixel support
+SIXEL_C = sixel.c sixel_hls.c
+SIXEL_LIBS = `$(PKG_CONFIG) --libs imlib2`
 
 # Uncomment for the netwmicon patch / NETWMICON_PATCH
 #NETWMICON_LIBS = `$(PKG_CONFIG) --libs gdlib`
