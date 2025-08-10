@@ -1457,7 +1457,6 @@ xinit(int cols, int rows)
 		die("could not init fontconfig.\n");
 
 	usedfont = (opt_font == NULL)? fonts[0] : opt_font;
-	fprintf(stderr, "usedfont = %s\n", usedfont);
 	xloadfonts(usedfont, 0);
 	xloadsparefonts();
 
@@ -1684,9 +1683,7 @@ xinit(int cols, int rows)
 	if (xsel.xtarget == None)
 		xsel.xtarget = XA_STRING;
 
-	#if BOXDRAW_PATCH
 	boxdraw_xinit(xw.dpy, xw.cmap, xw.draw, xw.vis);
-	#endif // BOXDRAW_PATCH
 }
 
 #if LIGATURES_PATCH
@@ -1770,7 +1767,6 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 			cluster_yp = yp;
 		}
 
-		#if BOXDRAW_PATCH
 		if (glyphs[idx].mode & ATTR_BOXDRAW) {
 			/* minor shoehorning: boxdraw uses only this ushort */
 			specs[numspecs].font = font->match;
@@ -1779,9 +1775,6 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 			specs[numspecs].y = yp;
 			numspecs++;
 		} else if (shaped.glyphs[code_idx].codepoint != 0) {
-		#else
-		if (shaped.glyphs[code_idx].codepoint != 0) {
-		#endif // BOXDRAW_PATCH
 			/* If symbol is found, put it into the specs. */
 			specs[numspecs].font = font->match;
 			specs[numspecs].glyph = shaped.glyphs[code_idx].codepoint;
@@ -1885,7 +1878,6 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 			#endif // VERTCENTER_PATCH
 		}
 
-		#if BOXDRAW_PATCH
 		if (mode & ATTR_BOXDRAW) {
 			/* minor shoehorning: boxdraw uses only this ushort */
 			glyphidx = boxdrawindex(&glyphs[i]);
@@ -1893,10 +1885,7 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 			/* Lookup character index with default font. */
 			glyphidx = XftCharIndex(xw.dpy, font->match, rune);
 		}
-		#else
-		/* Lookup character index with default font. */
-		glyphidx = XftCharIndex(xw.dpy, font->match, rune);
-		#endif // BOXDRAW_PATCH
+
 		if (glyphidx) {
 			specs[numspecs].font = font->match;
 			specs[numspecs].glyph = glyphidx;
@@ -2228,32 +2217,28 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	#if WIDE_GLYPHS_PATCH
 	if (dmode & DRAW_FG) {
 	#endif // WIDE_GLYPHS_PATCH
-	#if BOXDRAW_PATCH
+
 	if (base.mode & ATTR_BOXDRAW) {
 		drawboxes(winx, winy, width / len, win.ch, fg, bg, specs, len);
 	} else {
-	#endif // BOXDRAW_PATCH
-	/* Set the clip region because Xft is sometimes dirty. */
-	#if WIDE_GLYPHS_PATCH
-	r.x = 0;
-	r.y = 0;
-	r.height = win.ch;
-	r.width = win.w;
-	XftDrawSetClipRectangles(xw.draw, 0, winy, &r, 1);
-	#else
-	r.x = 0;
-	r.y = 0;
-	r.height = win.ch;
-	r.width = width;
-	XftDrawSetClipRectangles(xw.draw, winx, winy, &r, 1);
-	#endif // WIDE_GLYPHS_PATCH
+		/* Set the clip region because Xft is sometimes dirty. */
+		#if WIDE_GLYPHS_PATCH
+		r.x = 0;
+		r.y = 0;
+		r.height = win.ch;
+		r.width = win.w;
+		XftDrawSetClipRectangles(xw.draw, 0, winy, &r, 1);
+		#else
+		r.x = 0;
+		r.y = 0;
+		r.height = win.ch;
+		r.width = width;
+		XftDrawSetClipRectangles(xw.draw, winx, winy, &r, 1);
+		#endif // WIDE_GLYPHS_PATCH
 
-	/* Render the glyphs. */
-	XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
-
-	#if BOXDRAW_PATCH
+		/* Render the glyphs. */
+		XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
 	}
-	#endif // BOXDRAW_PATCH
 
 	/* Render underline and strikethrough. */
 	if (base.mode & ATTR_UNDERLINE) {
@@ -2717,9 +2702,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	 * Select the right color for the right mode.
 	 */
 	g.mode &= ATTR_BOLD|ATTR_ITALIC|ATTR_UNDERLINE|ATTR_STRUCK|ATTR_WIDE
-	#if BOXDRAW_PATCH
 	|ATTR_BOXDRAW
-	#endif // BOXDRAW_PATCH
 	#if DYNAMIC_CURSOR_COLOR_PATCH
 	|ATTR_REVERSE
 	#endif // DYNAMIC_CURSOR_COLOR_PATCH

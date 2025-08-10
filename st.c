@@ -1549,10 +1549,8 @@ tsetchar(Rune u, const Glyph *attr, int x, int y)
 	term.line[y][x].mode |= ATTR_SET;
 	#endif // REFLOW_PATCH
 
-	#if BOXDRAW_PATCH
 	if (isboxdraw(u))
 		term.line[y][x].mode |= ATTR_BOXDRAW;
-	#endif // BOXDRAW_PATCH
 }
 
 #if !REFLOW_PATCH

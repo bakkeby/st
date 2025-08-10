@@ -72,11 +72,6 @@
  */
 #define BOLD_IS_NOT_BRIGHT_PATCH 0
 
-/* This patch adds custom rendering of lines/blocks/braille characters for gapless alignment.
- * https://st.suckless.org/patches/boxdraw/
- */
-#define BOXDRAW_PATCH 0
-
 /* By default st only sets PRIMARY on selection.
  * This patch makes st set CLIPBOARD on selection.
  * https://st.suckless.org/patches/clipboard/

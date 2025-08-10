@@ -43,7 +43,7 @@ char *stty_def_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 char *vtiden = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
 
 /* sixel rgb byte order: LSBFirst or MSBFirst */
-int const sixelbyteorder = LSBFirst;
+int sixelbyteorder = LSBFirst;
 
 /* Kerning / character bounding-box multipliers */
 static float cwscale = 1.0;
@@ -106,19 +106,17 @@ static unsigned int cursorthickness = 2;
 int hidecursor = 1;
 #endif // HIDECURSOR_PATCH
 
-#if BOXDRAW_PATCH
 /*
  * 1: render most of the lines/blocks characters without using the font for
  *    perfect alignment between cells (U2500 - U259F except dashes/diagonals).
  *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
-const int boxdraw = 0;
-const int boxdraw_bold = 0;
+int boxdraw = 0;
+int boxdraw_bold = 0;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
-const int boxdraw_braille = 0;
-#endif // BOXDRAW_PATCH
+int boxdraw_braille = 0;
 
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling

@@ -60,9 +60,7 @@ enum glyph_attribute {
 	#if SELECTION_COLORS_PATCH
 	ATTR_SELECTED       = 1 << 12,
 	#endif // SELECTION_COLORS_PATCH | REFLOW_PATCH
-	#if BOXDRAW_PATCH
 	ATTR_BOXDRAW        = 1 << 13,
-	#endif // BOXDRAW_PATCH
 	#if UNDERCURL_PATCH
 	ATTR_DIRTYUNDERLINE = 1 << 14,
 	#endif // UNDERCURL_PATCH
@@ -390,7 +388,6 @@ char *xstrdup(const char *);
 
 int xgetcolor(int x, unsigned char *r, unsigned char *g, unsigned char *b);
 
-#if BOXDRAW_PATCH
 int isboxdraw(Rune);
 ushort boxdrawindex(const Glyph *);
 #ifdef XFT_VERSION
@@ -398,7 +395,6 @@ ushort boxdrawindex(const Glyph *);
 void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
 void drawboxes(int, int, int, int, XftColor *, XftColor *, const XftGlyphFontSpec *, int);
 #endif // XFT_VERSION
-#endif // BOXDRAW_PATCH
 
 /* config.h globals */
 extern char *utmp;
@@ -421,9 +417,7 @@ extern unsigned int defaultcs;
 extern int extpipeactive;
 #endif // EXTERNALPIPE_PATCH
 
-#if BOXDRAW_PATCH
-extern const int boxdraw, boxdraw_bold, boxdraw_braille;
-#endif // BOXDRAW_PATCH
+extern int boxdraw, boxdraw_bold, boxdraw_braille;
 #if ALPHA_PATCH
 extern float alpha;
 #if ALPHA_FOCUS_HIGHLIGHT_PATCH
