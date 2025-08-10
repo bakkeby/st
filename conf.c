@@ -1,10 +1,9 @@
 #include <libconfig.h>
 #include <strings.h>
 #include <ctype.h>
+#include <wchar.h>
 
 const char *progname = "st";
-wchar_t *worddelimiters = NULL;
-int histsize = 2000;
 
 /* Configuration variables */
 char **fonts = NULL;
@@ -15,6 +14,11 @@ char *scroll = NULL;
 char *stty_args = NULL;
 char *vtiden = NULL;
 char *termname = NULL;
+wchar_t *worddelimiters = NULL;
+wchar_t *kbds_sdelim = NULL;
+wchar_t *kbds_ldelim = NULL;
+int histsize = 2000;
+
 
 void set_config_path(const char* filename, char *config_path, char *config_file);
 int setting_length(const config_setting_t *cfg);
@@ -49,6 +53,8 @@ void load_misc(config_t *cfg);
 void load_fonts(config_t *cfg);
 
 wchar_t *char_to_wchar(const char *string);
+wchar_t *wcsdup(const wchar_t *string);
+
 int parse_byteorder(const char *string);
 
 void
@@ -327,6 +333,8 @@ cleanup_config(void)
 	free(stty_args);
 	free(vtiden);
 	free(worddelimiters);
+	free(kbds_sdelim);
+	free(kbds_ldelim);
 	free(termname);
 }
 
@@ -351,7 +359,12 @@ load_fallback_config(void)
 	if (!vtiden)
 		vtiden = strdup(vtiden_def);
 	if (!worddelimiters)
-		worddelimiters = char_to_wchar(" ");
+		worddelimiters = wcsdup(worddelimiters_def);
+	if (!kbds_sdelim)
+		kbds_sdelim = wcsdup(kbds_sdelim_def);
+	if (!kbds_ldelim)
+		kbds_ldelim = wcsdup(kbds_ldelim_def);
+
 	if (!termname)
 		termname = strdup(terminal_name);
 
@@ -371,6 +384,8 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
 	config_lookup_strdup(cfg, "vtiden", &vtiden);
 	config_lookup_wcsdup(cfg, "word_delimiters", &worddelimiters);
+	config_lookup_wcsdup(cfg, "keyboardselect.short_delimiter", &kbds_sdelim);
+	config_lookup_wcsdup(cfg, "keyboardselect.long_delimiter", &kbds_ldelim);
 
 	if (config_lookup_string(cfg, "sixelbyteorder", &string)) {
 		sixelbyteorder = parse_byteorder(string);
@@ -449,6 +464,17 @@ char_to_wchar(const char *string)
 	return wchar_array;
 }
 
+wchar_t *
+wcsdup(const wchar_t *string)
+{
+    size_t len = wcslen(string);
+    wchar_t *dup = calloc(len + 1, sizeof(wchar_t));
+    if (dup) {
+        wcscpy(dup, string);
+    }
+    return dup;
+}
+
 #define map(S, I) if (!strcasecmp(string, S)) return I;
 
 int
@@ -475,11 +501,6 @@ pseudotransparency
 # openurlonclick
 url_opener_modkey
 url_opener
-
-# keyboardselect
-kbds_sdelim
-kbds_ldelim
-
 
 
 # sync patch
