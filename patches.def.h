@@ -78,14 +78,6 @@
  */
 #define CLIPBOARD_PATCH 0
 
-/* This patch allows st to be resized without cutting off text when the terminal window is
- * made larger again. Text does not wrap when the terminal window is made smaller, you may
- * also want to have a look at the reflow patch.
- *
- * https://github.com/bakkeby/st-flexipatch/issues/34
- */
-#define COLUMNS_PATCH 0
-
 /* Select and copy the last URL displayed with Mod+l. Multiple invocations cycle through the
  * available URLs.
  * https://st.suckless.org/patches/copyurl/
@@ -221,13 +213,6 @@
  */
 #define ISO14755_PATCH 0
 
-/* This patch allows you to select text on the terminal using keyboard shortcuts.
- * NB: An improved variant of this patch is enabled if combined with the reflow patch.
- *
- * https://st.suckless.org/patches/keyboard_select/
- */
-#define KEYBOARDSELECT_PATCH 0
-
 /* This patch adds support for drawing ligatures using the Harfbuzz library to transform
  * original text of a single line to a list of glyphs with ligatures included.
  * This patch depends on the Harfbuzz library and headers to compile.
@@ -324,35 +309,11 @@
  */
 #define OSC133_PATCH 0
 
-/* Reflow.
- * Allows st to be resized without cutting off text when the terminal window is made larger again.
- * Text wraps when the terminal window is made smaller.
- * Comes with scrollback.
- */
-#define REFLOW_PATCH 0
-
 /* This patch allows you to right-click on some selected text to send it to the plumbing
  * program of choice, e.g. open a file, view an image, open a URL.
  * https://st.suckless.org/patches/right_click_to_plumb/
  */
 #define RIGHTCLICKTOPLUMB_PATCH 0
-
-/* Scroll back through terminal output using Shift+{PageUp, PageDown}.
- * https://st.suckless.org/patches/scrollback/
- */
-#define SCROLLBACK_PATCH 0
-
-/* Scroll back through terminal output using Shift+MouseWheel.
- * This variant depends on SCROLLBACK_PATCH being enabled.
- * https://st.suckless.org/patches/scrollback/
- */
-#define SCROLLBACK_MOUSE_PATCH 0
-
-/* Scroll back through terminal output using mouse wheel (when not in MODE_ALTSCREEN).
- * This variant depends on SCROLLBACK_PATCH being enabled.
- * https://st.suckless.org/patches/scrollback/
- */
-#define SCROLLBACK_MOUSE_ALTSCREEN_PATCH 0
 
 /* This patch adds the two color-settings selectionfg and selectionbg to config.def.h.
  * Those define the fore- and background colors which are used when text on the screen is selected
@@ -426,12 +387,6 @@
  * https://st.suckless.org/patches/undercurl/
  */
 #define UNDERCURL_PATCH 0
-
-/* Allows mouse scroll without modifier keys for regardless of alt screen using the external
- * scroll program.
- * https://st.suckless.org/patches/universcroll/
- */
-#define UNIVERSCROLL_PATCH 0
 
 /* Use XftFontMatch in place of FcFontMatch.
  *

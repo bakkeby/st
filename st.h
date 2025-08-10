@@ -33,9 +33,6 @@
 
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)		(1 << 24 & (x))
-#if SCROLLBACK_PATCH || REFLOW_PATCH
-#define HISTSIZE      2000
-#endif // SCROLLBACK_PATCH | REFLOW_PATCH
 
 #if DRAG_AND_DROP_PATCH
 #define HEX_TO_INT(c)		((c) >= '0' && (c) <= '9' ? (c) - '0' : \
@@ -59,7 +56,7 @@ enum glyph_attribute {
 	ATTR_WDUMMY         = 1 << 11,
 	#if SELECTION_COLORS_PATCH
 	ATTR_SELECTED       = 1 << 12,
-	#endif // SELECTION_COLORS_PATCH | REFLOW_PATCH
+	#endif // SELECTION_COLORS_PATCH
 	ATTR_BOXDRAW        = 1 << 13,
 	#if UNDERCURL_PATCH
 	ATTR_DIRTYUNDERLINE = 1 << 14,
@@ -68,9 +65,7 @@ enum glyph_attribute {
 	ATTR_LIGA           = 1 << 15,
 	#endif // LIGATURES_PATCH
 	ATTR_SIXEL          = 1 << 16,
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	ATTR_HIGHLIGHT      = 1 << 17,
-	#endif // KEYBOARDSELECT_PATCH
 	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
 	#if OSC133_PATCH
 	ATTR_FTCS_PROMPT    = 1 << 18,  /* OSC 133 ; A ST */
@@ -86,9 +81,7 @@ typedef struct _ImageList {
 	int height;
 	int x;
 	int y;
-	#if REFLOW_PATCH
 	int reflow_y;
-	#endif // REFLOW_PATCH
 	int cols;
 	int cw;
 	int ch;
@@ -171,23 +164,13 @@ typedef struct {
 typedef struct {
 	int row;      /* nb row */
 	int col;      /* nb col */
-	#if COLUMNS_PATCH
-	int maxcol;
-	#endif // COLUMNS_PATCH
 	Line *line;   /* screen */
 	Line *alt;    /* alternate screen */
-	#if REFLOW_PATCH
-	Line hist[HISTSIZE]; /* history buffer */
+	Line *hist;   /* history buffer */
 	int histi;           /* history index */
 	int histf;           /* nb history available */
 	int scr;             /* scroll back */
 	int wrapcwidth[2];   /* used in updating WRAPNEXT when resizing */
-	#elif SCROLLBACK_PATCH
-	Line hist[HISTSIZE]; /* history buffer */
-	int histi;    /* history index */
-	int histn;    /* number of history entries */
-	int scr;      /* scroll back */
-	#endif // SCROLLBACK_PATCH | REFLOW_PATCH
 	int *dirty;   /* dirtyness of lines */
 	TCursor c;    /* cursor */
 	int ocx;      /* old cursor col */
@@ -402,10 +385,8 @@ extern char *scroll;
 extern char *stty_args;
 extern char *vtiden;
 extern wchar_t *worddelimiters;
-#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 extern wchar_t *kbds_sdelim;
 extern wchar_t *kbds_ldelim;
-#endif // KEYBOARDSELECT_PATCH
 extern int allowaltscreen;
 extern int allowwindowops;
 extern char *termname;
@@ -430,3 +411,4 @@ extern XWindow xw;
 extern XSelection xsel;
 extern TermWindow win;
 extern Term term;
+extern int histsize;

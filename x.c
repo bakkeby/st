@@ -264,10 +264,8 @@ clippaste(const Arg *dummy)
 {
 	Atom clipboard;
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	if (X_IS_SET(MODE_KBDSELECT) && !kbds_issearchmode())
 		return;
-	#endif // KEYBOARDSELECT_PATCH
 
 	clipboard = XInternAtom(xw.dpy, "CLIPBOARD", 0);
 	XConvertSelection(xw.dpy, clipboard, xsel.xtarget, clipboard,
@@ -283,10 +281,8 @@ numlock(const Arg *dummy)
 void
 selpaste(const Arg *dummy)
 {
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	if (X_IS_SET(MODE_KBDSELECT) && !kbds_issearchmode())
 		return;
-	#endif // KEYBOARDSELECT_PATCH
 
 	XConvertSelection(xw.dpy, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
 			xw.win, CurrentTime);
@@ -410,10 +406,8 @@ mousesel(XEvent *e, int done)
 	int type, seltype = SEL_REGULAR;
 	uint state = e->xbutton.state & ~(Button1Mask | forcemousemod);
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	if (kbds_isselectmode())
 		return;
-	#endif // KEYBOARDSELECT_PATCH
 
 	for (type = 1; type < LEN(selmasks); ++type) {
 		if (match(selmasks[type], state)) {
@@ -533,10 +527,8 @@ bpress(XEvent *e)
 		xsel.tclick2 = xsel.tclick1;
 		xsel.tclick1 = now;
 
-		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 		if (kbds_isselectmode())
 			return;
-		#endif // KEYBOARDSELECT_PATCH
 
 		selstart(evcol(e), evrow(e), snap);
 
@@ -576,9 +568,7 @@ selnotify(XEvent *e)
 	int format;
 	uchar *data, *last, *repl;
 	Atom type, incratom, property = None;
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	int append = 0;
-	#endif // KEYBOARDSELECT_PATCH
 
 	incratom = XInternAtom(xw.dpy, "INCR", 0);
 
@@ -647,7 +637,6 @@ selnotify(XEvent *e)
 			continue;
 		}
 
-		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 		if (X_IS_SET(MODE_KBDSELECT) && kbds_issearchmode()) {
 			kbds_pasteintosearch(data, nitems * format / 8, append++);
 		} else {
@@ -670,26 +659,6 @@ selnotify(XEvent *e)
 			if (X_IS_SET(MODE_BRCKTPASTE) && rem == 0)
 				ttywrite("\033[201~", 6, 0);
 		}
-		#else
-		/*
-		 * As seen in getsel:
-		 * Line endings are inconsistent in the terminal and GUI world
-		 * copy and pasting. When receiving some selection data,
-		 * replace all '\n' with '\r'.
-		 * FIXME: Fix the computer world.
-		 */
-		repl = data;
-		last = data + nitems * format / 8;
-		while ((repl = memchr(repl, '\n', last - repl))) {
-			*repl++ = '\r';
-		}
-
-		if (X_IS_SET(MODE_BRCKTPASTE) && ofs == 0)
-			ttywrite("\033[200~", 6, 0);
-		ttywrite((char *)data, nitems * format / 8, 1);
-		if (X_IS_SET(MODE_BRCKTPASTE) && rem == 0)
-			ttywrite("\033[201~", 6, 0);
-		#endif // KEYBOARDSELECT_PATCH
 		XFree(data);
 		/* number of 32-bit chunks returned */
 		ofs += nitems * format / 32;
@@ -2153,12 +2122,10 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	}
 	#endif // INVERT_PATCH
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	if (base.mode & ATTR_HIGHLIGHT) {
 		fg = &dc.col[(base.mode & ATTR_REVERSE) ? highlightbg : highlightfg];
 		bg = &dc.col[(base.mode & ATTR_REVERSE) ? highlightfg : highlightbg];
 	}
-	#endif // KEYBOARDSELECT_PATCH
 
 	#if ALPHA_PATCH && ALPHA_GRADIENT_PATCH
 	// gradient
@@ -2706,9 +2673,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	#if DYNAMIC_CURSOR_COLOR_PATCH
 	|ATTR_REVERSE
 	#endif // DYNAMIC_CURSOR_COLOR_PATCH
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	|ATTR_HIGHLIGHT
-	#endif // KEYBOARDSELECT_PATCH
 	;
 
 	if (X_IS_SET(MODE_REVERSE)) {
@@ -2733,11 +2698,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		drawcol = dc.col[defaultcs];
 		#else
 		if (selected(cx, cy)) {
-			#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 			g.mode &= ~(ATTR_REVERSE | ATTR_HIGHLIGHT);
-			#elif DYNAMIC_CURSOR_COLOR_PATCH
-			g.mode &= ~ATTR_REVERSE;
-			#endif // DYNAMIC_CURSOR_COLOR_PATCH
 			g.fg = defaultfg;
 			g.bg = defaultrcs;
 		} else {
@@ -2766,10 +2727,8 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		#endif // SELECTION_COLORS_PATCH
 	}
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	if (g.mode & ATTR_HIGHLIGHT)
 		g.mode ^= ATTR_REVERSE;
-	#endif // KEYBOARDSELECT_PATCH
 
 	/* draw the new one */
 	if (X_IS_SET(MODE_FOCUSED)) {
@@ -3030,9 +2989,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 		specs += seq[i].numspecs;
 	}
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	kbds_drawstatusbar(y1);
-	#endif // KEYBOARDSELECT_PATCH
 }
 #elif LIGATURES_PATCH
 void
@@ -3070,9 +3027,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 		xdrawglyphfontspecs(specs, base, numspecs, ox, y1, x2 - ox);
 	}
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	kbds_drawstatusbar(y1);
-	#endif // KEYBOARDSELECT_PATCH
 }
 #elif WIDE_GLYPHS_PATCH
 void
@@ -3116,9 +3071,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 			xdrawglyphfontspecs(specs, base, i, ox, y1, dmode);
 	}
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	kbds_drawstatusbar(y1);
-	#endif // KEYBOARDSELECT_PATCH
 }
 #else // !WIDE_GLYPHS_PATCH and !LIGATURES_PATCH
 void
@@ -3156,9 +3109,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 	if (i > 0)
 		xdrawglyphfontspecs(specs, base, i, ox, y1);
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	kbds_drawstatusbar(y1);
-	#endif // KEYBOARDSELECT_PATCH
 }
 #endif // WIDE_GLYPHS_PATCH | LIGATURES_PATCH
 
@@ -3185,11 +3136,9 @@ xfinishdraw(void)
 		if (im->x >= term.col || im->y >= term.row || im->y < 0)
 			continue;
 
-		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 		/* do not draw the image on the search bar */
 		if (im->y == term.row-1 && X_IS_SET(MODE_KBDSELECT) && kbds_issearchmode())
 			continue;
-		#endif // KEYBOARDSELECT_PATCH
 
 		/* scale the image */
 		width = MAX(im->width * win.cw / im->cw, 1);
@@ -3279,11 +3228,7 @@ xfinishdraw(void)
 		}
 
 		/* draw only the parts of the image that are not erased */
-		#if SCROLLBACK_PATCH || REFLOW_PATCH
 		line = TLINE(im->y) + im->x;
-		#else
-		line = term.line[im->y] + im->x;
-		#endif // SCROLLBACK_PATCH || REFLOW_PATCH
 		xend = MIN(im->x + im->cols, term.col);
 		for (del = 1, x1 = im->x; x1 < xend; x1 = x2) {
 			mode = line->mode & ATTR_SIXEL;
@@ -3582,7 +3527,6 @@ kpress(XEvent *ev)
 		len = XLookupString(e, buf, sizeof buf, &ksym, NULL);
 	}
 
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	if (X_IS_SET(MODE_KBDSELECT) ) {
 		if (kbds_issearchmode()) {
 			for (bp = shortcuts; bp < shortcuts + LEN(shortcuts); bp++) {
@@ -3599,14 +3543,6 @@ kpress(XEvent *ev)
 			win.mode ^= kbds_keyboardhandler(ksym, buf, len, 0);
 		return;
 	}
-	#elif KEYBOARDSELECT_PATCH
-	if ( X_IS_SET(MODE_KBDSELECT) ) {
-		if ( match(XK_NO_MOD, e->state) ||
-			(XK_Shift_L | XK_Shift_R) & e->state )
-			win.mode ^= trt_kbdselect(ksym, buf, len);
-		return;
-	}
-	#endif // KEYBOARDSELECT_PATCH
 
 	screen = tisaltscr() ? S_ALT : S_PRI;
 

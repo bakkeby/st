@@ -1,10 +1,10 @@
 #define TLINE(y) ( \
-	(y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTSIZE) % HISTSIZE] \
+	(y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + histsize) % histsize] \
 	               : term.line[(y) - term.scr] \
 )
 
 #define TLINEABS(y) ( \
-	(y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTSIZE) % HISTSIZE] : term.line[(y)] \
+	(y) < 0 ? term.hist[(term.histi + (y) + 1 + histsize) % histsize] : term.line[(y)] \
 )
 
 #define UPDATEWRAPNEXT(alt, col) do { \

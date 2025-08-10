@@ -21,12 +21,8 @@
 #if INVERT_PATCH
 #include "invert.h"
 #endif
-#if REFLOW_PATCH && KEYBOARDSELECT_PATCH
 #include "keyboardselect_reflow_st.h"
 #include "keyboardselect_reflow_x.h"
-#elif KEYBOARDSELECT_PATCH
-#include "keyboardselect_x.h"
-#endif
 #if NETWMICON_LEGACY_PATCH
 #include "netwmicon_icon.h"
 #endif

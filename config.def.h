@@ -56,11 +56,9 @@ static float chscale = 1.0;
  */
 wchar_t *worddelimiters = L" ";
 
-#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 /* Word delimiters for short and long jumps in the keyboard select patch */
 wchar_t *kbds_sdelim = L"!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~ ";
 wchar_t *kbds_ldelim = L" ";
-#endif // KEYBOARDSELECT_PATCH
 
 /* selection timeouts (in milliseconds) */
 static unsigned int doubleclicktimeout = 300;
@@ -217,11 +215,10 @@ unsigned int selectionbg = 259;
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
 static int ignoreselfg = 1;
 #endif // SELECTION_COLORS_PATCH
-#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
+
 /* Foreground and background color of search results */
 unsigned int highlightfg = 15;
 unsigned int highlightbg = 160;
-#endif // KEYBOARDSELECT_PATCH
 
 #if BLINKING_CURSOR_PATCH
 /*
@@ -332,10 +329,8 @@ ResourcePref resources[] = {
 		#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 		{ "alphaUnfocused",FLOAT,  &alphaUnfocused },
 		#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
-		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 		{ "highlightfg",  INTEGER, &highlightfg },
 		{ "highlightbg",  INTEGER, &highlightbg },
-		#endif // KEYBOARDSELECT_PATCH
 };
 #endif // XRESOURCES_PATCH
 
@@ -360,25 +355,10 @@ static MouseShortcut mshortcuts[] = {
 	#else
 	{ XK_ANY_MOD,           Button2, selpaste,       {.i = 0},      1 },
 	#endif // CLIPBOARD_PATCH
-	#if SCROLLBACK_MOUSE_PATCH
-	{ ShiftMask,            Button4, kscrollup,      {.i = 1},      0, S_PRI},
-	{ ShiftMask,            Button5, kscrolldown,    {.i = 1},      0, S_PRI},
-	#elif UNIVERSCROLL_PATCH
-	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\033[5;2~"}, 0, S_PRI },
-	{ XK_ANY_MOD,           Button5, ttysend,        {.s = "\033[6;2~"}, 0, S_PRI },
-	#else
-	{ ShiftMask,            Button4, ttysend,        {.s = "\033[5;2~"} },
-	{ ShiftMask,            Button5, ttysend,        {.s = "\033[6;2~"} },
-	#endif // SCROLLBACK_MOUSE_PATCH
-	#if SCROLLBACK_MOUSE_ALTSCREEN_PATCH || REFLOW_PATCH
 	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"}, 0, S_ALT },
 	{ XK_ANY_MOD,           Button5, ttysend,        {.s = "\005"}, 0, S_ALT },
-	#else
-	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"} },
-	{ XK_ANY_MOD,           Button5, ttysend,        {.s = "\005"} },
-	#endif // SCROLLBACK_MOUSE_ALTSCREEN_PATCH
 };
 
 /* Internal keyboard shortcuts. */
@@ -420,10 +400,8 @@ static Shortcut shortcuts[] = {
 	{ XK_NO_MOD,            XK_F11,         fullscreen,      {.i =  0} },
 	{ MODKEY,               XK_Return,      fullscreen,      {.i =  0} },
 	#endif // FULLSCREEN_PATCH
-	#if SCROLLBACK_PATCH
 	{ ShiftMask,            XK_Page_Up,     kscrollup,       {.i = -1}, S_PRI },
 	{ ShiftMask,            XK_Page_Down,   kscrolldown,     {.i = -1}, S_PRI },
-	#endif // SCROLLBACK_PATCH
 	#if CLIPBOARD_PATCH
 	{ TERMMOD,              XK_Y,           clippaste,       {.i =  0} },
 	{ ShiftMask,            XK_Insert,      clippaste,       {.i =  0} },
@@ -447,13 +425,9 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_M,           externalpipein,  { .v = setbgcolorcmd } },
 	#endif // EXTERNALPIPEIN_PATCH
 	#endif // EXTERNALPIPE_PATCH
-	#if KEYBOARDSELECT_PATCH
 	{ TERMMOD,              XK_Escape,      keyboard_select, { 0 } },
-	#endif // KEYBOARDSELECT_PATCH
-	#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
 	{ TERMMOD,              XK_F,           searchforward,   { 0 } },
 	{ TERMMOD,              XK_B,           searchbackward,  { 0 } },
-	#endif // KEYBOARDSELECT_PATCH
 	#if ISO14755_PATCH
 	{ TERMMOD,              XK_I,           iso14755,        {.i =  0} },
 	#endif // ISO14755_PATCH

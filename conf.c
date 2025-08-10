@@ -4,6 +4,7 @@
 
 const char *progname = "st";
 wchar_t *worddelimiters = NULL;
+int histsize = 2000;
 
 /* Configuration variables */
 char **fonts = NULL;
@@ -353,6 +354,8 @@ load_fallback_config(void)
 		worddelimiters = char_to_wchar(" ");
 	if (!termname)
 		termname = strdup(terminal_name);
+
+	term.hist = calloc(histsize, sizeof(Line));
 }
 
 void
@@ -392,6 +395,7 @@ load_misc(config_t *cfg)
 	config_lookup_int(cfg, "bell_volume", &bellvolume);
 	config_lookup_unsigned_int(cfg, "cols", &cols);
 	config_lookup_unsigned_int(cfg, "rows", &rows);
+	config_lookup_int(cfg, "scrollback_history", &histsize);
 
 
 
@@ -519,10 +523,62 @@ highlightbg
 cursorstyle
 stcursor <--- Rune, will be interesting
 
+# Default shape of cursor
+# 2: Block ("█")
+# 4: Underline ("_")
+# 6: Bar ("|")
+# 7: Snowman ("☃")
+
+cursorshape - integers, may consider string parsing?
 
 
+# anygeometry
+geometry - CellGeometry or PixelGeometry
+width
+height
+
+# themed cursor
+mouseshape
+
+mouseshape <-- name conflict
+mousefg
+mousebg
 
 
+defaultattr
+
+# xresources
+
+forcemousemod
+
+mshortcuts <-- will be a big one
+shortcuts
+
+# externalpipe
+openurlcmd
+
+#externalpipein
+setbgcolorcmd
+
+#fixkeyboardinput
+mappedkeys
+
+ignoremod
+key <--- will be a big one
+
+
+selmasks
+ascii_printable
+
+# right click to plumb
+plumb_cmd
+
+# undercurl
+#define UNDERCURL_CURLY 0
+#define UNDERCURL_SPIKY 1
+#define UNDERCURL_CAPPED 2
+// Active style
+#define UNDERCURL_STYLE UNDERCURL_SPIKY
 
 
 */

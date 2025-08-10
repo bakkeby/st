@@ -19,12 +19,9 @@ enum win_mode {
 	MODE_MOUSEMANY   = 1 << 15,
 	MODE_BRCKTPASTE  = 1 << 16,
 	MODE_NUMLOCK     = 1 << 17,
-	MODE_MOUSE       = MODE_MOUSEBTN|MODE_MOUSEMOTION|MODE_MOUSEX10\
-	                  |MODE_MOUSEMANY,
+	MODE_MOUSE       = MODE_MOUSEBTN|MODE_MOUSEMOTION|MODE_MOUSEX10|MODE_MOUSEMANY,
 	MODE_PLACEHOLDER = 1 << 18,
-	#if KEYBOARDSELECT_PATCH
 	MODE_KBDSELECT   = 1 << 19,
-	#endif // KEYBOARDSELECT_PATCH
 };
 
 void xbell(void);
@@ -53,6 +50,4 @@ void xsetsel(char *);
 int xstartdraw(void);
 void xximspot(int, int);
 void xclearwin(void);
-#if REFLOW_PATCH && KEYBOARDSELECT_PATCH
 void xdrawglyph(Glyph, int, int);
-#endif // KEYBOARDSELECT_PATCH

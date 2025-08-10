@@ -86,7 +86,7 @@ treflow(int col, int row)
 	for (oce = term.c.y; oce < term.row - 1 &&
 	                     tiswrapped(term.line[oce]); oce++);
 
-	nlines = HISTSIZE + row;
+	nlines = histsize + row;
 	buf = xmalloc(nlines * sizeof(Line));
 	do {
 		if (!nx && ++ny < nlines)
@@ -179,16 +179,16 @@ treflow(int col, int row)
 		term.line[i] = buf[ny % nlines];
 	}
 	/* fill lines in history buffer and update term.histf */
-	for (/*i = -1 */; buflen > 0 && i >= -HISTSIZE; i--, ny--, buflen--) {
-		j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
+	for (/*i = -1 */; buflen > 0 && i >= -histsize; i--, ny--, buflen--) {
+		j = (term.histi + i + 1 + histsize) % histsize;
 		free(term.hist[j]);
 		term.hist[j] = buf[ny % nlines];
 	}
 	term.histf = -i - 1;
 	term.scr = MIN(term.scr, term.histf);
 	/* resize rest of the history lines */
-	for (/*i = -term.histf - 1 */; i >= -HISTSIZE; i--) {
-		j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
+	for (/*i = -term.histf - 1 */; i >= -histsize; i--) {
+		j = (term.histi + i + 1 + histsize) % histsize;
 		term.hist[j] = xrealloc(term.hist[j], col * sizeof(Glyph));
 	}
 
@@ -199,7 +199,7 @@ treflow(int col, int row)
 			delete_image(im);
 		} else {
 			im->y = im->reflow_y - term.histf + term.scr - (ny + 1);
-			if (im->y - term.scr < -HISTSIZE || im->y - term.scr >= row)
+			if (im->y - term.scr < -histsize || im->y - term.scr >= row)
 				delete_image(im);
 		}
 	}
@@ -241,7 +241,7 @@ rscrolldown(int n)
 		temp = term.line[i];
 		term.line[i] = term.hist[term.histi];
 		term.hist[term.histi] = temp;
-		term.histi = (term.histi - 1 + HISTSIZE) % HISTSIZE;
+		term.histi = (term.histi - 1 + histsize) % histsize;
 	}
 	term.c.y += n;
 	term.histf -= n;
@@ -443,18 +443,18 @@ tscrollup(int top, int bot, int n, int mode)
 
 	if (savehist) {
 		for (i = 0; i < n; i++) {
-			term.histi = (term.histi + 1) % HISTSIZE;
+			term.histi = (term.histi + 1) % histsize;
 			temp = term.hist[term.histi];
 			for (j = 0; j < term.col; j++)
 				tclearglyph(&temp[j], 1);
 			term.hist[term.histi] = term.line[i];
 			term.line[i] = temp;
 		}
-		term.histf = MIN(term.histf + n, HISTSIZE);
+		term.histf = MIN(term.histf + n, histsize);
 		s = n;
 		if (term.scr) {
 			j = term.scr;
-			term.scr = MIN(j + n, HISTSIZE);
+			term.scr = MIN(j + n, histsize);
 			s = j + n - term.scr;
 		}
 		if (mode != SCROLL_RESIZE)
@@ -492,7 +492,7 @@ tscrollup(int top, int bot, int n, int mode)
 				if (im->y < top)
 					im->y -= top; // move to scrollback
 			}
-			if (im->y < -HISTSIZE)
+			if (im->y < -histsize)
 				delete_image(im);
 			else
 				im->y += term.scr;
@@ -555,10 +555,8 @@ tresize(int col, int row)
 {
 	int *bp;
 
-	#if KEYBOARDSELECT_PATCH
 	if (row != term.row || col != term.col)
 		win.mode ^= kbds_keyboardhandler(XK_Escape, NULL, 0, 1);
-	#endif // KEYBOARDSELECT_PATCH
 
 	term.dirty = xrealloc(term.dirty, row * sizeof(*term.dirty));
 	term.tabs = xrealloc(term.tabs, col * sizeof(*term.tabs));
@@ -606,7 +604,7 @@ tnew(int col, int row)
 	}
 	term.dirty = xmalloc(row * sizeof(*term.dirty));
 	term.tabs = xmalloc(col * sizeof(*term.tabs));
-	for (i = 0; i < HISTSIZE; i++)
+	for (i = 0; i < histsize; i++)
 		term.hist[i] = xmalloc(col * sizeof(Glyph));
 	treset();
 }

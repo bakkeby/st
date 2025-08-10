@@ -22,11 +22,7 @@
 #if INVERT_PATCH
 #include "invert.c"
 #endif
-#if REFLOW_PATCH && KEYBOARDSELECT_PATCH
 #include "keyboardselect_reflow_x.c"
-#elif KEYBOARDSELECT_PATCH
-#include "keyboardselect_x.c"
-#endif
 #if NETWMICON_PATCH
 #include "netwmicon.c"
 #elif NETWMICON_FF_PATCH
