@@ -213,16 +213,6 @@
  */
 #define ISO14755_PATCH 0
 
-/* This patch adds support for drawing ligatures using the Harfbuzz library to transform
- * original text of a single line to a list of glyphs with ligatures included.
- * This patch depends on the Harfbuzz library and headers to compile.
- * You need to uncomment the corresponding lines in config.mk to use the harfbuzz library
- * when including this patch.
- * https://github.com/cog1to/st-ligatures
- * https://st.suckless.org/patches/ligatures/
- */
-#define LIGATURES_PATCH 0
-
 /* This patch makes st ignore terminal color attributes by forcing display of the default
  * foreground and background colors only - making for a monochrome look. Idea ref.
  * https://www.reddit.com/r/suckless/comments/ixbx6z/how_to_use_black_and_white_only_for_st/

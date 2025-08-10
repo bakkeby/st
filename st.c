@@ -2829,14 +2829,9 @@ draw(void)
 	drawregion(0, 0, term.col, term.row);
 
 	if (!kbds_drawcursor())
-	#if LIGATURES_PATCH
 	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
 			term.ocx, term.ocy, term.line[term.ocy][term.ocx],
 			term.line[term.ocy], term.col);
-	#else
-	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
-			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
-	#endif // LIGATURES_PATCH
 	term.ocx = cx;
 	term.ocy = term.c.y;
 	xfinishdraw();

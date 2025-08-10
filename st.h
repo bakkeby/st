@@ -19,14 +19,9 @@
 #define DIVCEIL(n, d)		(((n) + ((d) - 1)) / (d))
 #define DEFAULT(a, b)		(a) = (a) ? (a) : (b)
 #define LIMIT(x, a, b)		(x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
-#if LIGATURES_PATCH
 #define ATTRCMP(a, b)		(((a).mode & (~ATTR_WRAP) & (~ATTR_LIGA)) != ((b).mode & (~ATTR_WRAP) & (~ATTR_LIGA)) || \
 				(a).fg != (b).fg || \
 				(a).bg != (b).bg)
-#else
-#define ATTRCMP(a, b)		((a).mode != (b).mode || (a).fg != (b).fg || \
-				(a).bg != (b).bg)
-#endif // LIGATURES_PATCH
 #define TIMEDIFF(t1, t2)	((t1.tv_sec-t2.tv_sec)*1000 + \
 				(t1.tv_nsec-t2.tv_nsec)/1E6)
 #define MODBIT(x, set, bit)	((set) ? ((x) |= (bit)) : ((x) &= ~(bit)))
@@ -61,9 +56,7 @@ enum glyph_attribute {
 	#if UNDERCURL_PATCH
 	ATTR_DIRTYUNDERLINE = 1 << 14,
 	#endif // UNDERCURL_PATCH
-	#if LIGATURES_PATCH
 	ATTR_LIGA           = 1 << 15,
-	#endif // LIGATURES_PATCH
 	ATTR_SIXEL          = 1 << 16,
 	ATTR_HIGHLIGHT      = 1 << 17,
 	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
@@ -144,14 +137,12 @@ typedef struct {
 
 typedef Glyph *Line;
 
-#if LIGATURES_PATCH
 typedef struct {
 	int ox;
 	int charlen;
 	int numspecs;
 	Glyph base;
 } GlyphFontSeq;
-#endif // LIGATURES_PATCH
 
 typedef struct {
 	Glyph attr; /* current char attributes */
@@ -224,9 +215,7 @@ typedef struct {
 	Window win;
 	Drawable buf;
 	GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
-	#if LIGATURES_PATCH
 	GlyphFontSeq *specseq;
-	#endif // LIGATURES_PATCH
 	Atom xembed, wmdeletewin, netwmname, netwmiconname, netwmpid;
 	#if DRAG_AND_DROP_PATCH
 	Atom XdndTypeList, XdndSelection, XdndEnter, XdndPosition, XdndStatus,

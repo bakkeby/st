@@ -20,11 +20,11 @@ PKG_CONFIG = pkg-config
 # Uncomment this for the themed cursor patch / THEMED_CURSOR_PATCH
 #XCURSOR = `$(PKG_CONFIG) --libs xcursor`
 
-# Uncomment the lines below for the ligatures patch / LIGATURES_PATCH
-#LIGATURES_C = hb.c
-#LIGATURES_H = hb.h
-#LIGATURES_INC = `$(PKG_CONFIG) --cflags harfbuzz`
-#LIGATURES_LIBS = `$(PKG_CONFIG) --libs harfbuzz`
+# Required for sixel ligatures support
+LIGATURES_C = hb.c
+LIGATURES_H = hb.h
+LIGATURES_INC = `$(PKG_CONFIG) --cflags harfbuzz`
+LIGATURES_LIBS = `$(PKG_CONFIG) --libs harfbuzz`
 
 # Required for sixel support
 SIXEL_C = sixel.c sixel_hls.c

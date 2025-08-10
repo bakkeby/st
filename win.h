@@ -26,11 +26,7 @@ enum win_mode {
 
 void xbell(void);
 void xclipcopy(void);
-#if LIGATURES_PATCH
 void xdrawcursor(int, int, Glyph, int, int, Glyph, Line, int);
-#else
-void xdrawcursor(int, int, Glyph, int, int, Glyph);
-#endif // LIGATURES_PATCH
 void xdrawline(Line, int, int, int);
 void xfinishdraw(void);
 void xloadcols(void);
