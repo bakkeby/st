@@ -18,6 +18,7 @@
 #if FULLSCREEN_PATCH
 #include "fullscreen_x.h"
 #endif
+#include "func.h"
 #if INVERT_PATCH
 #include "invert.h"
 #endif

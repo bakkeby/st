@@ -18,7 +18,7 @@ wchar_t *worddelimiters = NULL;
 wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
 int histsize = 2000;
-
+uint64_t settings = 0;
 
 void set_config_path(const char* filename, char *config_path, char *config_file);
 int setting_length(const config_setting_t *cfg);
