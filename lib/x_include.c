@@ -6,6 +6,7 @@
 #include "background_image_x.c"
 #endif
 #include "boxdraw.c"
+#include "conf.c"
 #if DRAG_AND_DROP_PATCH
 #include "drag-n-drop.c"
 #endif

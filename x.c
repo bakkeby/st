@@ -65,9 +65,6 @@ static void zoomreset(const Arg *);
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
-#include "conf.c"
-
-// #include "st.c"
 
 #if CSI_22_23_PATCH
 /* size of title stack */
