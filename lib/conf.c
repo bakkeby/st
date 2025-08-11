@@ -12,7 +12,6 @@ char *shell = NULL;
 char *utmp = NULL;
 char *scroll = NULL;
 char *stty_args = NULL;
-char *vtiden = NULL;
 char *termname = NULL;
 wchar_t *worddelimiters = NULL;
 wchar_t *kbds_sdelim = NULL;
@@ -333,7 +332,6 @@ cleanup_config(void)
 	free(utmp);
 	free(scroll);
 	free(stty_args);
-	free(vtiden);
 	free(worddelimiters);
 	free(kbds_sdelim);
 	free(kbds_ldelim);
@@ -361,8 +359,6 @@ load_fallback_config(void)
 		shell = strdup("/bin/sh");
 	if (!stty_args)
 		stty_args = strdup(stty_def_args);
-	if (!vtiden)
-		vtiden = strdup(vtiden_def);
 	if (!worddelimiters)
 		worddelimiters = wcsdup(worddelimiters_def);
 	if (!kbds_sdelim)
@@ -387,7 +383,6 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "scroll", &scroll);
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
-	config_lookup_strdup(cfg, "vtiden", &vtiden);
 	config_lookup_wcsdup(cfg, "word_delimiters", &worddelimiters);
 	config_lookup_wcsdup(cfg, "keyboardselect.short_delimiter", &kbds_sdelim);
 	config_lookup_wcsdup(cfg, "keyboardselect.long_delimiter", &kbds_ldelim);
@@ -409,9 +404,6 @@ load_misc(config_t *cfg)
 	config_lookup_unsigned_int(cfg, "blink_timeout", &blinktimeout);
 	config_lookup_unsigned_int(cfg, "cursor_thickness", &cursorthickness);
 //	config_lookup_sloppy_bool(cfg, "hide_cursor", &hidecursor);
-	config_lookup_int(cfg, "boxdraw.enabled", &boxdraw);
-	config_lookup_int(cfg, "boxdraw.allow_bold", &boxdraw_bold);
-	config_lookup_int(cfg, "boxdraw.braille", &boxdraw_braille);
 	config_lookup_int(cfg, "bell_volume", &bellvolume);
 	config_lookup_unsigned_int(cfg, "cols", &cols);
 	config_lookup_unsigned_int(cfg, "rows", &rows);
@@ -524,6 +516,7 @@ parse_byteorder(const char *string)
 bgfile
 pseudotransparency
 
+vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
 
 # openurlonclick
 url_opener_modkey

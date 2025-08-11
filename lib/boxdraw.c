@@ -28,17 +28,17 @@ int
 isboxdraw(Rune u)
 {
 	Rune block = u & ~0xff;
-	return (boxdraw && block == 0x2500 && boxdata[(uint8_t)u]) ||
-	       (boxdraw_braille && block == 0x2800);
+	return (enabled(BoxDraw) && block == 0x2500 && boxdata[(uint8_t)u]) ||
+	       (enabled(BoxDrawForBraille) && block == 0x2800);
 }
 
 /* the "index" is actually the entire shape data encoded as ushort */
 ushort
 boxdrawindex(const Glyph *g)
 {
-	if (boxdraw_braille && (g->u & ~0xff) == 0x2800)
+	if (enabled(BoxDrawForBraille) && (g->u & ~0xff) == 0x2800)
 		return BRL | (uint8_t)g->u;
-	if (boxdraw_bold && (g->mode & ATTR_BOLD))
+	if (enabled(BoxDrawBoldAffectsLineThickness) && (g->mode & ATTR_BOLD))
 		return BDB | boxdata[(uint8_t)g->u];
 	return boxdata[(uint8_t)g->u];
 }

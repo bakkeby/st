@@ -388,7 +388,6 @@ extern int extpipeactive;
 #endif // EXTERNALPIPE_PATCH
 
 extern uint64_t settings;
-extern int boxdraw, boxdraw_bold, boxdraw_braille;
 #if ALPHA_PATCH
 extern float alpha;
 #if ALPHA_FOCUS_HIGHLIGHT_PATCH
