@@ -1,9 +1,9 @@
 static const uint64_t
-	FuncPlaceholderSmartGaps = 0x1, // enables no gaps if there is only one visible window
-	FuncPlaceholderSmartGapsMonocle = 0x2, // enforces no (outer) gaps in monocle layout
-	FuncPlaceholderSwallow = 0x4, // enables swallowing of clients
-	FuncPlaceholderSwallowFloating = 0x8, // allow floating windows to swallow the terminal by default
-	FuncPlaceholderCenteredWindowName = 0x10,
+	Alpha = 0x1,
+	AlphaFocusHighlight = 0x2,
+	BoxDraw = 0x4,
+	BoxDrawBoldAffectsLineThickness = 0x8,
+	BoxDrawForBraille = 0x10,
 	FuncPlaceholderBarActiveGroupBorderColor = 0x20, // use border color of active group, otherwise normal scheme is used
 	FuncPlaceholderBarMasterGroupBorderColor = 0x40, // use border color of master group, otherwise normal scheme is used
 	FuncPlaceholderColorEmoji = 0x80,
@@ -65,9 +65,32 @@ static const uint64_t
 	FuncPlaceholder4611686018427387904 = 0x4000000000000000,
 	FuncPlaceholder9223372036854775808 = 0x8000000000000000;
 
+struct nv {
+    const char *name;
+    uint64_t value;
+};
+
+#define map(F) { "#F", F }
+
+static const struct nv function_names[] = {
+    map(Alpha),
+    map(AlphaFocusHighlight),
+    map(BoxDraw),
+    map(BoxDrawBoldAffectsLineThickness),
+    map(BoxDrawForBraille),
+    map(FuncPlaceholderBarActiveGroupBorderColor),
+    map(FuncPlaceholderBarMasterGroupBorderColor),
+    map(FuncPlaceholderColorEmoji),
+    { NULL, 0 }
+};
+
+#undef map
+
+
 int enabled(const uint64_t functionality);
 int disabled(const uint64_t functionality);
 void enablefunc(const uint64_t functionality);
 void disablefunc(const uint64_t functionality);
 void togglefunc(const uint64_t functionality);
 const uint64_t getfuncbyname(const char *name);
+const char *getnamebyfunc(const uint64_t functionality);

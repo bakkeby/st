@@ -51,6 +51,7 @@ void load_config(void);
 void load_fallback_config(void);
 void load_misc(config_t *cfg);
 void load_fonts(config_t *cfg);
+void load_functionality(config_t *cfg);
 
 wchar_t *char_to_wchar(const char *string);
 wchar_t *wcsdup(const wchar_t *string);
@@ -303,6 +304,7 @@ load_config(void)
 	if (config_read_file(&cfg, config_file)) {
 		load_misc(&cfg);
 		load_fonts(&cfg);
+		load_functionality(&cfg);
 
 	} else if (strcmp(config_error_text(&cfg), "file I/O error")) {
 		fprintf(stderr, "Error reading config at %s\n", config_file);
@@ -336,6 +338,9 @@ cleanup_config(void)
 	free(kbds_sdelim);
 	free(kbds_ldelim);
 	free(termname);
+	/* TODO consider what needs to be done to preserve the history if
+	 * we were to introduce live reload of config during runtime. */
+	free(term.hist);
 }
 
 void
@@ -434,6 +439,28 @@ load_fonts(config_t *cfg)
 		fonts[i] = strdup(setting_get_string_elem(fonts_t, i));
 	}
 }
+
+void
+load_functionality(config_t *cfg)
+{
+	int i, enabled;
+
+	config_setting_t *func_t = config_lookup(cfg, "functionality");
+	if (!func_t)
+		return;
+
+
+	for (i = 0; function_names[i].name != NULL; i++) {
+		config_setting_lookup_sloppy_bool(func_t, function_names[i].name, &enabled);
+		if (enabled) {
+			enablefunc(function_names[i].value);
+		} else {
+			disablefunc(function_names[i].value);
+		}
+	}
+}
+
+#undef map
 
 wchar_t *
 char_to_wchar(const char *string)
