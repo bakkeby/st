@@ -197,9 +197,6 @@ typedef struct {
 	#if BACKGROUND_IMAGE_PATCH
 	int x, y; /* window location */
 	#endif // BACKGROUND_IMAGE_PATCH
-	#if ANYSIZE_PATCH
-	int hborderpx, vborderpx;
-	#endif // ANYSIZE_PATCH
 	int ch; /* char height */
 	int cw; /* char width  */
 	#if VERTCENTER_PATCH

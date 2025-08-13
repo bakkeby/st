@@ -36,16 +36,6 @@
  */
 #define ANYGEOMETRY_PATCH 0
 
-/* This patch allows st to resize to any pixel size rather than snapping to character width/height.
- * https://st.suckless.org/patches/anysize/
- */
-#define ANYSIZE_PATCH 0
-
-/* A simple variant of the anysize patch that only changes the resize hints to allow the window to
- * be resized to any size.
- */
-#define ANYSIZE_SIMPLE_PATCH 0
-
 /* Draws a background image in farbfeld format in place of the defaultbg color allowing for pseudo
  * transparency.
  * https://st.suckless.org/patches/background_image/
@@ -140,17 +130,6 @@
  * https://st.suckless.org/patches/dynamic-cursor-color/
  */
 #define DYNAMIC_CURSOR_COLOR_PATCH 0
-
-/* This is a variant of the anysize patch that explicitly do not change the size increment hints,
- * i.e. only keeping the dynamic padding which is the main thing the anysize patch introduces.
- * In practice this means that the dynamic padding / anysize functionality only ever comes into
- * effect when the size hints are intentionally ignored.
- * An example of this would be dwm respecting the size hints of floating windows, but disrespecting
- * the size hints when the window is tiled (provided that resizehints config is set to 0).
- *
- * Note that this patch depends on ANYSIZE_PATCH being enabled to have an effect.
- */
-#define DYNAMIC_PADDING_PATCH 0
 
 /* Reading and writing st's screen through a pipe, e.g. pass info to dmenu.
  * https://st.suckless.org/patches/externalpipe/

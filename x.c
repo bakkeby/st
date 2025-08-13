@@ -330,11 +330,7 @@ zoomreset(const Arg *arg)
 int
 evcol(XEvent *e)
 {
-	#if ANYSIZE_PATCH
-	int x = e->xbutton.x - win.hborderpx;
-	#else
 	int x = e->xbutton.x - borderpx;
-	#endif // ANYSIZE_PATCH
 	LIMIT(x, 0, win.tw - 1);
 	return x / win.cw;
 }
@@ -342,11 +338,7 @@ evcol(XEvent *e)
 int
 evrow(XEvent *e)
 {
-	#if ANYSIZE_PATCH
-	int y = e->xbutton.y - win.vborderpx;
-	#else
 	int y = e->xbutton.y - borderpx;
-	#endif // ANYSIZE_PATCH
 	LIMIT(y, 0, win.th - 1);
 	return y / win.ch;
 }
@@ -841,11 +833,6 @@ cresize(int width, int height)
 	col = MAX(2, col);
 	row = MAX(1, row);
 
-	#if ANYSIZE_PATCH
-	win.hborderpx = (win.w - col * win.cw) / 2;
-	win.vborderpx = (win.h - row * win.ch) / 2;
-	#endif // ANYSIZE_PATCH
-
 	tresize(col, row);
 	xresize(col, row);
 	ttyresize(win.tw, win.th);
@@ -1071,13 +1058,15 @@ xhints(void)
 	sizeh->flags = PSize | PResizeInc | PBaseSize | PMinSize;
 	sizeh->height = win.h;
 	sizeh->width = win.w;
-	#if ANYSIZE_PATCH && !DYNAMIC_PADDING_PATCH || ANYSIZE_SIMPLE_PATCH
-	sizeh->height_inc = 1;
-	sizeh->width_inc = 1;
-	#else
-	sizeh->height_inc = win.ch;
-	sizeh->width_inc = win.cw;
-	#endif // ANYSIZE_PATCH
+
+	if (enabled(AnySize)) {
+		sizeh->height_inc = 1;
+		sizeh->width_inc = 1;
+	} else {
+		sizeh->height_inc = win.ch;
+		sizeh->width_inc = win.cw;
+	}
+
 	sizeh->base_height = 2 * borderpx;
 	sizeh->base_width = 2 * borderpx;
 	sizeh->min_height = win.ch + 2 * borderpx;
@@ -1409,13 +1398,8 @@ xinit(int cols, int rows)
 	#if ANYGEOMETRY_PATCH
 	switch (geometry) {
 	case CellGeometry:
-		#if ANYSIZE_PATCH
-		win.w = 2 * win.hborderpx + cols * win.cw;
-		win.h = 2 * win.vborderpx + rows * win.ch;
-		#else
 		win.w = 2 * borderpx + cols * win.cw;
 		win.h = 2 * borderpx + rows * win.ch;
-		#endif // ANYGEOMETRY_PATCH | ANYSIZE_PATCH
 		break;
 	case PixelGeometry:
 		win.w = cols;
@@ -1424,13 +1408,10 @@ xinit(int cols, int rows)
 		rows = (win.h - 2 * borderpx) / win.ch;
 		break;
 	}
-	#elif ANYSIZE_PATCH
-	win.w = 2 * win.hborderpx + cols * win.cw;
-	win.h = 2 * win.vborderpx + rows * win.ch;
 	#else
 	win.w = 2 * borderpx + cols * win.cw;
 	win.h = 2 * borderpx + rows * win.ch;
-	#endif // ANYGEOMETRY_PATCH | ANYSIZE_PATCH
+	#endif // ANYGEOMETRY_PATCH
 	if (xw.gm & XNegative)
 		xw.l += DisplayWidth(xw.dpy, xw.scr) - win.w - 2;
 	if (xw.gm & YNegative)
@@ -1625,11 +1606,7 @@ xresetfontsettings(uint32_t mode, Font **font, int *frcflags)
 int
 xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y)
 {
-	#if ANYSIZE_PATCH
-	float winx = win.hborderpx + x * win.cw, winy = win.vborderpx + y * win.ch, xp, yp;
-	#else
 	float winx = borderpx + x * win.cw, winy = borderpx + y * win.ch, xp, yp;
-	#endif // ANYSIZE_PATCH
 	ushort mode, prevmode = USHRT_MAX;
 	Font *font = &dc.font;
 	int frcflags = FRC_NORMAL;
@@ -1815,11 +1792,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	, int charlen
 ) {
 	int width = charlen * win.cw;
-	#if ANYSIZE_PATCH
-	int winx = win.hborderpx + x * win.cw, winy = win.vborderpx + y * win.ch;
-	#else
 	int winx = borderpx + x * win.cw, winy = borderpx + y * win.ch;
-	#endif // ANYSIZE_PATCH
 	Color *fg, *bg, *temp, revfg, revbg, truefg, truebg;
 	XRenderColor colfg, colbg;
 	XRectangle r;
@@ -1952,21 +1925,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	if (dmode & DRAW_BG) {
 	#endif // WIDE_GLYPHS_PATCH
 	/* Intelligent cleaning up of the borders. */
-	#if ANYSIZE_PATCH
-	if (x == 0) {
-		xclear(0, (y == 0)? 0 : winy, win.hborderpx,
-			winy + win.ch +
-			((winy + win.ch >= win.vborderpx + win.th)? win.h : 0));
-	}
-	if (winx + width >= win.hborderpx + win.tw) {
-		xclear(winx + width, (y == 0)? 0 : winy, win.w,
-			((winy + win.ch >= win.vborderpx + win.th)? win.h : (winy + win.ch)));
-	}
-	if (y == 0)
-		xclear(winx, 0, winx + width, win.vborderpx);
-	if (winy + win.ch >= win.vborderpx + win.th)
-		xclear(winx, winy + win.ch, winx + width, win.h);
-	#else
 	if (x == 0) {
 		xclear(0, (y == 0)? 0 : winy, borderpx,
 			winy + win.ch +
@@ -1980,7 +1938,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		xclear(winx, 0, winx + width, borderpx);
 	if (winy + win.ch >= borderpx + win.th)
 		xclear(winx, winy + win.ch, winx + width, win.h);
-	#endif // ANYSIZE_PATCH
 
 	/* Clean up the region we want to draw to. */
 	#if BACKGROUND_IMAGE_PATCH
@@ -2407,11 +2364,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		if (x + charlen > x1 && x <= x2) {
 			int xu = MAX(x, x1);
 			int wu = (x2 - xu + 1) * win.cw;
-			#if ANYSIZE_PATCH
-			xu = win.hborderpx + xu * win.cw;
-			#else
 			xu = borderpx + xu * win.cw;
-			#endif // ANYSIZE_PATCH
 			#if VERTCENTER_PATCH
 			XftDrawRect(xw.draw, fg, xu, winy + win.cyo + dc.font.ascent * chscale + 2, wu, 1);
 			#else
@@ -2551,19 +2504,11 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 			/* FALLTHROUGH */
 			#endif // BLINKING_CURSOR_PATCH
 		case 4: /* Steady underline */
-			#if ANYSIZE_PATCH
-			XftDrawRect(xw.draw, &drawcol,
-					win.hborderpx + cx * win.cw,
-					win.vborderpx + (cy + 1) * win.ch - \
-						cursorthickness,
-					win.cw, cursorthickness);
-			#else
 			XftDrawRect(xw.draw, &drawcol,
 					borderpx + cx * win.cw,
 					borderpx + (cy + 1) * win.ch - \
 						cursorthickness,
 					win.cw, cursorthickness);
-			#endif // ANYSIZE_PATCH
 			break;
 		case 5: /* Blinking bar */
 			#if BLINKING_CURSOR_PATCH
@@ -2573,13 +2518,8 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 			#endif // BLINKING_CURSOR_PATCH
 		case 6: /* Steady bar */
 			XftDrawRect(xw.draw, &drawcol,
-					#if ANYSIZE_PATCH
-					win.hborderpx + cx * win.cw,
-					win.vborderpx + cy * win.ch,
-					#else
 					borderpx + cx * win.cw,
 					borderpx + cy * win.ch,
-					#endif // ANYSIZE_PATCH
 					cursorthickness, win.ch);
 			break;
 		#if BLINKING_CURSOR_PATCH
@@ -2595,40 +2535,20 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 		}
 	} else {
 		XftDrawRect(xw.draw, &drawcol,
-				#if ANYSIZE_PATCH
-				win.hborderpx + cx * win.cw,
-				win.vborderpx + cy * win.ch,
-				#else
 				borderpx + cx * win.cw,
 				borderpx + cy * win.ch,
-				#endif // ANYSIZE_PATCH
 				win.cw - 1, 1);
 		XftDrawRect(xw.draw, &drawcol,
-				#if ANYSIZE_PATCH
-				win.hborderpx + cx * win.cw,
-				win.vborderpx + cy * win.ch,
-				#else
 				borderpx + cx * win.cw,
 				borderpx + cy * win.ch,
-				#endif // ANYSIZE_PATCH
 				1, win.ch - 1);
 		XftDrawRect(xw.draw, &drawcol,
-				#if ANYSIZE_PATCH
-				win.hborderpx + (cx + 1) * win.cw - 1,
-				win.vborderpx + cy * win.ch,
-				#else
 				borderpx + (cx + 1) * win.cw - 1,
 				borderpx + cy * win.ch,
-				#endif // ANYSIZE_PATCH
 				1, win.ch - 1);
 		XftDrawRect(xw.draw, &drawcol,
-				#if ANYSIZE_PATCH
-				win.hborderpx + cx * win.cw,
-				win.vborderpx + (cy + 1) * win.ch - 1,
-				#else
 				borderpx + cx * win.cw,
 				borderpx + (cy + 1) * win.ch - 1,
-				#endif // ANYSIZE_PATCH
 				win.cw, 1);
 	}
 }
@@ -2836,11 +2756,7 @@ xfinishdraw(void)
 	GC gc = NULL;
 	int width, height;
 	int del, desty, mode, x1, x2, xend;
-	#if ANYSIZE_PATCH
-	int bw = win.hborderpx, bh = win.vborderpx;
-	#else
 	int bw = borderpx, bh = borderpx;
-	#endif // ANYSIZE_PATCH
 	Line line;
 
 	for (im = term.images; im; im = next) {
@@ -3194,13 +3110,8 @@ kpress(XEvent *ev)
 
 	if (xw.pointerisvisible && enabled(HideCursor)) {
 		#if OPENURLONCLICK_PATCH
-		#if ANYSIZE_PATCH
-		int x = e->x - win.hborderpx;
-		int y = e->y - win.vborderpx;
-		#else
 		int x = e->x - borderpx;
 		int y = e->y - borderpx;
-		#endif // ANYSIZE_PATCH
 		LIMIT(x, 0, win.tw - 1);
 		LIMIT(y, 0, win.th - 1);
 		if (!detecturl(x / win.cw, y / win.ch, 0)) {

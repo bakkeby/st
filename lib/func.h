@@ -7,7 +7,7 @@ static const uint64_t
 	HideCursor = 0x20,
 	SwapMouse = 0x40,
 	ThemedCursor = 0x80,
-	FuncPlaceholderStatus2DNoAlpha = 0x100, // option to not use alpha when drawing status2d status
+	AnySize = 0x100,
 	FuncPlaceholderSystray = 0x200, // enables systray
 	FuncPlaceholderBarBorder = 0x400, // draw a border around the bar
 	FuncPlaceholderNoBorders = 0x800, // as per the noborder patch, show no border when only one client in tiled mode
@@ -75,6 +75,7 @@ struct nv {
 static const struct nv function_names[] = {
     map(Alpha),
     map(AlphaFocusHighlight),
+    map(AnySize),
     map(BoxDraw),
     map(BoxDrawBoldAffectsLineThickness),
     map(BoxDrawForBraille),
