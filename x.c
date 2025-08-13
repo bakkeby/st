@@ -789,6 +789,8 @@ brelease(XEvent *e)
 void
 bmotion(XEvent *e)
 {
+	XMotionEvent *me = &e->xmotion;
+
 	if (!xw.pointerisvisible) {
 		if (enabled(SwapMouse) && (win.mode & MODE_MOUSE)) {
 			XUndefineCursor(xw.dpy, xw.win);
@@ -813,6 +815,14 @@ bmotion(XEvent *e)
 	if (X_IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
 		mousereport(e);
 		return;
+	}
+
+	if (e->xbutton.state & Button1Mask) {
+		if (me->y < borderpx + win.ch / 2) {
+			kscrollup(&((Arg){ .i = 1 }));
+		} else if (me->y > win.h - borderpx - win.ch / 2) {
+			kscrolldown(&((Arg){ .i = 1 }));
+		}
 	}
 
 	mousesel(e, 0);
