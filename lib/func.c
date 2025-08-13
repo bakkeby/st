@@ -25,7 +25,11 @@ disablefunc(const uint64_t functionality)
 void
 setenabled(const uint64_t functionality, int enabled)
 {
-	settings = ~functionality | (enabled ? functionality : 0);
+	if (enabled) {
+		enablefunc(functionality);
+	} else {
+		disablefunc(functionality);
+	}
 }
 
 void

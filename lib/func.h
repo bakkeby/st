@@ -4,8 +4,8 @@ static const uint64_t
 	BoxDraw = 0x4,
 	BoxDrawBoldAffectsLineThickness = 0x8,
 	BoxDrawForBraille = 0x10,
-	HideCursor = 0x20, // Hide the X cursor whenever a key is pressed
-	FuncPlaceholderBarMasterGroupBorderColor = 0x40, // use border color of master group, otherwise normal scheme is used
+	HideCursor = 0x20,
+	SwapMouse = 0x40,
 	FuncPlaceholderColorEmoji = 0x80,
 	FuncPlaceholderStatus2DNoAlpha = 0x100, // option to not use alpha when drawing status2d status
 	FuncPlaceholderSystray = 0x200, // enables systray
@@ -79,7 +79,7 @@ static const struct nv function_names[] = {
     map(BoxDrawBoldAffectsLineThickness),
     map(BoxDrawForBraille),
     map(HideCursor),
-    map(FuncPlaceholderBarMasterGroupBorderColor),
+    map(SwapMouse),
     map(FuncPlaceholderColorEmoji),
     { NULL, 0 }
 };

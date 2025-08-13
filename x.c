@@ -228,10 +228,7 @@ static int cursorblinks = 0;
 #if VISUALBELL_1_PATCH
 static int bellon = 0;    /* visual bell status */
 #endif // VISUALBELL_1_PATCH
-#if SWAPMOUSE_PATCH
-static Cursor cursor;
 static XColor xmousefg, xmousebg;
-#endif // SWAPMOUSE_PATCH
 
 #include "lib/x_include.c"
 
@@ -804,14 +801,11 @@ void
 bmotion(XEvent *e)
 {
 	if (!xw.pointerisvisible) {
-		#if SWAPMOUSE_PATCH
-		if (win.mode & MODE_MOUSE)
+		if (enabled(SwapMouse) && (win.mode & MODE_MOUSE)) {
 			XUndefineCursor(xw.dpy, xw.win);
-		else
+		} else {
 			XDefineCursor(xw.dpy, xw.win, xw.vpointer);
-		#else
-		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
-		#endif // SWAPMOUSE_PATCH
+		}
 		xw.pointerisvisible = 1;
 		if (!X_IS_SET(MODE_MOUSEMANY))
 			xsetpointermotion(0);
@@ -1370,14 +1364,8 @@ xinit(int cols, int rows)
 {
 	XGCValues gcvalues;
 	Pixmap blankpm;
-	#if SWAPMOUSE_PATCH
-	Cursor cursor;
-	#endif // SWAPMOUSE_PATCH
 	Window parent, root;
 	pid_t thispid = getpid();
-	#if !SWAPMOUSE_PATCH
-	XColor xmousefg, xmousebg;
-	#endif // SWAPMOUSE_PATCH
 	#if ALPHA_PATCH
 	XWindowAttributes attr;
 	XVisualInfo vis;
@@ -3043,17 +3031,13 @@ xsetmode(int set, unsigned int flags)
 {
 	int mode = win.mode;
 	MODBIT(win.mode, set, flags);
-	#if SWAPMOUSE_PATCH
+
 	if ((flags & MODE_MOUSE) && xw.pointerisvisible) {
-		if (win.mode & MODE_MOUSE)
+		if (enabled(SwapMouse) && (win.mode & MODE_MOUSE))
 			XUndefineCursor(xw.dpy, xw.win);
 		else
 			XDefineCursor(xw.dpy, xw.win, xw.vpointer);
 	}
-	#elif OPENURLONCLICK_PATCH
-	if (win.mode & MODE_MOUSE && xw.pointerisvisible)
-		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
-	#endif // SWAPMOUSE_PATCH
 	if ((win.mode & MODE_REVERSE) != (mode & MODE_REVERSE))
 		redraw();
 }
