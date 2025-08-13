@@ -6,7 +6,7 @@ static const uint64_t
 	BoxDrawForBraille = 0x10,
 	HideCursor = 0x20,
 	SwapMouse = 0x40,
-	FuncPlaceholderColorEmoji = 0x80,
+	ThemedCursor = 0x80,
 	FuncPlaceholderStatus2DNoAlpha = 0x100, // option to not use alpha when drawing status2d status
 	FuncPlaceholderSystray = 0x200, // enables systray
 	FuncPlaceholderBarBorder = 0x400, // draw a border around the bar
@@ -80,7 +80,7 @@ static const struct nv function_names[] = {
     map(BoxDrawForBraille),
     map(HideCursor),
     map(SwapMouse),
-    map(FuncPlaceholderColorEmoji),
+    map(ThemedCursor),
     { NULL, 0 }
 };
 

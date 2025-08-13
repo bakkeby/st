@@ -17,8 +17,8 @@ PKG_CONFIG = pkg-config
 # Uncomment this for the alpha patch / ALPHA_PATCH
 #XRENDER = `$(PKG_CONFIG) --libs xrender`
 
-# Uncomment this for the themed cursor patch / THEMED_CURSOR_PATCH
-#XCURSOR = `$(PKG_CONFIG) --libs xcursor`
+# Required for themed cursor support
+XCURSOR = `$(PKG_CONFIG) --libs xcursor`
 
 # Required for sixel ligatures support
 LIGATURES_C = hb.c

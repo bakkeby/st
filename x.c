@@ -3,6 +3,7 @@
 #include <math.h>
 #include <limits.h>
 #include <locale.h>
+#include <Imlib2.h>
 #include <signal.h>
 #include <sys/select.h>
 #include <time.h>
@@ -12,6 +13,7 @@
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
+#include <X11/Xcursor/Xcursor.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
@@ -21,11 +23,6 @@ char *argv0;
 #include "win.h"
 #include "hb.h"
 
-#if THEMED_CURSOR_PATCH
-#include <X11/Xcursor/Xcursor.h>
-#endif // THEMED_CURSOR_PATCH
-
-#include <Imlib2.h>
 #include "sixel.h"
 
 #if UNDERCURL_PATCH
@@ -1509,30 +1506,33 @@ xinit(int cols, int rows)
 
 	/* white cursor, black outline */
 	xw.pointerisvisible = 1;
-	#if THEMED_CURSOR_PATCH
-	xw.vpointer = XcursorLibraryLoadCursor(xw.dpy, mouseshape);
-	#else
-	xw.vpointer = XCreateFontCursor(xw.dpy, mouseshape);
-	#endif // THEMED_CURSOR_PATCH
-	XDefineCursor(xw.dpy, xw.win, xw.vpointer);
 
-	#if !THEMED_CURSOR_PATCH
-	if (XParseColor(xw.dpy, xw.cmap, colorname[mousefg], &xmousefg) == 0) {
-		xmousefg.red   = 0xffff;
-		xmousefg.green = 0xffff;
-		xmousefg.blue  = 0xffff;
+	if (enabled(ThemedCursor)) {
+		if (mouseshape_text) {
+			xw.vpointer = XcursorLibraryLoadCursor(xw.dpy, mouseshape_text);
+		} else {
+			xw.vpointer = XcursorShapeLoadCursor(xw.dpy, mouseshape);
+		}
+		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
+	} else {
+		xw.vpointer = XCreateFontCursor(xw.dpy, mouseshape);
+		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
+
+		if (XParseColor(xw.dpy, xw.cmap, colorname[mousefg], &xmousefg) == 0) {
+			xmousefg.red   = 0xffff;
+			xmousefg.green = 0xffff;
+			xmousefg.blue  = 0xffff;
+		}
+
+		if (XParseColor(xw.dpy, xw.cmap, colorname[mousebg], &xmousebg) == 0) {
+			xmousebg.red   = 0x0000;
+			xmousebg.green = 0x0000;
+			xmousebg.blue  = 0x0000;
+		}
+
+		XRecolorCursor(xw.dpy, xw.vpointer, &xmousefg, &xmousebg);
 	}
 
-	if (XParseColor(xw.dpy, xw.cmap, colorname[mousebg], &xmousebg) == 0) {
-		xmousebg.red   = 0x0000;
-		xmousebg.green = 0x0000;
-		xmousebg.blue  = 0x0000;
-	}
-	#endif // THEMED_CURSOR_PATCH
-
-	#if !THEMED_CURSOR_PATCH
-	XRecolorCursor(xw.dpy, xw.vpointer, &xmousefg, &xmousebg);
-	#endif // THEMED_CURSOR_PATCH
 	blankpm = XCreateBitmapFromData(xw.dpy, xw.win, &(char){0}, 1, 1);
 	xw.bpointer = XCreatePixmapCursor(xw.dpy, blankpm, blankpm,
 					  &xmousefg, &xmousebg, 0, 0);

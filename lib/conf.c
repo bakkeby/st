@@ -13,49 +13,56 @@ char *utmp = NULL;
 char *scroll = NULL;
 char *stty_args = NULL;
 char *termname = NULL;
+char *mouseshape_text = NULL;
 wchar_t *worddelimiters = NULL;
 wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
 int histsize = 2000;
 uint64_t settings = 0;
 
-void set_config_path(const char* filename, char *config_path, char *config_file);
-int setting_length(const config_setting_t *cfg);
-const char *setting_get_string_elem(const config_setting_t *cfg, int i);
-int setting_get_int_elem(const config_setting_t *cfg, int i);
-const config_setting_t *setting_get_elem(const config_setting_t *cfg, int i);
+static void set_config_path(const char* filename, char *config_path, char *config_file);
+static int setting_length(const config_setting_t *cfg);
+static const char *setting_get_string_elem(const config_setting_t *cfg, int i);
+static int setting_get_int_elem(const config_setting_t *cfg, int i);
+static const config_setting_t *setting_get_elem(const config_setting_t *cfg, int i);
 
-int config_lookup_sloppy_bool(const config_t *cfg, const char *name, int *ptr);
-int config_setting_lookup_sloppy_bool(const config_setting_t *cfg, const char *name, int *ptr);
-int _config_setting_get_sloppy_bool(const config_setting_t *cfg, int *ptr);
+static int config_lookup_sloppy_bool(const config_t *cfg, const char *name, int *ptr);
+static int config_setting_lookup_sloppy_bool(const config_setting_t *cfg, const char *name, int *ptr);
+static int _config_setting_get_sloppy_bool(const config_setting_t *cfg, int *ptr);
 
-int config_lookup_wcsdup(const config_t *cfg, const char *name, wchar_t **wcsptr);
-int config_setting_lookup_wcsdup(const config_setting_t *cfg, const char *name, wchar_t **wcsptr);
-int _config_setting_wcsdup_string(const config_setting_t *cfg_item, wchar_t **wcsptr);
+static int config_lookup_wcsdup(const config_t *cfg, const char *name, wchar_t **wcsptr);
+static int config_setting_lookup_wcsdup(const config_setting_t *cfg, const char *name, wchar_t **wcsptr);
+static int _config_setting_wcsdup_string(const config_setting_t *cfg_item, wchar_t **wcsptr);
 
-int config_lookup_simple_float(const config_t *cfg, const char *name, float *floatptr);
-int config_setting_lookup_simple_float(const config_setting_t *cfg, const char *name, float *floatptr);
-int _config_setting_get_simple_float(const config_setting_t *cfg_item, float *floatptr);
+static int config_lookup_simple_float(const config_t *cfg, const char *name, float *floatptr);
+static int config_setting_lookup_simple_float(const config_setting_t *cfg, const char *name, float *floatptr);
+static int _config_setting_get_simple_float(const config_setting_t *cfg_item, float *floatptr);
 
-int config_lookup_strdup(const config_t *cfg, const char *name, char **strptr);
-int config_setting_lookup_strdup(const config_setting_t *cfg, const char *name, char **strptr);
-int _config_setting_strdup_string(const config_setting_t *cfg_item, char **strptr);
+static int config_lookup_strdup(const config_t *cfg, const char *name, char **strptr);
+static int config_setting_lookup_strdup(const config_setting_t *cfg, const char *name, char **strptr);
+static int _config_setting_strdup_string(const config_setting_t *cfg_item, char **strptr);
 
-int config_lookup_unsigned_int(const config_t *cfg, const char *name, unsigned int *ptr);
-int config_setting_lookup_unsigned_int(const config_setting_t *cfg, const char *name, unsigned int *ptr);
-int _config_setting_get_unsigned_int(const config_setting_t *cfg_item, unsigned int *ptr);
+static int config_lookup_unsigned_int(const config_t *cfg, const char *name, unsigned int *ptr);
+static int config_setting_lookup_unsigned_int(const config_setting_t *cfg, const char *name, unsigned int *ptr);
+static int _config_setting_get_unsigned_int(const config_setting_t *cfg_item, unsigned int *ptr);
 
-void cleanup_config(void);
-void load_config(void);
-void load_fallback_config(void);
-void load_misc(config_t *cfg);
-void load_fonts(config_t *cfg);
-void load_functionality(config_t *cfg);
+static void cleanup_config(void);
+static void load_config(void);
+static void load_fallback_config(void);
+static void load_misc(config_t *cfg);
+static void load_fonts(config_t *cfg);
+static void load_functionality(config_t *cfg);
+static void load_mouse_cursor(config_t *cfg);
+static unsigned int parse_cursor_shape(const char *string);
 
-wchar_t *char_to_wchar(const char *string);
-wchar_t *wcsdup(const wchar_t *string);
+static wchar_t *char_to_wchar(const char *string);
+static wchar_t *wcsdup(const wchar_t *string);
 
-int parse_byteorder(const char *string);
+static int parse_byteorder(const char *string);
+static inline int startswith(const char *needle, const char *haystack)
+{
+	return !strncmp(haystack, needle, strlen(needle));
+}
 
 void
 set_config_path(const char* filename, char *config_path, char *config_file)
@@ -304,6 +311,7 @@ load_config(void)
 		load_misc(&cfg);
 		load_fonts(&cfg);
 		load_functionality(&cfg);
+		load_mouse_cursor(&cfg);
 
 	} else if (strcmp(config_error_text(&cfg), "file I/O error")) {
 		fprintf(stderr, "Error reading config at %s\n", config_file);
@@ -447,7 +455,31 @@ load_functionality(config_t *cfg)
 	}
 }
 
-#undef map
+void
+load_mouse_cursor(config_t *cfg)
+{
+	const char *string;
+	config_setting_t *shape_t = config_lookup(cfg, "mouse_cursor_shape");
+	if (!shape_t)
+		return;
+
+	switch (config_setting_type(shape_t)) {
+	case CONFIG_TYPE_INT:
+		_config_setting_get_unsigned_int(shape_t, &mouseshape);
+		break;
+	case CONFIG_TYPE_STRING:
+		string = config_setting_get_string(shape_t);
+		if (startswith("XC_", string))
+			string += 3;
+
+		if (strlen(string)) {
+			mouseshape = parse_cursor_shape(string);
+			mouseshape_text = strdup(string);
+		}
+
+		break;
+	}
+}
 
 wchar_t *
 char_to_wchar(const char *string)
@@ -499,6 +531,89 @@ parse_byteorder(const char *string)
 
 	fprintf(stderr, "Warning: config could not find byte order with name %s\n", string);
 	return LSBFirst;
+}
+
+unsigned int
+parse_cursor_shape(const char *string)
+{
+	map("arrow", XC_arrow);
+	map("based_arrow_down", XC_based_arrow_down);
+	map("based_arrow_up", XC_based_arrow_up);
+	map("boat", XC_boat);
+	map("bogosity", XC_bogosity);
+	map("bottom_left_corner", XC_bottom_left_corner);
+	map("bottom_right_corner", XC_bottom_right_corner);
+	map("bottom_side", XC_bottom_side);
+	map("bottom_tee", XC_bottom_tee);
+	map("box_spiral", XC_box_spiral);
+	map("center_ptr", XC_center_ptr);
+	map("circle", XC_circle);
+	map("clock", XC_clock);
+	map("coffee_mug", XC_coffee_mug);
+	map("cross", XC_cross);
+	map("cross_reverse", XC_cross_reverse);
+	map("crosshair", XC_crosshair);
+	map("diamond_cross", XC_diamond_cross);
+	map("dot", XC_dot);
+	map("dotbox", XC_dotbox);
+	map("double_arrow", XC_double_arrow);
+	map("draft_large", XC_draft_large);
+	map("draft_small", XC_draft_small);
+	map("draped_box", XC_draped_box);
+	map("exchange", XC_exchange);
+	map("fleur", XC_fleur);
+	map("gobbler", XC_gobbler);
+	map("gumby", XC_gumby);
+	map("hand1", XC_hand1);
+	map("hand2", XC_hand2);
+	map("heart", XC_heart);
+	map("icon", XC_icon);
+	map("iron_cross", XC_iron_cross);
+	map("left_ptr", XC_left_ptr);
+	map("left_side", XC_left_side);
+	map("left_tee", XC_left_tee);
+	map("leftbutton", XC_leftbutton);
+	map("ll_angle", XC_ll_angle);
+	map("lr_angle", XC_lr_angle);
+	map("man", XC_man);
+	map("middlebutton", XC_middlebutton);
+	map("mouse", XC_mouse);
+	map("pencil", XC_pencil);
+	map("pirate", XC_pirate);
+	map("plus", XC_plus);
+	map("question_arrow", XC_question_arrow);
+	map("right_ptr", XC_right_ptr);
+	map("right_side", XC_right_side);
+	map("right_tee", XC_right_tee);
+	map("rightbutton", XC_rightbutton);
+	map("rtl_logo", XC_rtl_logo);
+	map("sailboat", XC_sailboat);
+	map("sb_down_arrow", XC_sb_down_arrow);
+	map("sb_h_double_arrow", XC_sb_h_double_arrow);
+	map("sb_left_arrow", XC_sb_left_arrow);
+	map("sb_right_arrow", XC_sb_right_arrow);
+	map("sb_up_arrow", XC_sb_up_arrow);
+	map("sb_v_double_arrow", XC_sb_v_double_arrow);
+	map("shuttle", XC_shuttle);
+	map("sizing", XC_sizing);
+	map("spider", XC_spider);
+	map("spraycan", XC_spraycan);
+	map("star", XC_star);
+	map("target", XC_target);
+	map("tcross", XC_tcross);
+	map("top_left_arrow", XC_top_left_arrow);
+	map("top_left_corner", XC_top_left_corner);
+	map("top_right_corner", XC_top_right_corner);
+	map("top_side", XC_top_side);
+	map("top_tee", XC_top_tee);
+	map("trek", XC_trek);
+	map("ul_angle", XC_ul_angle);
+	map("umbrella", XC_umbrella);
+	map("ur_angle", XC_ur_angle);
+	map("watch", XC_watch);
+	map("xterm", XC_xterm);
+
+	return XC_xterm;
 }
 
 #undef map
@@ -570,10 +685,6 @@ geometry - CellGeometry or PixelGeometry
 width
 height
 
-# themed cursor
-mouseshape
-
-mouseshape <-- name conflict
 mousefg
 mousebg
 
