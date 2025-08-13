@@ -56,12 +56,6 @@
  */
 #define BLINKING_CURSOR_PATCH 0
 
-/* By default bold text is rendered with a bold font in the bright variant of the current color.
- * This patch makes bold text rendered simply as bold, leaving the color unaffected.
- * https://st.suckless.org/patches/bold-is-not-bright/
- */
-#define BOLD_IS_NOT_BRIGHT_PATCH 0
-
 /* By default st only sets PRIMARY on selection.
  * This patch makes st set CLIPBOARD on selection.
  * https://st.suckless.org/patches/clipboard/
