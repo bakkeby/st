@@ -63,10 +63,8 @@ static void zoomreset(const Arg *);
 /* config.h for applying patches and the configuration. */
 #include "config.h"
 
-#if CSI_22_23_PATCH
 /* size of title stack */
 #define TITLESTACKSIZE 8
-#endif // CSI_22_23_PATCH
 
 /* XEMBED messages */
 #define XEMBED_FOCUS_IN  4
@@ -168,10 +166,8 @@ XWindow xw;
 XSelection xsel;
 TermWindow win;
 
-#if CSI_22_23_PATCH
 static int tstki; /* title stack index */
 static char *titlestack[TITLESTACKSIZE]; /* title stack */
-#endif // CSI_22_23_PATCH
 
 /* Font Ring Cache */
 enum {
@@ -2587,7 +2583,6 @@ xseticontitle(char *p)
 	XFree(prop.value);
 }
 
-#if CSI_22_23_PATCH
 void
 xsettitle(char *p, int pop)
 {
@@ -2631,24 +2626,6 @@ xfreetitlestack(void)
 		titlestack[i] = NULL;
 	}
 }
-#else
-void
-xsettitle(char *p)
-{
-	XTextProperty prop;
-	DEFAULT(p, opt_title);
-
-	if (p[0] == '\0')
-		p = opt_title;
-
-	if (Xutf8TextListToTextProperty(xw.dpy, &p, 1, XUTF8StringStyle,
-			&prop) != Success)
-		return;
-	XSetWMName(xw.dpy, xw.win, &prop);
-	XSetTextProperty(xw.dpy, xw.win, &prop, xw.netwmname);
-	XFree(prop.value);
-}
-#endif // CSI_22_23_PATCH
 
 int
 xstartdraw(void)

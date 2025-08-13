@@ -1773,7 +1773,6 @@ csihandle(void)
 			n = snprintf(buffer, sizeof buffer, "\033[8;%d;%dt", term.row, term.col);
 			ttywrite(buffer, n, 1);
 			break;
-		#if CSI_22_23_PATCH
 		case 22: /* pust current title on stack */
 			switch (csiescseq.arg[1]) {
 			case 0:
@@ -1796,7 +1795,6 @@ csihandle(void)
 				goto unknown;
 			}
 			break;
-		#endif // CSI_22_23_PATCH
 		default:
 			goto unknown;
 		}
@@ -1902,11 +1900,7 @@ strhandle(void)
 		switch (par) {
 		case 0:
 			if (narg > 1) {
-				#if CSI_22_23_PATCH
 				xsettitle(strescseq.args[1], 0);
-				#else
-				xsettitle(strescseq.args[1]);
-				#endif // CSI_22_23_PATCH
 				xseticontitle(strescseq.args[1]);
 			}
 			return;
@@ -1916,11 +1910,7 @@ strhandle(void)
 			return;
 		case 2:
 			if (narg > 1)
-				#if CSI_22_23_PATCH
 				xsettitle(strescseq.args[1], 0);
-				#else
-				xsettitle(strescseq.args[1]);
-				#endif // CSI_22_23_PATCH
 			return;
 		case 52: /* manipulate selection data */
 			if (narg > 2 && allowwindowops) {
@@ -2018,11 +2008,7 @@ strhandle(void)
 		}
 		break;
 	case 'k': /* old title set compatibility */
-		#if CSI_22_23_PATCH
 		xsettitle(strescseq.args[0], 0);
-		#else
-		xsettitle(strescseq.args[0]);
-		#endif // CSI_22_23_PATCH
 		return;
 	case 'P': /* DCS -- Device Control String */
 		if (IS_SET(MODE_SIXEL)) {
@@ -2537,9 +2523,7 @@ eschandle(uchar ascii)
 		break;
 	case 'c': /* RIS -- Reset to initial state */
 		treset();
-		#if CSI_22_23_PATCH
 		xfreetitlestack();
-		#endif // CSI_22_23_PATCH
 		resettitle();
 		xloadcols();
 		xsetmode(0, MODE_HIDE);
@@ -2787,11 +2771,7 @@ twrite(const char *buf, int buflen, int show_ctrl)
 void
 resettitle(void)
 {
-	#if CSI_22_23_PATCH
 	xsettitle(NULL, 0);
-	#else
-	xsettitle(NULL);
-	#endif // CSI_22_23_PATCH
 }
 
 void
