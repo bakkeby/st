@@ -803,7 +803,6 @@ brelease(XEvent *e)
 void
 bmotion(XEvent *e)
 {
-	#if HIDECURSOR_PATCH
 	if (!xw.pointerisvisible) {
 		#if SWAPMOUSE_PATCH
 		if (win.mode & MODE_MOUSE)
@@ -817,7 +816,7 @@ bmotion(XEvent *e)
 		if (!X_IS_SET(MODE_MOUSEMANY))
 			xsetpointermotion(0);
 	}
-	#endif // HIDECURSOR_PATCH
+
 	#if OPENURLONCLICK_PATCH
 	if (!X_IS_SET(MODE_MOUSE)) {
 		if (!(e->xbutton.state & Button1Mask) && detecturl(evcol(e), evrow(e), 1))
@@ -1370,11 +1369,10 @@ void
 xinit(int cols, int rows)
 {
 	XGCValues gcvalues;
-	#if HIDECURSOR_PATCH
 	Pixmap blankpm;
-	#elif !SWAPMOUSE_PATCH
+	#if SWAPMOUSE_PATCH
 	Cursor cursor;
-	#endif // HIDECURSOR_PATCH
+	#endif // SWAPMOUSE_PATCH
 	Window parent, root;
 	pid_t thispid = getpid();
 	#if !SWAPMOUSE_PATCH
@@ -1522,7 +1520,6 @@ xinit(int cols, int rows)
 	}
 
 	/* white cursor, black outline */
-	#if HIDECURSOR_PATCH
 	xw.pointerisvisible = 1;
 	#if THEMED_CURSOR_PATCH
 	xw.vpointer = XcursorLibraryLoadCursor(xw.dpy, mouseshape);
@@ -1530,13 +1527,6 @@ xinit(int cols, int rows)
 	xw.vpointer = XCreateFontCursor(xw.dpy, mouseshape);
 	#endif // THEMED_CURSOR_PATCH
 	XDefineCursor(xw.dpy, xw.win, xw.vpointer);
-	#elif THEMED_CURSOR_PATCH
-	cursor = XcursorLibraryLoadCursor(xw.dpy, mouseshape);
-	XDefineCursor(xw.dpy, xw.win, cursor);
-	#else
-	cursor = XCreateFontCursor(xw.dpy, mouseshape);
-	XDefineCursor(xw.dpy, xw.win, cursor);
-	#endif // HIDECURSOR_PATCH
 
 	#if !THEMED_CURSOR_PATCH
 	if (XParseColor(xw.dpy, xw.cmap, colorname[mousefg], &xmousefg) == 0) {
@@ -1552,23 +1542,15 @@ xinit(int cols, int rows)
 	}
 	#endif // THEMED_CURSOR_PATCH
 
-	#if HIDECURSOR_PATCH
 	#if !THEMED_CURSOR_PATCH
 	XRecolorCursor(xw.dpy, xw.vpointer, &xmousefg, &xmousebg);
 	#endif // THEMED_CURSOR_PATCH
 	blankpm = XCreateBitmapFromData(xw.dpy, xw.win, &(char){0}, 1, 1);
 	xw.bpointer = XCreatePixmapCursor(xw.dpy, blankpm, blankpm,
 					  &xmousefg, &xmousebg, 0, 0);
-	#elif !THEMED_CURSOR_PATCH
-	XRecolorCursor(xw.dpy, cursor, &xmousefg, &xmousebg);
-	#endif // HIDECURSOR_PATCH
 
 	#if OPENURLONCLICK_PATCH
 	xw.upointer = XCreateFontCursor(xw.dpy, XC_hand2);
-	#if !HIDECURSOR_PATCH
-	xw.vpointer = cursor;
-	xw.pointerisvisible = 1;
-	#endif // HIDECURSOR_PATCH
 	#endif // OPENURLONCLICK_PATCH
 
 	xw.xembed = XInternAtom(xw.dpy, "_XEMBED", False);
@@ -3046,10 +3028,9 @@ unmap(XEvent *ev)
 void
 xsetpointermotion(int set)
 {
-	#if HIDECURSOR_PATCH
 	if (!set && !xw.pointerisvisible)
 		return;
-	#endif // HIDECURSOR_PATCH
+
 	#if OPENURLONCLICK_PATCH
 	set = 1; /* keep MotionNotify event enabled */
 	#endif // OPENURLONCLICK_PATCH
@@ -3063,19 +3044,11 @@ xsetmode(int set, unsigned int flags)
 	int mode = win.mode;
 	MODBIT(win.mode, set, flags);
 	#if SWAPMOUSE_PATCH
-	if ((flags & MODE_MOUSE)
-	#if HIDECURSOR_PATCH
-		&& xw.pointerisvisible
-	#endif // HIDECURSOR_PATCH
-	) {
+	if ((flags & MODE_MOUSE) && xw.pointerisvisible) {
 		if (win.mode & MODE_MOUSE)
 			XUndefineCursor(xw.dpy, xw.win);
 		else
-			#if HIDECURSOR_PATCH
 			XDefineCursor(xw.dpy, xw.win, xw.vpointer);
-			#else
-			XDefineCursor(xw.dpy, xw.win, cursor);
-			#endif // HIDECURSOR_PATCH
 	}
 	#elif OPENURLONCLICK_PATCH
 	if (win.mode & MODE_MOUSE && xw.pointerisvisible)
@@ -3235,8 +3208,7 @@ kpress(XEvent *ev)
 	Status status;
 	Shortcut *bp;
 
-	#if HIDECURSOR_PATCH
-	if (xw.pointerisvisible && hidecursor) {
+	if (xw.pointerisvisible && enabled(HideCursor)) {
 		#if OPENURLONCLICK_PATCH
 		#if ANYSIZE_PATCH
 		int x = e->x - win.hborderpx;
@@ -3258,7 +3230,6 @@ kpress(XEvent *ev)
 		xw.pointerisvisible = 0;
 		#endif // OPENURLONCLICK_PATCH
 	}
-	#endif // HIDECURSOR_PATCH
 
 	if (X_IS_SET(MODE_KBDLOCK))
 		return;

@@ -99,11 +99,6 @@ static unsigned int blinktimeout = 800;
  */
 static unsigned int cursorthickness = 2;
 
-#if HIDECURSOR_PATCH
-/* Hide the X cursor whenever a key is pressed. 0: off, 1: on */
-int hidecursor = 1;
-#endif // HIDECURSOR_PATCH
-
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling
  * it

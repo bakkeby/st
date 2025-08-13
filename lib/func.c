@@ -23,6 +23,12 @@ disablefunc(const uint64_t functionality)
 }
 
 void
+setenabled(const uint64_t functionality, int enabled)
+{
+	settings = ~functionality | (enabled ? functionality : 0);
+}
+
+void
 togglefunc(const uint64_t functionality)
 {
 	settings ^= functionality;

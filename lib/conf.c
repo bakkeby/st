@@ -403,7 +403,6 @@ load_misc(config_t *cfg)
 	config_lookup_float(cfg, "maxlatency", &maxlatency);
 	config_lookup_unsigned_int(cfg, "blink_timeout", &blinktimeout);
 	config_lookup_unsigned_int(cfg, "cursor_thickness", &cursorthickness);
-//	config_lookup_sloppy_bool(cfg, "hide_cursor", &hidecursor);
 	config_lookup_int(cfg, "bell_volume", &bellvolume);
 	config_lookup_unsigned_int(cfg, "cols", &cols);
 	config_lookup_unsigned_int(cfg, "rows", &rows);
@@ -441,13 +440,9 @@ load_functionality(config_t *cfg)
 	if (!func_t)
 		return;
 
-
 	for (i = 0; function_names[i].name != NULL; i++) {
-		config_setting_lookup_sloppy_bool(func_t, function_names[i].name, &enabled);
-		if (enabled) {
-			enablefunc(function_names[i].value);
-		} else {
-			disablefunc(function_names[i].value);
+		if (config_setting_lookup_sloppy_bool(func_t, function_names[i].name, &enabled)) {
+			setenabled(function_names[i].value, enabled);
 		}
 	}
 }
@@ -525,9 +520,6 @@ url_opener
 
 # sync patch
 su_timeout
-
-# hidecursor (decide between this and swapmouse?)
-hidecursor
 
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
 

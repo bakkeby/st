@@ -4,7 +4,7 @@ static const uint64_t
 	BoxDraw = 0x4,
 	BoxDrawBoldAffectsLineThickness = 0x8,
 	BoxDrawForBraille = 0x10,
-	FuncPlaceholderBarActiveGroupBorderColor = 0x20, // use border color of active group, otherwise normal scheme is used
+	HideCursor = 0x20, // Hide the X cursor whenever a key is pressed
 	FuncPlaceholderBarMasterGroupBorderColor = 0x40, // use border color of master group, otherwise normal scheme is used
 	FuncPlaceholderColorEmoji = 0x80,
 	FuncPlaceholderStatus2DNoAlpha = 0x100, // option to not use alpha when drawing status2d status
@@ -70,7 +70,7 @@ struct nv {
     uint64_t value;
 };
 
-#define map(F) { "#F", F }
+#define map(F) { #F, F }
 
 static const struct nv function_names[] = {
     map(Alpha),
@@ -78,7 +78,7 @@ static const struct nv function_names[] = {
     map(BoxDraw),
     map(BoxDrawBoldAffectsLineThickness),
     map(BoxDrawForBraille),
-    map(FuncPlaceholderBarActiveGroupBorderColor),
+    map(HideCursor),
     map(FuncPlaceholderBarMasterGroupBorderColor),
     map(FuncPlaceholderColorEmoji),
     { NULL, 0 }
@@ -91,6 +91,7 @@ int enabled(const uint64_t functionality);
 int disabled(const uint64_t functionality);
 void enablefunc(const uint64_t functionality);
 void disablefunc(const uint64_t functionality);
+void setenabled(const uint64_t functionality, int enabled);
 void togglefunc(const uint64_t functionality);
 const uint64_t getfuncbyname(const char *name);
 const char *getnamebyfunc(const uint64_t functionality);
