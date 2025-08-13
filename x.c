@@ -147,16 +147,12 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[MotionNotify] = bmotion,
 	[ButtonPress] = bpress,
 	[ButtonRelease] = brelease,
-/*
- * Uncomment if you want the selection to disappear when you select something
- * different in another window.
- */
-/*	[SelectionClear] = selclear_, */
+	[SelectionClear] = selclear_,
 	[SelectionNotify] = selnotify,
-/*
- * PropertyNotify is only turned on when there is some INCR transfer happening
- * for the selection retrieval.
- */
+	/*
+	 * PropertyNotify is only turned on when there is some INCR transfer happening
+	 * for the selection retrieval.
+	 */
 	[PropertyNotify] = propnotify,
 	[SelectionRequest] = selrequest,
 	#if ST_EMBEDDER_PATCH
@@ -657,6 +653,8 @@ xclipcopy(void)
 void
 selclear_(XEvent *e)
 {
+	if (enabled(RetainSelectionPerWindow))
+		return;
 	selclear();
 }
 
