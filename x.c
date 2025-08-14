@@ -195,9 +195,6 @@ static char *opt_io    = NULL;
 static char *opt_line  = NULL;
 static char *opt_name  = NULL;
 static char *opt_title = NULL;
-#if WORKINGDIR_PATCH
-static char *opt_dir   = NULL;
-#endif // WORKINGDIR_PATCH
 
 static int focused = 0;
 
@@ -3179,17 +3176,12 @@ usage(void)
 {
 	die("usage: %s [-aiv] [-c class]"
 		" [-A alpha]"
-		#if WORKINGDIR_PATCH
 		" [-d path]"
-		#endif // WORKINGDIR_PATCH
 		" [-f font] [-g geometry]"
 		" [-n name] [-o file]\n"
 		"          [-T title] [-t title] [-w windowid]"
 		" [[-e] command [args ...]]\n"
 		"       %s [-aiv] [-c class]"
-		#if WORKINGDIR_PATCH
-		" [-d path]"
-		#endif // WORKINGDIR_PATCH
 		" [-f font] [-g geometry]"
 		" [-n name] [-o file]\n"
 		"          [-T title] [-t title] [-w windowid] -l line"
@@ -3214,11 +3206,10 @@ main(int argc, char *argv[])
 	case 'c':
 		opt_class = EARGF(usage());
 		break;
-	#if WORKINGDIR_PATCH
 	case 'd':
-		opt_dir = EARGF(usage());
+		free(initial_working_directory);
+		initial_working_directory = strdup(EARGF(usage()));
 		break;
-	#endif // WORKINGDIR_PATCH
 	case 'e':
 		if (argc > 0)
 			--argc, ++argv;
@@ -3311,10 +3302,8 @@ run:
 	#endif // BACKGROUND_IMAGE_PATCH
 	xsetenv();
 	selinit();
-	#if WORKINGDIR_PATCH
-	if (opt_dir && chdir(opt_dir))
-		die("Can't change to working directory %s\n", opt_dir);
-	#endif // WORKINGDIR_PATCH
+	if (initial_working_directory && chdir(expandhome(initial_working_directory)))
+		die("Can't change to working directory %s\n", initial_working_directory);
 	run();
 	cleanup_config();
 	hbdestroybuffer();

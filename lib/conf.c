@@ -9,6 +9,7 @@ const char *progname = "st";
 char **fonts = NULL;
 int num_fonts;
 char *ascii_printable = NULL;
+char *initial_working_directory = NULL;
 char *mouseshape_text = NULL;
 char *scroll = NULL;
 char *shell = NULL;
@@ -337,6 +338,7 @@ cleanup_config(void)
 	free(fonts);
 
 	free(ascii_printable);
+	free(initial_working_directory);
 	free(mouseshape_text);
 	free(scroll);
 	free(shell);
@@ -396,11 +398,13 @@ load_misc(config_t *cfg)
 	config_lookup_int(cfg, "border.percent", &borderperc);
 	config_lookup_int(cfg, "border.width", &borderpx);
 	config_lookup_strdup(cfg, "ascii_printable", &ascii_printable);
+	config_lookup_strdup(cfg, "initial_working_directory", &initial_working_directory);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "scroll", &scroll);
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
 	config_lookup_strdup(cfg, "drag_and_drop_escape_characters", &xdndescchar);
+
 
 	config_lookup_wcsdup(cfg, "word_delimiters", &worddelimiters);
 	config_lookup_wcsdup(cfg, "keyboardselect.short_delimiter", &kbds_sdelim);
@@ -498,24 +502,12 @@ load_mouse_cursor(config_t *cfg)
 void
 load_window_icon(config_t *cfg)
 {
-	int path_length;
 	const char *string;
 
 	if (!config_lookup_string(cfg, "window_icon", &string))
 		return;
 
-	/* Substitute ~ with home directory */
-	if (startswith("~/", string)) {
-		const char *home = getenv("HOME");
-		if (startswith("/", home)) {
-			path_length = strlen(string) + strlen(home);
-			window_icon = calloc(path_length, sizeof(char));
-			snprintf(window_icon, path_length, "%s%s", home, string+1);
-			return;
-		}
-	}
-
-	window_icon = strdup(string);
+	window_icon = expandhome(string);
 }
 
 wchar_t *
