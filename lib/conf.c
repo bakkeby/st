@@ -659,25 +659,11 @@ defaultrcs
 # selection colors
 selectionfg
 selectionbg
-ignoreselfg
 
 
 # keyboardselect
 highlightfg
 highlightbg
-
-# blinking cursor
-cursorstyle
-stcursor <--- Rune, will be interesting
-
-# Default shape of cursor
-# 2: Block ("█")
-# 4: Underline ("_")
-# 6: Bar ("|")
-# 7: Snowman ("☃")
-
-cursorshape - integers, may consider string parsing?
-
 
 # anygeometry
 geometry - CellGeometry or PixelGeometry

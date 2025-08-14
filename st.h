@@ -47,9 +47,7 @@ enum glyph_attribute {
 	ATTR_WRAP           = 1 << 9,
 	ATTR_WIDE           = 1 << 10,
 	ATTR_WDUMMY         = 1 << 11,
-	#if SELECTION_COLORS_PATCH
 	ATTR_SELECTED       = 1 << 12,
-	#endif // SELECTION_COLORS_PATCH
 	ATTR_BOXDRAW        = 1 << 13,
 	#if UNDERCURL_PATCH
 	ATTR_DIRTYUNDERLINE = 1 << 14,

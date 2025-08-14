@@ -1809,13 +1809,14 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		#endif // SPOILER_PATCH
 	}
 
-	#if SELECTION_COLORS_PATCH
 	if (base.mode & ATTR_SELECTED) {
-		bg = &dc.col[selectionbg];
-		if (!ignoreselfg)
+		if (enabled(UseSelectionBackgroundColor)) {
+			bg = &dc.col[selectionbg];
+		}
+		if (enabled(UseSelectionForegroundColor)) {
 			fg = &dc.col[selectionfg];
+		}
 	}
-	#endif // SELECTION_COLORS_PATCH
 
 	if (base.mode & ATTR_BLINK && win.mode & MODE_BLINK)
 		fg = bg;
@@ -2321,9 +2322,8 @@ void
 xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int len)
 {
 	Color drawcol;
-	#if DYNAMIC_CURSOR_COLOR_PATCH
 	XRenderColor colbg;
-	#endif // DYNAMIC_CURSOR_COLOR_PATCH
+	unsigned int tmpcol;
 
 	/* Redraw the line where cursor was previously.
 	 * It will restore the ligatures broken by the cursor. */
@@ -2340,63 +2340,54 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 	/*
 	 * Select the right color for the right mode.
 	 */
-	g.mode &= ATTR_BOLD|ATTR_ITALIC|ATTR_UNDERLINE|ATTR_STRUCK|ATTR_WIDE
-	|ATTR_BOXDRAW
-	#if DYNAMIC_CURSOR_COLOR_PATCH
-	|ATTR_REVERSE
-	#endif // DYNAMIC_CURSOR_COLOR_PATCH
-	|ATTR_HIGHLIGHT
-	;
+	g.mode &= ATTR_BOLD
+	         |ATTR_ITALIC
+	         |ATTR_UNDERLINE
+	         |ATTR_STRUCK
+	         |ATTR_WIDE
+	         |ATTR_BOXDRAW
+	         |ATTR_REVERSE
+	         |ATTR_HIGHLIGHT;
 
 	if (X_IS_SET(MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
 		g.bg = defaultfg;
-		#if SELECTION_COLORS_PATCH
-		g.fg = defaultcs;
-		drawcol = dc.col[defaultrcs];
-		#else
-		if (selected(cx, cy)) {
+		if (enabled(UseSelectionColors)) {
+			g.fg = defaultcs;
+			drawcol = dc.col[defaultrcs];
+		} else if (selected(cx, cy)) {
 			drawcol = dc.col[defaultcs];
 			g.fg = defaultrcs;
 		} else {
 			drawcol = dc.col[defaultrcs];
 			g.fg = defaultcs;
 		}
-		#endif // SELECTION_COLORS_PATCH
 	} else {
-		#if SELECTION_COLORS_PATCH && !DYNAMIC_CURSOR_COLOR_PATCH
-		g.fg = defaultbg;
-		g.bg = defaultcs;
-		drawcol = dc.col[defaultcs];
-		#else
-		if (selected(cx, cy)) {
+		if (enabled(UseSelectionColors)) {
+			g.fg = defaultbg;
+			g.bg = defaultcs;
+		} else if (selected(cx, cy)) {
 			g.mode &= ~(ATTR_REVERSE | ATTR_HIGHLIGHT);
 			g.fg = defaultfg;
 			g.bg = defaultrcs;
-		} else {
-			#if DYNAMIC_CURSOR_COLOR_PATCH
-			unsigned int tmpcol = g.bg;
+		} else if (enabled(DynamicCursorColor)) {
+			tmpcol = g.bg;
 			g.bg = g.fg;
 			g.fg = tmpcol;
-			#else
+		} else {
 			g.fg = defaultbg;
 			g.bg = defaultcs;
-			#endif // DYNAMIC_CURSOR_COLOR_PATCH
 		}
 
-		#if DYNAMIC_CURSOR_COLOR_PATCH
-		if (IS_TRUECOL(g.bg)) {
+		if (IS_TRUECOL(g.bg) && enabled(DynamicCursorColor) && disabled(UseSelectionColors)) {
 			colbg.alpha = 0xffff;
 			colbg.red = TRUERED(g.bg);
 			colbg.green = TRUEGREEN(g.bg);
 			colbg.blue = TRUEBLUE(g.bg);
 			XftColorAllocValue(xw.dpy, xw.vis, xw.cmap, &colbg, &drawcol);
-		} else
+		} else {
 			drawcol = dc.col[g.bg];
-		#else
-		drawcol = dc.col[g.bg];
-		#endif // DYNAMIC_CURSOR_COLOR_PATCH
-		#endif // SELECTION_COLORS_PATCH
+		}
 	}
 
 	if (g.mode & ATTR_HIGHLIGHT)
@@ -2562,11 +2553,11 @@ xdrawline(Line line, int x1, int y1, int x2)
 		if (new.mode == ATTR_WDUMMY)
 			continue;
 		if (selected(x, y1))
-			#if SELECTION_COLORS_PATCH
-			new.mode |= ATTR_SELECTED;
-			#else
-			new.mode ^= ATTR_REVERSE;
-			#endif // SELECTION_COLORS_PATCH
+			if (enabled(UseSelectionColors)) {
+				new.mode |= ATTR_SELECTED;
+			} else {
+				new.mode ^= ATTR_REVERSE;
+			}
 		if ((i > 0) && ATTRCMP(seq[j].base, new)) {
 			numspecs = xmakeglyphfontspecs(specs, &line[ox], x - ox, ox, y1);
 			xdrawglyphfontspecs(specs, seq[j].base, numspecs, ox, y1, DRAW_BG, x - ox);
@@ -2610,14 +2601,18 @@ xdrawline(Line line, int x1, int y1, int x2)
 	i = ox = 0;
 	for (x = x1; x < x2; x++) {
 		new = line[x];
+
 		if (new.mode == ATTR_WDUMMY)
 			continue;
-		if (selected(x, y1))
-			#if SELECTION_COLORS_PATCH
-			new.mode |= ATTR_SELECTED;
-			#else
-			new.mode ^= ATTR_REVERSE;
-			#endif // SELECTION_COLORS_PATCH
+
+		if (selected(x, y1)) {
+			if (enabled(UseSelectionColors)) {
+				new.mode |= ATTR_SELECTED;
+			} else {
+				new.mode ^= ATTR_REVERSE;
+			}
+		}
+
 		if ((i > 0) && ATTRCMP(base, new)) {
 			numspecs = xmakeglyphfontspecs(specs, &line[ox], x - ox, ox, y1);
 			xdrawglyphfontspecs(specs, base, numspecs, ox, y1, x - ox);
@@ -2967,7 +2962,7 @@ kpress(XEvent *ev)
 	Status status;
 	Shortcut *bp;
 
-	if (xw.pointerisvisible && enabled(HideCursor)) {
+	if (xw.pointerisvisible && enabled(HideMouseCursor)) {
 		#if OPENURLONCLICK_PATCH
 		int x = e->x - borderpx;
 		int y = e->y - borderpx;

@@ -46,11 +46,6 @@
  */
 #define COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH 0
 
-/* This patch makes the cursor color the inverse of the current cell color.
- * https://st.suckless.org/patches/dynamic-cursor-color/
- */
-#define DYNAMIC_CURSOR_COLOR_PATCH 0
-
 /* Reading and writing st's screen through a pipe, e.g. pass info to dmenu.
  * https://st.suckless.org/patches/externalpipe/
  */
@@ -197,13 +192,6 @@
  * https://st.suckless.org/patches/right_click_to_plumb/
  */
 #define RIGHTCLICKTOPLUMB_PATCH 0
-
-/* This patch adds the two color-settings selectionfg and selectionbg to config.def.h.
- * Those define the fore- and background colors which are used when text on the screen is selected
- * with the mouse. This removes the default behaviour which would simply reverse the colors.
- * https://st.suckless.org/patches/selectioncolors/
- */
-#define SELECTION_COLORS_PATCH 0
 
 /* This is the single drawable buffer patch as outlined in the FAQ to get images
  * in w3m to display. While this patch does not break the alpha patch it images
