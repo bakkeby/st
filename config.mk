@@ -14,8 +14,8 @@ X11LIB = /usr/X11R6/lib
 
 PKG_CONFIG = pkg-config
 
-# Uncomment this for the alpha patch / ALPHA_PATCH
-#XRENDER = `$(PKG_CONFIG) --libs xrender`
+# Required for transparency support
+XRENDER = `$(PKG_CONFIG) --libs xrender`
 
 # Required for themed cursor support
 XCURSOR = `$(PKG_CONFIG) --libs xcursor`

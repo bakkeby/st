@@ -191,9 +191,6 @@ static char *usedfont = NULL;
 static double usedfontsize = 0;
 static double defaultfontsize = 0;
 
-#if ALPHA_PATCH
-static char *opt_alpha = NULL;
-#endif // ALPHA_PATCH
 static char *opt_class = NULL;
 static char **opt_cmd  = NULL;
 static char *opt_embed = NULL;
@@ -206,7 +203,7 @@ static char *opt_title = NULL;
 static char *opt_dir   = NULL;
 #endif // WORKINGDIR_PATCH
 
-#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
+#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 static int focused = 0;
 #endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
@@ -848,13 +845,7 @@ xresize(int col, int row)
 
 	#if !SINGLE_DRAWABLE_BUFFER_PATCH
 	XFreePixmap(xw.dpy, xw.buf);
-	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
-		#if ALPHA_PATCH
-		xw.depth
-		#else
-		DefaultDepth(xw.dpy, xw.scr)
-		#endif // ALPHA_PATCH
-	);
+	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h, xw.depth);
 	XftDrawChange(xw.draw, xw.buf);
 	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
 	xclear(0, 0, win.w, win.h);
@@ -894,19 +885,18 @@ xloadcolor(int i, const char *name, Color *ncolor)
 	return XftColorAllocName(xw.dpy, xw.vis, xw.cmap, name, ncolor);
 }
 
-#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
+#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 void
 xloadalpha(void)
 {
 	float const usedAlpha = focused ? alpha : alphaUnfocused;
-	if (opt_alpha) alpha = strtof(opt_alpha, NULL);
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
 	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
 }
 #endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
-#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
+#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 void
 xloadcols(void)
 {
@@ -954,17 +944,14 @@ xloadcols(void)
 			else
 				die("could not allocate color %d\n", i);
 		}
-	#if ALPHA_PATCH
+
 	/* set alpha value of bg color */
-	if (opt_alpha)
-		alpha = strtof(opt_alpha, NULL);
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
 	dc.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
 	dc.col[defaultbg].color.red   *= alpha;
 	dc.col[defaultbg].color.green *= alpha;
 	dc.col[defaultbg].color.blue  *= alpha;
-	#endif // ALPHA_PATCH
 	loaded = 1;
 }
 #endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
@@ -996,11 +983,8 @@ xsetcolorname(int x, const char *name)
 	XftColorFree(xw.dpy, xw.vis, xw.cmap, &dc.col[x]);
 	dc.col[x] = ncolor;
 
-	#if ALPHA_PATCH
 	/* set alpha value of bg color */
 	if (x == defaultbg) {
-		if (opt_alpha)
-			alpha = strtof(opt_alpha, NULL);
 		dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
 		dc.col[defaultbg].pixel &= 0x00FFFFFF;
 		dc.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
@@ -1008,7 +992,6 @@ xsetcolorname(int x, const char *name)
 		dc.col[defaultbg].color.green *= alpha;
 		dc.col[defaultbg].color.blue  *= alpha;
 	}
-	#endif // ALPHA_PATCH
 	return 0;
 }
 
@@ -1360,10 +1343,8 @@ xinit(int cols, int rows)
 	Pixmap blankpm;
 	Window parent, root;
 	pid_t thispid = getpid();
-	#if ALPHA_PATCH
 	XWindowAttributes attr;
 	XVisualInfo vis;
-	#endif // ALPHA_PATCH
 
 	#if !XRESOURCES_PATCH
 	if (!(xw.dpy = XOpenDisplay(NULL)))
@@ -1371,7 +1352,6 @@ xinit(int cols, int rows)
 	#endif // XRESOURCES_PATCH
 	xw.scr = XDefaultScreen(xw.dpy);
 
-	#if ALPHA_PATCH
 	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0)))) {
 		parent = XRootWindow(xw.dpy, xw.scr);
 		xw.depth = 32;
@@ -1382,9 +1362,6 @@ xinit(int cols, int rows)
 
 	XMatchVisualInfo(xw.dpy, xw.scr, xw.depth, TrueColor, &vis);
 	xw.vis = vis.visual;
-	#else
-	xw.vis = XDefaultVisual(xw.dpy, xw.scr);
-	#endif // ALPHA_PATCH
 
 	/* font */
 	if (!FcInit())
@@ -1395,11 +1372,7 @@ xinit(int cols, int rows)
 	xloadsparefonts();
 
 	/* colors */
-	#if ALPHA_PATCH
 	xw.cmap = XCreateColormap(xw.dpy, parent, xw.vis, None);
-	#else
-	xw.cmap = XDefaultColormap(xw.dpy, xw.scr);
-	#endif // ALPHA_PATCH
 	xloadcols();
 
 	/* adjust fixed window geometry */
@@ -1442,16 +1415,8 @@ xinit(int cols, int rows)
 	#endif // OPENURLONCLICK_PATCH
 
 	root = XRootWindow(xw.dpy, xw.scr);
-	#if !ALPHA_PATCH
-	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0))))
-		parent = root;
-	#endif // ALPHA_PATCH
 	xw.win = XCreateWindow(xw.dpy, root, xw.l, xw.t,
-			#if ALPHA_PATCH
 			win.w, win.h, 0, xw.depth, InputOutput,
-			#else
-			win.w, win.h, 0, XDefaultDepth(xw.dpy, xw.scr), InputOutput,
-			#endif // ALPHA_PATCH
 			xw.vis, CWBackPixel | CWBorderPixel | CWBitGravity
 			| CWEventMask | CWColormap, &xw.attrs);
 	if (parent != root)
@@ -1460,23 +1425,12 @@ xinit(int cols, int rows)
 	memset(&gcvalues, 0, sizeof(gcvalues));
 	gcvalues.graphics_exposures = False;
 
-	#if ALPHA_PATCH
 	#if SINGLE_DRAWABLE_BUFFER_PATCH
 	xw.buf = xw.win;
 	#else
 	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h, xw.depth);
 	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
 	dc.gc = XCreateGC(xw.dpy, xw.buf, GCGraphicsExposures, &gcvalues);
-	#else
-	dc.gc = XCreateGC(xw.dpy, xw.win, GCGraphicsExposures,
-			&gcvalues);
-	#if SINGLE_DRAWABLE_BUFFER_PATCH
-	xw.buf = xw.win;
-	#else
-	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
-			DefaultDepth(xw.dpy, xw.scr));
-	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
-	#endif // ALPHA_PATCH
 	XSetForeground(xw.dpy, dc.gc, dc.col[defaultbg].pixel);
 	XFillRectangle(xw.dpy, xw.buf, dc.gc, 0, 0, win.w, win.h);
 
@@ -1922,12 +1876,12 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		bg = &dc.col[(base.mode & ATTR_REVERSE) ? highlightfg : highlightbg];
 	}
 
-	#if ALPHA_PATCH && ALPHA_GRADIENT_PATCH
+	#if ALPHA_GRADIENT_PATCH
 	// gradient
 	bg->color.alpha = grad_alpha * 0xffff * (win.h - y*win.ch) / win.h + stat_alpha * 0xffff;
-	// uncomment to invert the gradient
+	// uncomment to invert the gradient, or add functionality toggle for it
 	// bg->color.alpha = grad_alpha * 0xffff * (y*win.ch) / win.h + stat_alpha * 0xffff;
-	#endif // ALPHA_PATCH | ALPHA_GRADIENT_PATCH
+	#endif // ALPHA_GRADIENT_PATCH
 
 	#if WIDE_GLYPHS_PATCH
 	if (dmode & DRAW_BG) {
@@ -2750,13 +2704,7 @@ xfinishdraw(void)
 		width = MAX(im->width * win.cw / im->cw, 1);
 		height = MAX(im->height * win.ch / im->ch, 1);
 		if (!im->pixmap) {
-			im->pixmap = (void *)XCreatePixmap(xw.dpy, xw.win, width, height,
-				#if ALPHA_PATCH
-				xw.depth
-				#else
-				DefaultDepth(xw.dpy, xw.scr)
-				#endif // ALPHA_PATCH
-			);
+			im->pixmap = (void *)XCreatePixmap(xw.dpy, xw.win, width, height, xw.depth);
 			if (!im->pixmap)
 				continue;
 			if (win.cw == im->cw && win.ch == im->ch) {
@@ -2772,11 +2720,7 @@ xfinishdraw(void)
 					.bytes_per_line = im->width * 4,
 					.bitmap_unit = 32,
 					.bitmap_pad = 32,
-					#if ALPHA_PATCH
 					.depth = xw.depth
-					#else
-					.depth = 24
-					#endif // ALPHA_PATCH
 				};
 				XPutImage(xw.dpy, (Drawable)im->pixmap, dc.gc, &ximage, 0, 0, 0, 0, width, height);
 				if (im->transparent)
@@ -2806,11 +2750,7 @@ xfinishdraw(void)
 					.bytes_per_line = width * 4,
 					.bitmap_unit = 32,
 					.bitmap_pad = 32,
-					#if ALPHA_PATCH
 					.depth = xw.depth
-					#else
-					.depth = 24
-					#endif // ALPHA_PATCH
 				};
 				XPutImage(xw.dpy, (Drawable)im->pixmap, dc.gc, &ximage, 0, 0, 0, 0, width, height);
 				if (im->transparent)
@@ -2993,7 +2933,7 @@ focus(XEvent *ev)
 		xseturgency(0);
 		if (X_IS_SET(MODE_FOCUS))
 			ttywrite("\033[I", 3, 0);
-		#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
+		#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 		if (!focused) {
 			focused = 1;
 			xloadcols();
@@ -3006,7 +2946,7 @@ focus(XEvent *ev)
 		win.mode &= ~MODE_FOCUSED;
 		if (X_IS_SET(MODE_FOCUS))
 			ttywrite("\033[O", 3, 0);
-		#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
+		#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 		if (focused) {
 			focused = 0;
 			xloadcols();
@@ -3369,6 +3309,7 @@ void
 usage(void)
 {
 	die("usage: %s [-aiv] [-c class]"
+		" [-A alpha]"
 		#if WORKINGDIR_PATCH
 		" [-d path]"
 		#endif // WORKINGDIR_PATCH
@@ -3398,11 +3339,9 @@ main(int argc, char *argv[])
 	case 'a':
 		disablefunc(AllowAltScreen);
 		break;
-	#if ALPHA_PATCH
 	case 'A':
-		opt_alpha = EARGF(usage());
+		alpha = strtof(EARGF(usage()), NULL);
 		break;
-	#endif // ALPHA_PATCH
 	case 'c':
 		opt_class = EARGF(usage());
 		break;
@@ -3493,7 +3432,7 @@ run:
 
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
-	#if ALPHA_PATCH && ALPHA_FOCUS_HIGHLIGHT_PATCH
+	#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 	defaultbg = MAX(LEN(colorname), 256);
 	#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 	tnew(cols, rows);

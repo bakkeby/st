@@ -51,14 +51,8 @@ loadff(const char *filename)
 		           (data[i] & 0x000000FF00000000) >> 32 |
 		           (data[i] & 0x00FF000000000000) >> 24;
 
-	#if ALPHA_PATCH
 	XImage *xi = XCreateImage(xw.dpy, xw.vis, xw.depth, ZPixmap, 0,
 		(char *)data, w, h, 32, w * 8);
-	#else
-	XImage *xi = XCreateImage(xw.dpy, DefaultVisual(xw.dpy, xw.scr),
-		DefaultDepth(xw.dpy, xw.scr), ZPixmap, 0,
-		(char *)data, w, h, 32, w * 8);
-	#endif // ALPHA_PATCH
 	xi->bits_per_pixel = 64;
 	return xi;
 }
@@ -77,13 +71,8 @@ bginit()
 	xw.bggc = XCreateGC(xw.dpy, xw.win, 0, &gcvalues);
 	if (!bgxi)
 		return;
-	#if ALPHA_PATCH
 	bgimg = XCreatePixmap(xw.dpy, xw.win, bgxi->width, bgxi->height,
 		xw.depth);
-	#else
-	bgimg = XCreatePixmap(xw.dpy, xw.win, bgxi->width, bgxi->height,
-		DefaultDepth(xw.dpy, xw.scr));
-	#endif // ALPHA_PATCH
 	XPutImage(xw.dpy, bgimg, dc.gc, bgxi, 0, 0, 0, 0, bgxi->width, bgxi->height);
 	XDestroyImage(bgxi);
 	XSetTile(xw.dpy, xw.bggc, bgimg);

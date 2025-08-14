@@ -1,7 +1,5 @@
 /* Patches */
-#if ALPHA_PATCH
 #include "alpha.c"
-#endif
 #if BACKGROUND_IMAGE_PATCH
 #include "background_image_x.c"
 #endif

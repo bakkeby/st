@@ -250,9 +250,7 @@ typedef struct {
 	#endif // OPENURLONCLICK_PATCH
 	int scr;
 	int isfixed; /* is fixed geometry? */
-	#if ALPHA_PATCH
 	int depth; /* bit depth */
-	#endif // ALPHA_PATCH
 	int l, t; /* left and top offset */
 	int gm; /* geometry mask */
 } XWindow;
@@ -381,12 +379,10 @@ extern int extpipeactive;
 #endif // EXTERNALPIPE_PATCH
 
 extern uint64_t settings;
-#if ALPHA_PATCH
 extern float alpha;
 #if ALPHA_FOCUS_HIGHLIGHT_PATCH
 extern float alphaUnfocused;
 #endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
-#endif // ALPHA_PATCH
 
 extern DC dc;
 extern XWindow xw;

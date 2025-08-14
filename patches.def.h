@@ -9,13 +9,6 @@
 
 /* Patches */
 
-/* The alpha patch adds transparency for the terminal.
- * You need to uncomment the corresponding line in config.mk to use the -lXrender library
- * when including this patch.
- * https://st.suckless.org/patches/alpha/
- */
-#define ALPHA_PATCH 0
-
 /* The alpha focus highlight patch allows the user to specify two distinct opacity values or
  * background colors in order to easily differentiate between focused and unfocused terminal
  * windows. This depends on the alpha patch.
