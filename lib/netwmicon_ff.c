@@ -2,13 +2,13 @@ void
 setnetwmicon(void)
 {
 	/* use a farbfeld image to set _NET_WM_ICON */
-	FILE* file = fopen(ICON, "r");
+	FILE* file = fopen(window_icon, "r");
 	if (file) {
 		unsigned char buf[16] = {0};
 
 		int hasdata = fread(buf,1,16,file);
 		if (memcmp(buf,"farbfeld",8)) {
-			fprintf(stderr,"netwmicon: file %s is not a farbfeld image\n", ICON);
+			fprintf(stderr,"netwmicon: file %s is not a farbfeld image\n", window_icon);
 			fclose(file);
 			return;
 		}

@@ -15,6 +15,7 @@ char *stty_args = NULL;
 char *termname = NULL;
 char *mouseshape_text = NULL;
 char *xdndescchar = NULL;
+char *window_icon = NULL;
 wchar_t *worddelimiters = NULL;
 wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
@@ -54,6 +55,7 @@ static void load_misc(config_t *cfg);
 static void load_fonts(config_t *cfg);
 static void load_functionality(config_t *cfg);
 static void load_mouse_cursor(config_t *cfg);
+static void load_window_icon(config_t *cfg);
 static unsigned int parse_cursor_shape(const char *string);
 
 static wchar_t *char_to_wchar(const char *string);
@@ -313,7 +315,7 @@ load_config(void)
 		load_fonts(&cfg);
 		load_functionality(&cfg);
 		load_mouse_cursor(&cfg);
-
+		load_window_icon(&cfg);
 	} else if (strcmp(config_error_text(&cfg), "file I/O error")) {
 		fprintf(stderr, "Error reading config at %s\n", config_file);
 		fprintf(stderr, "%s:%d - %s\n",
@@ -487,6 +489,29 @@ load_mouse_cursor(config_t *cfg)
 
 		break;
 	}
+}
+
+void
+load_window_icon(config_t *cfg)
+{
+	int path_length;
+	const char *string;
+
+	if (!config_lookup_string(cfg, "window_icon", &string))
+		return;
+
+	/* Substitute ~ with home directory */
+	if (startswith("~/", string)) {
+		const char *home = getenv("HOME");
+		if (startswith("/", home)) {
+			path_length = strlen(string) + strlen(home);
+			window_icon = calloc(path_length, sizeof(char));
+			snprintf(window_icon, path_length, "%s%s", home, string+1);
+			return;
+		}
+	}
+
+	window_icon = strdup(string);
 }
 
 wchar_t *

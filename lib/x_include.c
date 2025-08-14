@@ -19,13 +19,7 @@
 #include "invert.c"
 #endif
 #include "keyboardselect_reflow_x.c"
-#if NETWMICON_PATCH
-#include "netwmicon.c"
-#elif NETWMICON_FF_PATCH
 #include "netwmicon_ff.c"
-#elif NETWMICON_LEGACY_PATCH
-#include "netwmicon_legacy.c"
-#endif
 #if OPEN_SELECTED_TEXT_PATCH
 #include "openselectedtext.c"
 #endif

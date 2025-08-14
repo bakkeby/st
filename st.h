@@ -216,10 +216,7 @@ typedef struct {
 	     XtextPlain, XdndAware;
 	int64_t XdndSourceWin, XdndSourceVersion;
 	int32_t XdndSourceFormat;
-	Atom netwmstate, netwmfullscreen;
-	#if NETWMICON_PATCH || NETWMICON_LEGACY_PATCH || NETWMICON_FF_PATCH
-	Atom netwmicon;
-	#endif // NETWMICON_PATCH
+	Atom netwmstate, netwmfullscreen, netwmicon;
 	struct {
 		XIM xim;
 		XIC xic;

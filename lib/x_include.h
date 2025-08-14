@@ -18,12 +18,7 @@
 #endif
 #include "keyboardselect_reflow_st.h"
 #include "keyboardselect_reflow_x.h"
-#if NETWMICON_LEGACY_PATCH
-#include "netwmicon_icon.h"
-#endif
-#if NETWMICON_PATCH || NETWMICON_FF_PATCH || NETWMICON_LEGACY_PATCH
 #include "netwmicon.h"
-#endif
 #if OPEN_SELECTED_TEXT_PATCH
 #include "openselectedtext.h"
 #endif
