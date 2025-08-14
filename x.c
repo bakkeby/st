@@ -1300,24 +1300,30 @@ xloadfonts(const char *fontstr, double fontsize)
 	if (borderperc > -1) {
 		borderpx = (int) ceilf(((float)borderperc / 100) * win.cw);
 	}
+
 	FcPatternDel(pattern, FC_SLANT);
-	#if !DISABLE_ITALIC_FONTS_PATCH
-	FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
-	#endif // DISABLE_ITALIC_FONTS_PATCH
+	FcPatternDel(pattern, FC_WEIGHT);
+
+	if (enabled(AllowItalic)) {
+		FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
+	}
 	if (xloadfont(&dc.ifont, pattern))
 		die("can't open font %s\n", fontstr);
 
-	FcPatternDel(pattern, FC_WEIGHT);
-	#if !DISABLE_BOLD_FONTS_PATCH
-	FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
-	#endif // DISABLE_BOLD_FONTS_PATCH
+	if (enabled(AllowBoldItalic)) {
+		FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
+		FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
+	}
 	if (xloadfont(&dc.ibfont, pattern))
 		die("can't open font %s\n", fontstr);
 
 	FcPatternDel(pattern, FC_SLANT);
-	#if !DISABLE_ROMAN_FONTS_PATCH
+	FcPatternDel(pattern, FC_WEIGHT);
 	FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
-	#endif // DISABLE_ROMAN_FONTS_PATCH
+
+	if (enabled(AllowBold)) {
+		FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
+	}
 	if (xloadfont(&dc.bfont, pattern))
 		die("can't open font %s\n", fontstr);
 

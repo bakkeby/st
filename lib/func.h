@@ -10,9 +10,10 @@ static const uint64_t
 	AnySize = 0x100,
 	RetainSelectionPerWindow = 0x200,
 	BoldIsBright = 0x400,
-	FuncPlaceholder0x800 = 0x800,
-	FuncPlaceholder0x1000 = 0x1000,
-	FuncPlaceholder0x2000 = 0x2000,
+	AllowItalic = 0x800,
+	AllowBoldItalic = 0x1000,
+	AllowItalicBold = 0x1000,
+	AllowBold = 0x2000,
 	FuncPlaceholder0x4000 = 0x4000,
 	FuncPlaceholder0x8000 = 0x8000,
 	FuncPlaceholder0x10000 = 0x10000,
@@ -72,18 +73,22 @@ struct nv {
 #define map(F) { #F, F }
 
 static const struct nv function_names[] = {
-    map(Alpha),
-    map(AlphaFocusHighlight),
-    map(AnySize),
-    map(BoldIsBright),
-    map(BoxDraw),
-    map(BoxDrawBoldAffectsLineThickness),
-    map(BoxDrawForBraille),
-    map(HideCursor),
-    map(RetainSelectionPerWindow),
-    map(SwapMouse),
-    map(ThemedCursor),
-    { NULL, 0 }
+	map(Alpha),
+	map(AlphaFocusHighlight),
+	map(AnySize),
+	map(BoldIsBright),
+	map(BoxDraw),
+	map(BoxDrawBoldAffectsLineThickness),
+	map(BoxDrawForBraille),
+	map(HideCursor),
+	map(RetainSelectionPerWindow),
+	map(SwapMouse),
+	map(ThemedCursor),
+	map(AllowItalic),
+	map(AllowBoldItalic),
+	map(AllowItalicBold),
+	map(AllowBold),
+	{ NULL, 0 }
 };
 
 #undef map
