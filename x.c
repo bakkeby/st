@@ -211,9 +211,7 @@ static int focused = 0;
 #endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
 static uint buttons; /* bit field of pressed buttons */
-#if BLINKING_CURSOR_PATCH
 static int cursorblinks = 0;
-#endif // BLINKING_CURSOR_PATCH
 #if VISUALBELL_1_PATCH
 static int bellon = 0;    /* visual bell status */
 #endif // VISUALBELL_1_PATCH
@@ -2492,27 +2490,18 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 	/* draw the new one */
 	if (X_IS_SET(MODE_FOCUSED)) {
 		switch (win.cursor) {
-		#if !BLINKING_CURSOR_PATCH
-		case 7: /* st extension */
-			g.u = 0x2603; /* snowman (U+2603) */
-			/* FALLTHROUGH */
-		#endif // BLINKING_CURSOR_PATCH
 		case 0: /* Blinking block */
 		case 1: /* Blinking block (default) */
-			#if BLINKING_CURSOR_PATCH
 			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
-			#endif // BLINKING_CURSOR_PATCH
 		case 2: /* Steady block */
 			xdrawglyph(g, cx, cy);
 			break;
 		case 3: /* Blinking underline */
-			#if BLINKING_CURSOR_PATCH
 			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
-			#endif // BLINKING_CURSOR_PATCH
 		case 4: /* Steady underline */
 			XftDrawRect(xw.draw, &drawcol,
 					borderpx + cx * win.cw,
@@ -2521,18 +2510,15 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 					win.cw, cursorthickness);
 			break;
 		case 5: /* Blinking bar */
-			#if BLINKING_CURSOR_PATCH
 			if (X_IS_SET(MODE_BLINK))
 				break;
 			/* FALLTHROUGH */
-			#endif // BLINKING_CURSOR_PATCH
 		case 6: /* Steady bar */
 			XftDrawRect(xw.draw, &drawcol,
 					borderpx + cx * win.cw,
 					borderpx + cy * win.ch,
 					cursorthickness, win.ch);
 			break;
-		#if BLINKING_CURSOR_PATCH
 		case 7: /* Blinking st cursor */
 			if (X_IS_SET(MODE_BLINK))
 				break;
@@ -2541,7 +2527,6 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 			g.u = stcursor;
 			xdrawglyph(g, cx, cy);
 			break;
-		#endif // BLINKING_CURSOR_PATCH
 		}
 	} else {
 		XftDrawRect(xw.draw, &drawcol,
@@ -2952,22 +2937,12 @@ xsetmode(int set, unsigned int flags)
 int
 xsetcursor(int cursor)
 {
-	#if BLINKING_CURSOR_PATCH
 	if (!BETWEEN(cursor, 0, 8)) /* 7-8: st extensions */
-	#else
-	if (!BETWEEN(cursor, 0, 7)) /* 7: st extension */
-	#endif // BLINKING_CURSOR_PATCH
 		return 1;
-	#if BLINKING_CURSOR_PATCH
 	win.cursor = (cursor ? cursor : cursorstyle);
-	#else
-	win.cursor = (cursor ? cursor : cursorshape);
-	#endif // BLINKING_CURSOR_PATCH
-	#if BLINKING_CURSOR_PATCH
 	cursorblinks = win.cursor == 0 || win.cursor == 1 ||
 	               win.cursor == 3 || win.cursor == 5 ||
 	               win.cursor == 7;
-	#endif // BLINKING_CURSOR_PATCH
 	return 0;
 }
 
@@ -3306,11 +3281,7 @@ run(void)
 		xev = 0;
 		while (XPending(xw.dpy)) {
 			XNextEvent(xw.dpy, &ev);
-			#if BLINKING_CURSOR_PATCH
 			xev = (!xev || xev == SelectionRequest) ? ev.type : xev;
-			#else
-			xev = 1;
-			#endif // BLINKING_CURSOR_PATCH
 			if (XFilterEvent(&ev, None))
 				continue;
 			if (handler[ev.type])
@@ -3336,12 +3307,10 @@ run(void)
 		{
 			if (!drawing) {
 				trigger = now;
-				#if BLINKING_CURSOR_PATCH
 				if (xev != SelectionRequest) {
 					win.mode &= ~MODE_BLINK;
 					lastblink = now;
 				}
-				#endif // BLINKING_CURSOR_PATCH
 				drawing = 1;
 			}
 			timeout = (maxlatency - TIMEDIFF(now, trigger)) \
@@ -3366,11 +3335,7 @@ run(void)
 
 		/* idle detected or maxlatency exhausted -> draw */
 		timeout = -1;
-		#if BLINKING_CURSOR_PATCH
 		if (blinktimeout && (cursorblinks || tattrset(ATTR_BLINK)))
-		#else
-		if (blinktimeout && tattrset(ATTR_BLINK))
-		#endif // BLINKING_CURSOR_PATCH
 		{
 			timeout = blinktimeout - TIMEDIFF(now, lastblink);
 			if (timeout <= 0) {
@@ -3426,13 +3391,8 @@ main(int argc, char *argv[])
 {
 	xw.l = xw.t = 0;
 	xw.isfixed = False;
-	#if BLINKING_CURSOR_PATCH
-	xsetcursor(cursorstyle);
-	#else
-	xsetcursor(cursorshape);
-	#endif // BLINKING_CURSOR_PATCH
-
 	load_config();
+	xsetcursor(cursorstyle);
 
 	ARGBEGIN {
 	case 'a':

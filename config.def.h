@@ -203,7 +203,6 @@ static int ignoreselfg = 1;
 unsigned int highlightfg = 15;
 unsigned int highlightbg = 160;
 
-#if BLINKING_CURSOR_PATCH
 /*
  * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h4-Functions-using-CSI-_-ordered-by-the-final-character-lparen-s-rparen:CSI-Ps-SP-q.1D81
  * Default style of cursor
@@ -219,16 +218,6 @@ unsigned int highlightbg = 160;
  */
 static unsigned int cursorstyle = 1;
 static Rune stcursor = 0x2603; /* snowman (U+2603) */
-#else
-/*
- * Default shape of cursor
- * 2: Block ("█")
- * 4: Underline ("_")
- * 6: Bar ("|")
- * 7: Snowman ("☃")
- */
-static unsigned int cursorshape = 2;
-#endif // BLINKING_CURSOR_PATCH
 
 /*
  * Default columns and rows numbers

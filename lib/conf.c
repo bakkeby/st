@@ -409,12 +409,15 @@ load_misc(config_t *cfg)
 	config_lookup_sloppy_bool(cfg, "allowwindowops", &allowwindowops);
 	config_lookup_float(cfg, "minlatency", &minlatency);
 	config_lookup_float(cfg, "maxlatency", &maxlatency);
-	config_lookup_unsigned_int(cfg, "blink_timeout", &blinktimeout);
-	config_lookup_unsigned_int(cfg, "cursor_thickness", &cursorthickness);
 	config_lookup_int(cfg, "bell_volume", &bellvolume);
 	config_lookup_unsigned_int(cfg, "cols", &cols);
 	config_lookup_unsigned_int(cfg, "rows", &rows);
 	config_lookup_int(cfg, "scrollback_history", &histsize);
+
+	config_lookup_unsigned_int(cfg, "terminal_cursor.blink_timeout", &blinktimeout);
+	config_lookup_unsigned_int(cfg, "terminal_cursor.thickness", &cursorthickness);
+	config_lookup_unsigned_int(cfg, "terminal_cursor.style", &cursorstyle);
+	config_lookup_unsigned_int(cfg, "terminal_cursor.custom_cursor", &stcursor);
 
 
 
@@ -459,7 +462,7 @@ void
 load_mouse_cursor(config_t *cfg)
 {
 	const char *string;
-	config_setting_t *shape_t = config_lookup(cfg, "mouse_cursor_shape");
+	config_setting_t *shape_t = config_lookup(cfg, "mouse_cursor.shape");
 	if (!shape_t)
 		return;
 
