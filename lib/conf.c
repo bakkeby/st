@@ -8,6 +8,7 @@ const char *progname = "st";
 /* Configuration variables */
 char **fonts = NULL;
 int num_fonts;
+char *ascii_printable = NULL;
 char *mouseshape_text = NULL;
 char *scroll = NULL;
 char *shell = NULL;
@@ -339,6 +340,7 @@ cleanup_config(void)
 		free(fonts[i]);
 	free(fonts);
 
+	free(ascii_printable);
 	free(mouseshape_text);
 	free(scroll);
 	free(shell);
@@ -369,10 +371,14 @@ load_fallback_config(void)
 		}
 	}
 
+	if (!ascii_printable)
+		ascii_printable = strdup(ascii_printable_def);
 	if (!shell)
 		shell = strdup("/bin/sh");
 	if (!stty_args)
 		stty_args = strdup(stty_def_args);
+	if (!termname)
+		termname = strdup(terminal_name);
 	if (!worddelimiters)
 		worddelimiters = wcsdup(worddelimiters_def);
 	if (!kbds_sdelim)
@@ -382,8 +388,6 @@ load_fallback_config(void)
 	if (!xdndescchar)
 		xdndescchar = strdup(xdndescchar_def);
 
-	if (!termname)
-		termname = strdup(terminal_name);
 
 	term.hist = calloc(histsize, sizeof(Line));
 }
@@ -395,6 +399,7 @@ load_misc(config_t *cfg)
 
 	config_lookup_int(cfg, "border.percent", &borderperc);
 	config_lookup_int(cfg, "border.width", &borderpx);
+	config_lookup_strdup(cfg, "ascii_printable", &ascii_printable);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "scroll", &scroll);
@@ -722,7 +727,6 @@ ignoremod
 
 
 selmasks
-ascii_printable
 
 # right click to plumb
 plumb_cmd

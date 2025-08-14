@@ -416,7 +416,7 @@ static char *plumb_cmd = "plumb";
  *   \/  \/	  \/
  *
  * Capped:
- *	_     _     _
+ *	 _     _     _
  * / \   / \   / \
  *    \_/   \_/
  */
