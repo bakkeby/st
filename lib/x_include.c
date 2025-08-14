@@ -14,9 +14,7 @@
 #include "fixkeyboardinput.c"
 #endif
 #include "font2.c"
-#if FULLSCREEN_PATCH
 #include "fullscreen_x.c"
-#endif
 #if INVERT_PATCH
 #include "invert.c"
 #endif

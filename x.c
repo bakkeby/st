@@ -1468,10 +1468,8 @@ xinit(int cols, int rows)
 	XChangeProperty(xw.dpy, xw.win, xw.netwmpid, XA_CARDINAL, 32,
 			PropModeReplace, (uchar *)&thispid, 1);
 
-	#if FULLSCREEN_PATCH
 	xw.netwmstate = XInternAtom(xw.dpy, "_NET_WM_STATE", False);
 	xw.netwmfullscreen = XInternAtom(xw.dpy, "_NET_WM_STATE_FULLSCREEN", False);
-	#endif // FULLSCREEN_PATCH
 
 	/* Xdnd (drag and drop) setup */
 	xw.XdndTypeList = XInternAtom(xw.dpy, "XdndTypeList", 0);

@@ -326,10 +326,8 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_P,           changealpha,     {.f = -0.05} },
 //	{ TERMMOD,              XK_,            changealphaunfocused, {.f = +0.05} },
 //	{ TERMMOD,              XK_,            changealphaunfocused, {.f = -0.05} },
-	#if FULLSCREEN_PATCH
 	{ XK_NO_MOD,            XK_F11,         fullscreen,      {.i =  0} },
 	{ MODKEY,               XK_Return,      fullscreen,      {.i =  0} },
-	#endif // FULLSCREEN_PATCH
 	{ ShiftMask,            XK_Page_Up,     kscrollup,       {.i = -1}, S_PRI },
 	{ ShiftMask,            XK_Page_Down,   kscrolldown,     {.i = -1}, S_PRI },
 	#if CLIPBOARD_PATCH
