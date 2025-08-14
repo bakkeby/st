@@ -35,6 +35,4 @@
 #if XRESOURCES_PATCH
 #include "xresources.c"
 #endif
-#if OSC133_PATCH
 #include "osc133.c"
-#endif

@@ -127,13 +127,6 @@
  */
 #define OSC7_PATCH 0
 
-/* This patch allows jumping between prompts by utilizing the OSC 133 escape sequence
- * emitted by shells. Must be used with either reflow or scrollback patch.
- *
- * https://codeberg.org/dnkl/foot#jumping-between-prompts
- */
-#define OSC133_PATCH 0
-
 /* This patch allows you to right-click on some selected text to send it to the plumbing
  * program of choice, e.g. open a file, view an image, open a URL.
  * https://st.suckless.org/patches/right_click_to_plumb/

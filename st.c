@@ -1963,7 +1963,6 @@ strhandle(void)
 				tfulldirt();
 			}
 			return;
-		#if OSC133_PATCH
 		case 133:
 			if (narg < 2)
 				break;
@@ -1981,7 +1980,6 @@ strhandle(void)
 				break;
 			}
 			return;
-		#endif // OSC133_PATCH
 		}
 		break;
 	case 'k': /* old title set compatibility */
@@ -2675,9 +2673,7 @@ check_control_code:
 	}
 
 	tsetchar(u, &term.c.attr, term.c.x, term.c.y);
-	#if OSC133_PATCH
 	term.c.attr.mode &= ~ATTR_FTCS_PROMPT;
-	#endif // OSC133_PATCH
 	term.lastc = u;
 
 	if (width == 2) {

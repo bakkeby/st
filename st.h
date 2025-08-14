@@ -56,9 +56,7 @@ enum glyph_attribute {
 	ATTR_SIXEL          = 1 << 16,
 	ATTR_HIGHLIGHT      = 1 << 17,
 	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
-	#if OSC133_PATCH
 	ATTR_FTCS_PROMPT    = 1 << 18,  /* OSC 133 ; A ST */
-	#endif // OSC133_PATCH
 };
 
 typedef struct _ImageList {
