@@ -14,8 +14,8 @@ static const uint64_t
 	AllowBoldItalic = 0x1000,
 	AllowItalicBold = 0x1000,
 	AllowBold = 0x2000,
-	FuncPlaceholder0x4000 = 0x4000,
-	FuncPlaceholder0x8000 = 0x8000,
+	AllowAltScreen = 0x4000,
+	AllowWindowOperations = 0x8000,
 	FuncPlaceholder0x10000 = 0x10000,
 	FuncPlaceholder0x20000 = 0x20000,
 	FuncPlaceholder0x40000 = 0x40000,
@@ -88,6 +88,8 @@ static const struct nv function_names[] = {
 	map(AllowBoldItalic),
 	map(AllowItalicBold),
 	map(AllowBold),
+	map(AllowAltScreen),
+	map(AllowWindowOperations),
 	{ NULL, 0 }
 };
 

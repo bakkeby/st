@@ -20,6 +20,7 @@
 
 #include "st.h"
 #include "win.h"
+#include "lib/func.h"
 
 #include <X11/keysym.h>
 #include <X11/X.h>
@@ -1397,13 +1398,13 @@ tsetmode(int priv, int set, const int *args, int narg)
 				xsetmode(set, MODE_8BIT);
 				break;
 			case 1049: /* swap screen & set/restore cursor as xterm */
-				if (!allowaltscreen)
+				if (disabled(AllowAltScreen))
 					break;
 				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 				/* FALLTHROUGH */
 			case 47: /* swap screen buffer */
 			case 1047: /* swap screen buffer */
-				if (!allowaltscreen)
+				if (disabled(AllowAltScreen))
 					break;
 				if (set)
 					tloadaltscreen(*args != 47, *args == 1049);
@@ -1411,7 +1412,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 					tloaddefscreen(*args != 47, *args == 1049);
 				break;
 			case 1048: /* save/restore cursor (like DECSC/DECRC) */
-				if (!allowaltscreen)
+				if (disabled(AllowAltScreen))
 					break;
 				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 				break;
@@ -1913,7 +1914,7 @@ strhandle(void)
 				xsettitle(strescseq.args[1], 0);
 			return;
 		case 52: /* manipulate selection data */
-			if (narg > 2 && allowwindowops) {
+			if (narg > 2 && enabled(AllowWindowOperations)) {
 				dec = base64dec(strescseq.args[2]);
 				if (dec) {
 					xsetsel(dec);

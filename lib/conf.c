@@ -405,8 +405,6 @@ load_misc(config_t *cfg)
 	config_lookup_unsigned_int(cfg, "double_click_timeout", &doubleclicktimeout);
 	config_lookup_unsigned_int(cfg, "triple_click_timeout", &tripleclicktimeout);
 
-	config_lookup_sloppy_bool(cfg, "allowaltscreen", &allowaltscreen);
-	config_lookup_sloppy_bool(cfg, "allowwindowops", &allowwindowops);
 	config_lookup_float(cfg, "minlatency", &minlatency);
 	config_lookup_float(cfg, "maxlatency", &maxlatency);
 	config_lookup_int(cfg, "bell_volume", &bellvolume);

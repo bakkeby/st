@@ -3396,7 +3396,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'a':
-		allowaltscreen = 0;
+		disablefunc(AllowAltScreen);
 		break;
 	#if ALPHA_PATCH
 	case 'A':
