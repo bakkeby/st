@@ -46,11 +46,6 @@
  */
 #define COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH 0
 
-/* Return BS on pressing backspace and DEL on pressing the delete key.
- * https://st.suckless.org/patches/delkey/
- */
-#define DELKEY_PATCH 0
-
 /* Allows dragging a file into the terminal and have the path printed.
  * https://st.suckless.org/patches/drag-n-drop
  */
