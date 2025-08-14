@@ -839,11 +839,9 @@ xresize(int col, int row)
 	win.tw = col * win.cw;
 	win.th = row * win.ch;
 
-	#if !SINGLE_DRAWABLE_BUFFER_PATCH
 	XFreePixmap(xw.dpy, xw.buf);
 	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h, xw.depth);
 	XftDrawChange(xw.draw, xw.buf);
-	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
 	xclear(0, 0, win.w, win.h);
 
 	/* resize to new width */
@@ -1384,11 +1382,7 @@ xinit(int cols, int rows)
 	memset(&gcvalues, 0, sizeof(gcvalues));
 	gcvalues.graphics_exposures = False;
 
-	#if SINGLE_DRAWABLE_BUFFER_PATCH
-	xw.buf = xw.win;
-	#else
 	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h, xw.depth);
-	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
 	dc.gc = XCreateGC(xw.dpy, xw.buf, GCGraphicsExposures, &gcvalues);
 	XSetForeground(xw.dpy, dc.gc, dc.col[defaultbg].pixel);
 	XFillRectangle(xw.dpy, xw.buf, dc.gc, 0, 0, win.w, win.h);
@@ -2741,9 +2735,7 @@ xfinishdraw(void)
 	if (gc)
 		XFreeGC(xw.dpy, gc);
 
-	#if !SINGLE_DRAWABLE_BUFFER_PATCH
 	XCopyArea(xw.dpy, xw.buf, xw.win, dc.gc, 0, 0, win.w, win.h, 0, 0);
-	#endif // SINGLE_DRAWABLE_BUFFER_PATCH
 	XSetForeground(xw.dpy, dc.gc, dc.col[X_IS_SET(MODE_REVERSE) ? defaultfg : defaultbg].pixel);
 }
 
