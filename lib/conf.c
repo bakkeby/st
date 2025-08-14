@@ -14,6 +14,7 @@ char *scroll = NULL;
 char *stty_args = NULL;
 char *termname = NULL;
 char *mouseshape_text = NULL;
+char *xdndescchar = NULL;
 wchar_t *worddelimiters = NULL;
 wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
@@ -373,6 +374,8 @@ load_fallback_config(void)
 		kbds_sdelim = wcsdup(kbds_sdelim_def);
 	if (!kbds_ldelim)
 		kbds_ldelim = wcsdup(kbds_ldelim_def);
+	if (!xdndescchar)
+		xdndescchar = strdup(xdndescchar_def);
 
 	if (!termname)
 		termname = strdup(terminal_name);
@@ -391,6 +394,8 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "scroll", &scroll);
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
+	config_lookup_strdup(cfg, "drag_and_drop_escape_characters", &xdndescchar);
+
 	config_lookup_wcsdup(cfg, "word_delimiters", &worddelimiters);
 	config_lookup_wcsdup(cfg, "keyboardselect.short_delimiter", &kbds_sdelim);
 	config_lookup_wcsdup(cfg, "keyboardselect.long_delimiter", &kbds_ldelim);
@@ -419,8 +424,7 @@ load_misc(config_t *cfg)
 
 	config_lookup_simple_float(cfg, "alpha.focused", &alpha);
 	config_lookup_simple_float(cfg, "alpha.unfocused", &alpha_unfocused);
-	config_lookup_simple_float(cfg, "alpha.gradient", &grad_alpha);
-	config_lookup_simple_float(cfg, "alpha.gradient_constant", &stat_alpha);
+	config_lookup_simple_float(cfg, "alpha.gradient_minimum", &gradient_constant);
 
 }
 
@@ -642,9 +646,6 @@ su_timeout
 
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
 
-#drag and drop
-xdndescchar
-
 # colorname (have to decide how to handle colors)
 
 
@@ -706,7 +707,7 @@ setbgcolorcmd
 mappedkeys
 
 ignoremod
-key <--- will be a big one
+key <--- will be a big one, especially what complicates things are the \033 octal numbers
 
 
 selmasks

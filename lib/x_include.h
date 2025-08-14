@@ -4,9 +4,7 @@
 #include "background_image_x.h"
 #endif
 #include "boxdraw.h"
-#if DRAG_AND_DROP_PATCH
 #include "drag-n-drop.h"
-#endif
 #if OPENCOPIED_PATCH
 #include "opencopied.h"
 #endif

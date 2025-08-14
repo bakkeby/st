@@ -543,12 +543,10 @@ selnotify(XEvent *e)
 	if (property == None)
 		return;
 
-	#if DRAG_AND_DROP_PATCH
 	if (property == xw.XdndSelection) {
 		xdndsel(e);
 		return;
 	}
-	#endif // DRAG_AND_DROP_PATCH
 
 	do {
 		if (XGetWindowProperty(xw.dpy, xw.win, property, ofs,
@@ -1475,8 +1473,7 @@ xinit(int cols, int rows)
 	xw.netwmfullscreen = XInternAtom(xw.dpy, "_NET_WM_STATE_FULLSCREEN", False);
 	#endif // FULLSCREEN_PATCH
 
-	#if DRAG_AND_DROP_PATCH
-	/* Xdnd setup */
+	/* Xdnd (drag and drop) setup */
 	xw.XdndTypeList = XInternAtom(xw.dpy, "XdndTypeList", 0);
 	xw.XdndSelection = XInternAtom(xw.dpy, "XdndSelection", 0);
 	xw.XdndEnter = XInternAtom(xw.dpy, "XdndEnter", 0);
@@ -1495,7 +1492,6 @@ xinit(int cols, int rows)
 	xw.XdndAware = XInternAtom(xw.dpy, "XdndAware", 0);
 	XChangeProperty(xw.dpy, xw.win, xw.XdndAware, 4, 32, PropModeReplace,
 			&XdndVersion, 1);
-	#endif // DRAG_AND_DROP_PATCH
 
 	win.mode = MODE_NUMLOCK;
 	resettitle();
@@ -1844,7 +1840,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	/* Gradient */
 	if (enabled(AlphaGradient|AlphaInverseGradient)) {
 		float gradient = enabled(AlphaFocusHighlight) && !focused ? alpha_unfocused : alpha;
-		float relative = enabled(AlphaGradient) ? (win.h - y*win.ch) / win.h : (y*win.ch) / win.h;
+		float relative = enabled(AlphaInverseGradient) ? (float)(y*win.ch) / win.h : (float)(win.h - y*win.ch) / win.h;
 		bg->color.alpha = MIN(0xffff, gradient * 0xffff * relative + gradient_constant * 0xffff);
 	}
 
@@ -3070,7 +3066,6 @@ cmessage(XEvent *e)
 	} else if (e->xclient.data.l[0] == xw.wmdeletewin) {
 		ttyhangup();
 		exit(0);
-	#if DRAG_AND_DROP_PATCH
 	} else if (e->xclient.message_type == xw.XdndEnter) {
 		xw.XdndSourceWin = e->xclient.data.l[0];
 		xw.XdndSourceVersion = e->xclient.data.l[1] >> 24;
@@ -3084,7 +3079,6 @@ cmessage(XEvent *e)
 	} else if (e->xclient.message_type == xw.XdndDrop
 			&& xw.XdndSourceVersion <= 5) {
 		xdnddrop(e);
-	#endif // DRAG_AND_DROP_PATCH
 	}
 }
 

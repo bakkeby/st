@@ -121,17 +121,14 @@ unsigned int tabspaces = 8;
 /* background opacity */
 float alpha = 0.8;
 float alpha_unfocused = 0.6;
-float grad_alpha = 0.54; // The alpha value that will change
-float stat_alpha = 0.46; // constant alpha value that will get added to grad_alpha
+float gradient_constant = 0.46; // constant alpha value that will get added to gradient
 
-#if DRAG_AND_DROP_PATCH
 /*
  * drag and drop escape characters
  *
  * this will add a '\' before any characters specified in the string.
  */
-char *xdndescchar = " !\"#$&'()*;<>?[\\]^`{|}~";
-#endif // DRAG_AND_DROP_PATCH
+char *xdndescchar_def = " !\"#$&'()*;<>?[\\]^`{|}~";
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
