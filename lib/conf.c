@@ -8,17 +8,17 @@ const char *progname = "st";
 /* Configuration variables */
 char **fonts = NULL;
 int num_fonts;
-char *shell = NULL;
-char *utmp = NULL;
+char *mouseshape_text = NULL;
 char *scroll = NULL;
+char *shell = NULL;
 char *stty_args = NULL;
 char *termname = NULL;
-char *mouseshape_text = NULL;
-char *xdndescchar = NULL;
+char *utmp = NULL;
 char *window_icon = NULL;
-wchar_t *worddelimiters = NULL;
+char *xdndescchar = NULL;
 wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
+wchar_t *worddelimiters = NULL;
 int histsize = 2000;
 uint64_t settings = 0;
 
@@ -339,14 +339,17 @@ cleanup_config(void)
 		free(fonts[i]);
 	free(fonts);
 
-	free(shell);
-	free(utmp);
+	free(mouseshape_text);
 	free(scroll);
+	free(shell);
 	free(stty_args);
-	free(worddelimiters);
+	free(termname);
+	free(utmp);
+	free(window_icon);
+	free(xdndescchar);
 	free(kbds_sdelim);
 	free(kbds_ldelim);
-	free(termname);
+	free(worddelimiters);
 	/* TODO consider what needs to be done to preserve the history if
 	 * we were to introduce live reload of config during runtime. */
 	free(term.hist);
@@ -714,11 +717,8 @@ openurlcmd
 #externalpipein
 setbgcolorcmd
 
-#fixkeyboardinput
-mappedkeys
 
 ignoremod
-key <--- will be a big one, especially what complicates things are the \033 octal numbers
 
 
 selmasks

@@ -1,4 +1,25 @@
 /*
+ * Special keys (change & recompile st.info accordingly)
+ *
+ * Mask value:
+ * * Use XK_ANY_MOD to match the key no matter modifiers state
+ * * Use XK_NO_MOD to match the key alone (no modifiers)
+ * appkey value:
+ * * 0: no value
+ * * > 0: keypad application mode enabled
+ * *   = 2: term.numlock = 1
+ * * < 0: keypad application mode disabled
+ * appcursor value:
+ * * 0: no value
+ * * > 0: cursor application mode enabled
+ * * < 0: cursor application mode disabled
+ *
+ * Be careful with the order of the definitions because st searches in
+ * this table sequentially, so any XK_ANY_MOD must be in the last
+ * position for a key.
+ */
+
+/*
  * If you want keys other than the X11 function keys (0xFD00 - 0xFFFF)
  * to be mapped below, add them to this array.
  */

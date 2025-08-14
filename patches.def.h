@@ -69,12 +69,6 @@
  */
 #define EXTERNALPIPEIN_PATCH 0
 
-/* This patch allows command line applications to use all the fancy key combinations
- * that are available to GUI applications.
- * https://st.suckless.org/patches/fix_keyboard_input/
- */
-#define FIXKEYBOARDINPUT_PATCH 0
-
 /* This patch adds a keybinding that lets you invert the current colorscheme of st.
  * This provides a simple way to temporarily switch to a light colorscheme if you use a dark
  * colorscheme or visa-versa.
