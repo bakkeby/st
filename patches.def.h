@@ -105,11 +105,6 @@
  */
 #define RIGHTCLICKTOPLUMB_PATCH 0
 
-/* Use inverted defaultbg/fg for selection when bg/fg are the same.
- * https://st.suckless.org/patches/spoiler/
- */
-#define SPOILER_PATCH 0
-
 /* This patch adds synchronized-updates/application-sync support in st.
  * This will have no effect except when an application uses the synchronized-update escape
  * sequences. With this patch nearly all cursor flicker is eliminated in tmux, and tmux detects

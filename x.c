@@ -1770,7 +1770,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	}
 
 	if (base.mode & ATTR_REVERSE) {
-		#if SPOILER_PATCH
 		if (bg == fg) {
 			bg = &dc.col[defaultfg];
 			fg = &dc.col[defaultbg];
@@ -1779,11 +1778,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 			fg = bg;
 			bg = temp;
 		}
-		#else
-		temp = fg;
-		fg = bg;
-		bg = temp;
-		#endif // SPOILER_PATCH
 	}
 
 	if (base.mode & ATTR_SELECTED) {
