@@ -203,9 +203,7 @@ static char *opt_title = NULL;
 static char *opt_dir   = NULL;
 #endif // WORKINGDIR_PATCH
 
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 static int focused = 0;
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
 static uint buttons; /* bit field of pressed buttons */
 static int cursorblinks = 0;
@@ -885,18 +883,18 @@ xloadcolor(int i, const char *name, Color *ncolor)
 	return XftColorAllocName(xw.dpy, xw.vis, xw.cmap, name, ncolor);
 }
 
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 void
 xloadalpha(void)
 {
-	float const usedAlpha = focused ? alpha : alphaUnfocused;
+	float const usedAlpha = enabled(AlphaFocusHighlight) && !focused ? alpha_unfocused : alpha;
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
 	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
+	dc.col[defaultbg].color.red   *= usedAlpha;
+	dc.col[defaultbg].color.green *= usedAlpha;
+	dc.col[defaultbg].color.blue  *= usedAlpha;
 }
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 void
 xloadcols(void)
 {
@@ -908,53 +906,20 @@ xloadcols(void)
 		dc.col = xmalloc((dc.collen) * sizeof(Color));
 	}
 
-	for (int i = 0; i+1 < dc.collen; ++i)
+	for (int i = 0; i+1 < dc.collen; ++i) {
 		if (!xloadcolor(i, NULL, &dc.col[i])) {
 			if (colorname[i])
 				die("could not allocate color '%s'\n", colorname[i]);
 			else
 				die("could not allocate color %d\n", i);
 		}
+	}
 	if (dc.collen) // cannot die, as the color is already loaded.
-		xloadcolor(focused ? bg : bgUnfocused, NULL, &dc.col[defaultbg]);
+		xloadcolor((enabled(AlphaFocusHighlight) && !focused ? bg_unfocused : bg), NULL, &dc.col[defaultbg]);
 
 	xloadalpha();
 	loaded = 1;
 }
-#else
-void
-xloadcols(void)
-{
-	int i;
-	static int loaded;
-	Color *cp;
-
-	if (loaded) {
-		for (cp = dc.col; cp < &dc.col[dc.collen]; ++cp)
-			XftColorFree(xw.dpy, xw.vis, xw.cmap, cp);
-	} else {
-		dc.collen = MAX(LEN(colorname), 256);
-		dc.col = xmalloc(dc.collen * sizeof(Color));
-	}
-
-	for (i = 0; i < dc.collen; i++)
-		if (!xloadcolor(i, NULL, &dc.col[i])) {
-			if (colorname[i])
-				die("could not allocate color '%s'\n", colorname[i]);
-			else
-				die("could not allocate color %d\n", i);
-		}
-
-	/* set alpha value of bg color */
-	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
-	dc.col[defaultbg].pixel &= 0x00FFFFFF;
-	dc.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
-	dc.col[defaultbg].color.red   *= alpha;
-	dc.col[defaultbg].color.green *= alpha;
-	dc.col[defaultbg].color.blue  *= alpha;
-	loaded = 1;
-}
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
 int
 xgetcolor(int x, unsigned char *r, unsigned char *g, unsigned char *b)
@@ -2933,26 +2898,22 @@ focus(XEvent *ev)
 		xseturgency(0);
 		if (X_IS_SET(MODE_FOCUS))
 			ttywrite("\033[I", 3, 0);
-		#if ALPHA_FOCUS_HIGHLIGHT_PATCH
-		if (!focused) {
+		if (enabled(AlphaFocusHighlight) && !focused) {
 			focused = 1;
 			xloadcols();
 			tfulldirt();
 		}
-		#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 	} else {
 		if (xw.ime.xic)
 			XUnsetICFocus(xw.ime.xic);
 		win.mode &= ~MODE_FOCUSED;
 		if (X_IS_SET(MODE_FOCUS))
 			ttywrite("\033[O", 3, 0);
-		#if ALPHA_FOCUS_HIGHLIGHT_PATCH
-		if (focused) {
+		if (enabled(AlphaFocusHighlight) && focused) {
 			focused = 0;
 			xloadcols();
 			tfulldirt();
 		}
-		#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 	}
 }
 
@@ -3432,9 +3393,7 @@ run:
 
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
-	#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 	defaultbg = MAX(LEN(colorname), 256);
-	#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 	tnew(cols, rows);
 	#if !ANYGEOMETRY_PATCH
 	xinit(cols, rows);

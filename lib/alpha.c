@@ -17,14 +17,12 @@ changealpha(const Arg *arg)
 	redraw();
 }
 
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
 void
 changealphaunfocused(const Arg *arg)
 {
-	if ((alphaUnfocused > 0 && arg->f < 0) || (alphaUnfocused < 1 && arg->f > 0))
-		alphaUnfocused += arg->f;
-	alphaUnfocused = clamp(alphaUnfocused, 0.0, 1.0);
+	if ((alpha_unfocused > 0 && arg->f < 0) || (alpha_unfocused < 1 && arg->f > 0))
+		alpha_unfocused += arg->f;
+	alpha_unfocused = clamp(alpha_unfocused, 0.0, 1.0);
 	xloadcols();
 	redraw();
 }
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH

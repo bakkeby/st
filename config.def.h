@@ -118,15 +118,14 @@ char *terminal_name = "st-256color";
  */
 unsigned int tabspaces = 8;
 
-/* bg opacity */
+/* background opacity */
 float alpha = 0.8;
+float alpha_unfocused = 0.6;
+
 #if ALPHA_GRADIENT_PATCH
 float grad_alpha = 0.54; //alpha value that'll change
 float stat_alpha = 0.46; //constant alpha value that'll get added to grad_alpha
 #endif // ALPHA_GRADIENT_PATCH
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
-float alphaUnfocused = 0.6;
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 
 #if DRAG_AND_DROP_PATCH
 /*
@@ -173,12 +172,8 @@ static const char *colorname[] = {
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor
  */
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
+unsigned int bg = 17, bg_unfocused = 16;
 unsigned int defaultbg = 0;
-unsigned int bg = 17, bgUnfocused = 16;
-#else
-unsigned int defaultbg = 258;
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 unsigned int defaultfg = 259;
 unsigned int defaultcs = 256;
 unsigned int defaultrcs = 257;
@@ -279,10 +274,6 @@ ResourcePref resources[] = {
 		#endif // RELATIVEBORDER_PATCH
 		{ "cwscale",      FLOAT,   &cwscale },
 		{ "chscale",      FLOAT,   &chscale },
-		{ "alpha",        FLOAT,   &alpha },
-		#if ALPHA_FOCUS_HIGHLIGHT_PATCH
-		{ "alphaUnfocused",FLOAT,  &alphaUnfocused },
-		#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
 		{ "highlightfg",  INTEGER, &highlightfg },
 		{ "highlightbg",  INTEGER, &highlightbg },
 };
@@ -344,10 +335,8 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_V,           clippaste,       {.i =  0} },
 	{ TERMMOD,              XK_O,           changealpha,     {.f = +0.05} },
 	{ TERMMOD,              XK_P,           changealpha,     {.f = -0.05} },
-	#if ALPHA_FOCUS_HIGHLIGHT_PATCH
-	//{ TERMMOD,              XK_,           changealphaunfocused, {.f = +0.05} },
-	//{ TERMMOD,              XK_,           changealphaunfocused, {.f = -0.05} },
-	#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
+//	{ TERMMOD,              XK_,            changealphaunfocused, {.f = +0.05} },
+//	{ TERMMOD,              XK_,            changealphaunfocused, {.f = -0.05} },
 	#if FULLSCREEN_PATCH
 	{ XK_NO_MOD,            XK_F11,         fullscreen,      {.i =  0} },
 	{ MODKEY,               XK_Return,      fullscreen,      {.i =  0} },

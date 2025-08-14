@@ -417,7 +417,8 @@ load_misc(config_t *cfg)
 	config_lookup_unsigned_int(cfg, "terminal_cursor.style", &cursorstyle);
 	config_lookup_unsigned_int(cfg, "terminal_cursor.custom_cursor", &stcursor);
 
-	config_lookup_simple_float(cfg, "alpha", &alpha);
+	config_lookup_simple_float(cfg, "alpha.focused", &alpha);
+	config_lookup_simple_float(cfg, "alpha.unfocused", &alpha_unfocused);
 
 
 

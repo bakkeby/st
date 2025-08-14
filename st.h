@@ -380,9 +380,7 @@ extern int extpipeactive;
 
 extern uint64_t settings;
 extern float alpha;
-#if ALPHA_FOCUS_HIGHLIGHT_PATCH
-extern float alphaUnfocused;
-#endif // ALPHA_FOCUS_HIGHLIGHT_PATCH
+extern float alpha_unfocused;
 
 extern DC dc;
 extern XWindow xw;
