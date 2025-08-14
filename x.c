@@ -2327,13 +2327,11 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 	 * It will restore the ligatures broken by the cursor. */
 	xdrawline(line, 0, oy, len);
 
-	#if HIDE_TERMINAL_CURSOR_PATCH
-	if (X_IS_SET(MODE_HIDE) || !X_IS_SET(MODE_FOCUSED))
-		return;
-	#else
 	if (X_IS_SET(MODE_HIDE))
 		return;
-	#endif // HIDE_TERMINAL_CURSOR_PATCH
+
+	if (enabled(HideTerminalCursor) && !X_IS_SET(MODE_FOCUSED))
+		return;
 
 	/*
 	 * Select the right color for the right mode.
