@@ -209,11 +209,6 @@
  */
 #define VISUALBELL_1_PATCH 0
 
-/* Adds support for w3m images.
- * https://st.suckless.org/patches/w3m/
- */
-#define W3M_PATCH 0
-
 /* Adds proper glyphs rendering in st allowing wide glyphs to be drawn as-is as opposed to
  * smaller or cut glyphs being rendered.
  * https://github.com/Dreomite/st/commit/e3b821dcb3511d60341dec35ee05a4a0abfef7f2
