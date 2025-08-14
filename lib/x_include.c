@@ -12,9 +12,6 @@
 #endif
 #include "font2.c"
 #include "fullscreen_x.c"
-#if INVERT_PATCH
-#include "invert.c"
-#endif
 #include "keyboardinput.c"
 #include "keyboardselect_reflow_x.c"
 #include "netwmicon_ff.c"

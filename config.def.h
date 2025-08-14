@@ -357,9 +357,6 @@ static Shortcut shortcuts[] = {
 	#if ISO14755_PATCH
 	{ TERMMOD,              XK_I,           iso14755,        {.i =  0} },
 	#endif // ISO14755_PATCH
-	#if INVERT_PATCH
-	{ TERMMOD,              XK_X,           invert,          { 0 } },
-	#endif // INVERT_PATCH
 	{ ControlMask,          XK_Page_Up,     scrolltoprompt,  {.i = -1}, S_PRI },
 	{ ControlMask,          XK_Page_Down,   scrolltoprompt,  {.i =  1}, S_PRI },
 };

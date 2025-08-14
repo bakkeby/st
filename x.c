@@ -962,18 +962,11 @@ xclear(int x1, int y1, int x2, int y2)
 	if (pseudotransparency)
 		XSetTSOrigin(xw.dpy, xw.bggc, -win.x, -win.y);
 	XFillRectangle(xw.dpy, xw.buf, xw.bggc, x1, y1, x2-x1, y2-y1);
-	#elif INVERT_PATCH
-	Color c;
-	c = dc.col[X_IS_SET(MODE_REVERSE)? defaultfg : defaultbg];
-	if (invertcolors) {
-		c = invertedcolor(&c);
-	}
-	XftDrawRect(xw.draw, &c, x1, y1, x2-x1, y2-y1);
 	#else
 	XftDrawRect(xw.draw,
 			&dc.col[X_IS_SET(MODE_REVERSE)? defaultfg : defaultbg],
 			x1, y1, x2-x1, y2-y1);
-	#endif // INVERT_PATCH
+	#endif // BACKGROUND_IMAGE_PATCH
 }
 
 void
@@ -1794,15 +1787,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 
 	if (base.mode & ATTR_INVISIBLE)
 		fg = bg;
-
-	#if INVERT_PATCH
-	if (invertcolors) {
-		revfg = invertedcolor(fg);
-		revbg = invertedcolor(bg);
-		fg = &revfg;
-		bg = &revbg;
-	}
-	#endif // INVERT_PATCH
 
 	if (base.mode & ATTR_HIGHLIGHT) {
 		fg = &dc.col[(base.mode & ATTR_REVERSE) ? highlightbg : highlightfg];

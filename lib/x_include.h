@@ -13,9 +13,6 @@
 #endif
 #include "fullscreen_x.h"
 #include "func.h"
-#if INVERT_PATCH
-#include "invert.h"
-#endif
 #include "keyboardselect_reflow_st.h"
 #include "keyboardselect_reflow_x.h"
 #include "netwmicon.h"
