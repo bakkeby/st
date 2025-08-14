@@ -121,11 +121,8 @@ unsigned int tabspaces = 8;
 /* background opacity */
 float alpha = 0.8;
 float alpha_unfocused = 0.6;
-
-#if ALPHA_GRADIENT_PATCH
-float grad_alpha = 0.54; //alpha value that'll change
-float stat_alpha = 0.46; //constant alpha value that'll get added to grad_alpha
-#endif // ALPHA_GRADIENT_PATCH
+float grad_alpha = 0.54; // The alpha value that will change
+float stat_alpha = 0.46; // constant alpha value that will get added to grad_alpha
 
 #if DRAG_AND_DROP_PATCH
 /*

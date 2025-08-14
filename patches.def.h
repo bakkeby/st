@@ -9,11 +9,6 @@
 
 /* Patches */
 
-/* Adds gradient transparency to st, depends on the alpha patch.
- * https://st.suckless.org/patches/gradient/
- */
-#define ALPHA_GRADIENT_PATCH 0
-
 /* Allows for the initial size of the terminal to be specified as pixel width and height
  * using the -G command line option. Can be combined with the anysize patch to also allow
  * the window to be resized to any pixel size.

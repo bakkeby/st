@@ -1841,12 +1841,12 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		bg = &dc.col[(base.mode & ATTR_REVERSE) ? highlightfg : highlightbg];
 	}
 
-	#if ALPHA_GRADIENT_PATCH
-	// gradient
-	bg->color.alpha = grad_alpha * 0xffff * (win.h - y*win.ch) / win.h + stat_alpha * 0xffff;
-	// uncomment to invert the gradient, or add functionality toggle for it
-	// bg->color.alpha = grad_alpha * 0xffff * (y*win.ch) / win.h + stat_alpha * 0xffff;
-	#endif // ALPHA_GRADIENT_PATCH
+	/* Gradient */
+	if (enabled(AlphaGradient|AlphaInverseGradient)) {
+		float gradient = enabled(AlphaFocusHighlight) && !focused ? alpha_unfocused : alpha;
+		float relative = enabled(AlphaGradient) ? (win.h - y*win.ch) / win.h : (y*win.ch) / win.h;
+		bg->color.alpha = MIN(0xffff, gradient * 0xffff * relative + gradient_constant * 0xffff);
+	}
 
 	#if WIDE_GLYPHS_PATCH
 	if (dmode & DRAW_BG) {

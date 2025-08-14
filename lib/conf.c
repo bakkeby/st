@@ -419,8 +419,8 @@ load_misc(config_t *cfg)
 
 	config_lookup_simple_float(cfg, "alpha.focused", &alpha);
 	config_lookup_simple_float(cfg, "alpha.unfocused", &alpha_unfocused);
-
-
+	config_lookup_simple_float(cfg, "alpha.gradient", &grad_alpha);
+	config_lookup_simple_float(cfg, "alpha.gradient_constant", &stat_alpha);
 
 }
 
@@ -641,12 +641,6 @@ url_opener
 su_timeout
 
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
-
-#alpha
-alpha
-grad_alpha
-stat_alpha
-alphaUnfocused
 
 #drag and drop
 xdndescchar

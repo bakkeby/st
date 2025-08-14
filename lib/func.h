@@ -16,8 +16,8 @@ static const uint64_t
 	AllowBold = 0x2000,
 	AllowAltScreen = 0x4000,
 	AllowWindowOperations = 0x8000,
-	FuncPlaceholder0x10000 = 0x10000,
-	FuncPlaceholder0x20000 = 0x20000,
+	AlphaGradient = 0x10000,
+	AlphaInverseGradient = 0x20000,
 	FuncPlaceholder0x40000 = 0x40000,
 	FuncPlaceholder0x80000 = 0x80000,
 	FuncPlaceholder0x100000 = 0x100000,
@@ -73,8 +73,9 @@ struct nv {
 #define map(F) { #F, F }
 
 static const struct nv function_names[] = {
-	map(Alpha),
 	map(AlphaFocusHighlight),
+	map(AlphaGradient),
+	map(AlphaInverseGradient),
 	map(AnySize),
 	map(BoldIsBright),
 	map(BoxDraw),
