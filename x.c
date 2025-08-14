@@ -1110,11 +1110,12 @@ xloadfont(Font *f, FcPattern *pattern)
 	FcConfigSubstitute(NULL, configured, FcMatchPattern);
 	XftDefaultSubstitute(xw.dpy, xw.scr, configured);
 
-	#if USE_XFTFONTMATCH_PATCH
-	match = XftFontMatch(xw.dpy, xw.scr, pattern, &result);
-	#else
-	match = FcFontMatch(NULL, configured, &result);
-	#endif // USE_XFTFONTMATCH_PATCH
+	if (enabled(UseXftFontMatch)) {
+		match = XftFontMatch(xw.dpy, xw.scr, pattern, &result);
+	} else {
+		match = FcFontMatch(NULL, configured, &result);
+	}
+
 	if (!match) {
 		FcPatternDestroy(configured);
 		return 1;

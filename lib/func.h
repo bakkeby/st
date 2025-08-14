@@ -24,7 +24,7 @@ static const uint64_t
 	UseSelectionColors = 0x100000 | 0x80000,
 	HideTerminalCursor = 0x200000,
 	NoWindowDecorations = 0x400000,
-	FuncPlaceholder0x800000 = 0x800000,
+	UseXftFontMatch = 0x800000,
 	FuncPlaceholder0x1000000 = 0x1000000,
 	FuncPlaceholder0x2000000 = 0x2000000,
 	FuncPlaceholder0x4000000 = 0x4000000,
@@ -99,6 +99,7 @@ static const struct nv function_names[] = {
 	map(UseSelectionBackgroundColor),
 	map(UseSelectionForegroundColor),
 	map(UseSelectionColors),
+	map(UseXftFontMatch),
 	{ NULL, 0 }
 };
 

@@ -129,20 +129,6 @@
  */
 #define UNDERCURL_PATCH 0
 
-/* Use XftFontMatch in place of FcFontMatch.
- *
- * XftFontMatch calls XftDefaultSubstitute which configures various match properties according
- * to the user's configured Xft defaults (xrdb) as well as according to the current display and
- * screen. Most importantly, the screen DPI is computed [1]. Without this, st uses a "default"
- * DPI of 75 [2].
- *
- * [1]: https://cgit.freedesktop.org/xorg/lib/libXft/tree/src/xftdpy.c?id=libXft-2.3.2#n535
- * [2]: https://cgit.freedesktop.org/fontconfig/tree/src/fcdefault.c?id=2.11.1#n255
- *
- * https://git.suckless.org/st/commit/528241aa3835e2f1f052abeeaf891737712955a0.html
- */
-#define USE_XFTFONTMATCH_PATCH 0
-
 /* Vertically center lines in the space available if you have set a larger chscale in config.h
  * https://st.suckless.org/patches/vertcenter/
  */
@@ -159,11 +145,6 @@
  * https://www.reddit.com/r/suckless/comments/jt90ai/update_support_for_proper_glyph_rendering_in_st/
  */
 #define WIDE_GLYPHS_PATCH 0
-
-/* This patch allows user to specify the initial path st should use as the working directory.
- * https://st.suckless.org/patches/workingdir/
- */
-#define WORKINGDIR_PATCH 0
 
 /* This patch adds the ability to configure st via Xresources. At startup, st will read and
  * apply the resources named in the resources[] array in config.h.
