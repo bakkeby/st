@@ -1450,12 +1450,12 @@ xinit(int cols, int rows)
 	XSetWMProtocols(xw.dpy, xw.win, &xw.wmdeletewin, 1);
 	setnetwmicon();
 
-	#if NO_WINDOW_DECORATIONS_PATCH
-	Atom motifwmhints = XInternAtom(xw.dpy, "_MOTIF_WM_HINTS", False);
-	unsigned int data[] = { 0x2, 0x0, 0x0, 0x0, 0x0 };
-	XChangeProperty(xw.dpy, xw.win, motifwmhints, motifwmhints, 16,
-				PropModeReplace, (unsigned char *)data, 5);
-	#endif // NO_WINDOW_DECORATIONS_PATCH
+	if (enabled(NoWindowDecorations)) {
+		Atom motifwmhints = XInternAtom(xw.dpy, "_MOTIF_WM_HINTS", False);
+		unsigned int data[] = { 0x2, 0x0, 0x0, 0x0, 0x0 };
+		XChangeProperty(xw.dpy, xw.win, motifwmhints, motifwmhints, 16,
+					PropModeReplace, (unsigned char *)data, 5);
+	}
 
 	xw.netwmpid = XInternAtom(xw.dpy, "_NET_WM_PID", False);
 	XChangeProperty(xw.dpy, xw.win, xw.netwmpid, XA_CARDINAL, 32,
