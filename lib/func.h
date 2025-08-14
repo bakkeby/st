@@ -1,5 +1,5 @@
 static const uint64_t
-	Alpha = 0x1,
+	Monochrome = 0x1,
 	AlphaFocusHighlight = 0x2,
 	BoxDraw = 0x4,
 	BoxDrawBoldAffectsLineThickness = 0x8,
@@ -74,6 +74,12 @@ struct nv {
 #define map(F) { #F, F }
 
 static const struct nv function_names[] = {
+	map(AllowAltScreen),
+	map(AllowItalic),
+	map(AllowBoldItalic),
+	map(AllowItalicBold),
+	map(AllowBold),
+	map(AllowWindowOperations),
 	map(AlphaFocusHighlight),
 	map(AlphaGradient),
 	map(AlphaInverseGradient),
@@ -84,15 +90,10 @@ static const struct nv function_names[] = {
 	map(BoxDrawForBraille),
 	map(DynamicCursorColor),
 	map(HideMouseCursor),
+	map(Monochrome),
 	map(RetainSelectionPerWindow),
 	map(SwapMouse),
 	map(ThemedCursor),
-	map(AllowItalic),
-	map(AllowBoldItalic),
-	map(AllowItalicBold),
-	map(AllowBold),
-	map(AllowAltScreen),
-	map(AllowWindowOperations),
 	map(UseSelectionBackgroundColor),
 	map(UseSelectionForegroundColor),
 	map(UseSelectionColors),

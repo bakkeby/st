@@ -94,12 +94,6 @@
  */
 #define ISO14755_PATCH 0
 
-/* This patch makes st ignore terminal color attributes by forcing display of the default
- * foreground and background colors only - making for a monochrome look. Idea ref.
- * https://www.reddit.com/r/suckless/comments/ixbx6z/how_to_use_black_and_white_only_for_st/
- */
-#define MONOCHROME_PATCH 0
-
 /* This patch sets the _NET_WM_ICON X property with an icon that is read from a .png file.
  * This patch depends on the GD Graphics Library and headers to compile.
  * You need to uncomment the corresponding lines in config.mk to use the gd library.

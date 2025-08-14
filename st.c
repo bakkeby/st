@@ -1240,22 +1240,14 @@ tsetattr(const int *attr, int l)
 			break;
 		case 38:
 			if ((idx = tdefcolor(attr, &i, l)) >= 0)
-				#if MONOCHROME_PATCH
-				term.c.attr.fg = defaultfg;
-				#else
-				term.c.attr.fg = idx;
-				#endif // MONOCHROME_PATCH
+				term.c.attr.fg = (enabled(Monochrome) ? defaultfg : idx);
 			break;
 		case 39: /* set foreground color to default */
 			term.c.attr.fg = defaultfg;
 			break;
 		case 48:
 			if ((idx = tdefcolor(attr, &i, l)) >= 0)
-				#if MONOCHROME_PATCH
-				term.c.attr.bg = 0;
-				#else
-				term.c.attr.bg = idx;
-				#endif // MONOCHROME_PATCH
+				term.c.attr.bg = (enabled(Monochrome) ? 0 : idx);;
 			break;
 		case 49: /* set background color to default */
 			term.c.attr.bg = defaultbg;
@@ -1283,29 +1275,13 @@ tsetattr(const int *attr, int l)
 		#endif // UNDERCURL_PATCH
 		default:
 			if (BETWEEN(attr[i], 30, 37)) {
-				#if MONOCHROME_PATCH
-				term.c.attr.fg = defaultfg;
-				#else
-				term.c.attr.fg = attr[i] - 30;
-				#endif // MONOCHROME_PATCH
+				term.c.attr.fg = (enabled(Monochrome) ? defaultfg : attr[i] - 30);
 			} else if (BETWEEN(attr[i], 40, 47)) {
-				#if MONOCHROME_PATCH
-				term.c.attr.bg = 0;
-				#else
-				term.c.attr.bg = attr[i] - 40;
-				#endif // MONOCHROME_PATCH
+				term.c.attr.bg = (enabled(Monochrome) ? 0 : attr[i] - 40);
 			} else if (BETWEEN(attr[i], 90, 97)) {
-				#if MONOCHROME_PATCH
-				term.c.attr.fg = defaultfg;
-				#else
-				term.c.attr.fg = attr[i] - 90 + 8;
-				#endif // MONOCHROME_PATCH
+				term.c.attr.fg = (enabled(Monochrome) ? defaultfg : attr[i] - 90 + 8);
 			} else if (BETWEEN(attr[i], 100, 107)) {
-				#if MONOCHROME_PATCH
-				term.c.attr.bg = 0;
-				#else
-				term.c.attr.bg = attr[i] - 100 + 8;
-				#endif // MONOCHROME_PATCH
+				term.c.attr.bg = (enabled(Monochrome) ? 0 : attr[i] - 100 + 8);
 			} else {
 				fprintf(stderr,
 					"erresc(default): gfx attr %d unknown\n",
