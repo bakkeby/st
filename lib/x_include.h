@@ -25,9 +25,6 @@
 #if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_x.h"
 #endif
-#if ST_EMBEDDER_PATCH
-#include "st_embedder_x.h"
-#endif
 #if XRESOURCES_PATCH
 #include "xresources.h"
 #endif
