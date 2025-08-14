@@ -20,7 +20,6 @@ newterm(const Arg* a)
 			die("fork failed: %s\n", strerror(errno));
 			break;
 		case 0:
-			#if OSC7_PATCH
 			if (term.cwd) {
 				if (chdir(term.cwd) == 0) {
 					/* We need to put the working directory also in PWD, so that
@@ -31,9 +30,6 @@ newterm(const Arg* a)
 			} else {
 				chdir(getcwd_by_pid(pid));
 			}
-			#else
-			chdir(getcwd_by_pid(pid));
-			#endif // OSC7_PATCH
 
 			execl("/proc/self/exe", argv0, NULL);
 			exit(1);

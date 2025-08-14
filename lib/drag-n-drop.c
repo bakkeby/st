@@ -48,9 +48,9 @@ xdndurldecode(char *src, char *dest)
 	int i = 0;
 
 	while (*src) {
-		if (*src == '%' && HEX_TO_INT(src[1]) != -1 && HEX_TO_INT(src[2]) != -1) {
+		if (*src == '%' && hex2int(src[1]) != -1 && hex2int(src[2]) != -1) {
 			/* handle %xx escape sequences in url e.g. %20 == ' ' */
-			c = (char)((HEX_TO_INT(src[1]) << 4) | HEX_TO_INT(src[2]));
+			c = (char)((hex2int(src[1]) << 4) | hex2int(src[2]));
 			src += 3;
 		} else {
 			c = *src++;

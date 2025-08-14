@@ -82,12 +82,6 @@
  */
 #define ISO14755_PATCH 0
 
-/* This patch allows you to spawn a new st terminal using Ctrl-Shift-Return. It will have the
- * same CWD (current working directory) as the original st instance.
- * https://st.suckless.org/patches/newterm/
- */
-#define NEWTERM_PATCH 0
-
 /* This patch will set the _MOTIF_WM_HINTS property for the st window which, if the window manager
  * respects it, will show the st window without window decorations.
  *
@@ -112,14 +106,6 @@
  * https://www.reddit.com/r/suckless/comments/cc83om/st_open_url/
  */
 #define OPENURLONCLICK_PATCH 0
-
-/* This patch allows st to fetch the current working directory through the OSC 7 escape
- * sequence emitted by shells. Must be used with newterm patch.
- *
- * https://codeberg.org/dnkl/foot/wiki#spawning-new-terminal-instances-in-the-current-working-directory
- * https://github.com/veltza/st-sx/commit/817865c2c6ed905af8849580e58bdcf399216fbd
- */
-#define OSC7_PATCH 0
 
 /* This patch allows you to right-click on some selected text to send it to the plumbing
  * program of choice, e.g. open a file, view an image, open a URL.

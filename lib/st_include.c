@@ -1,4 +1,4 @@
-/* Patches */
+#include "util.c"
 #if COPYURL_PATCH || COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH
 #include "copyurl.c"
 #endif
@@ -12,13 +12,9 @@
 #if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_st.c"
 #endif
-#if NEWTERM_PATCH
 #include "newterm.c"
-#endif
 #include "reflow.c"
 #if SYNC_PATCH
 #include "sync.c"
 #endif
-#if OSC7_PATCH
 #include "osc7.c"
-#endif

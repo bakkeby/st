@@ -1,4 +1,4 @@
-/* Patches */
+#include "util.c"
 #include "alpha.c"
 #if BACKGROUND_IMAGE_PATCH
 #include "background_image_x.c"

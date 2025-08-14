@@ -63,10 +63,6 @@ static wchar_t *char_to_wchar(const char *string);
 static wchar_t *wcsdup(const wchar_t *string);
 
 static int parse_byteorder(const char *string);
-static inline int startswith(const char *needle, const char *haystack)
-{
-	return !strncmp(haystack, needle, strlen(needle));
-}
 
 void
 set_config_path(const char* filename, char *config_path, char *config_file)
@@ -554,12 +550,12 @@ char_to_wchar(const char *string)
 wchar_t *
 wcsdup(const wchar_t *string)
 {
-    size_t len = wcslen(string);
-    wchar_t *dup = calloc(len + 1, sizeof(wchar_t));
-    if (dup) {
-        wcscpy(dup, string);
-    }
-    return dup;
+	size_t len = wcslen(string);
+	wchar_t *dup = calloc(len + 1, sizeof(wchar_t));
+	if (dup) {
+		wcscpy(dup, string);
+	}
+	return dup;
 }
 
 #define map(S, I) if (!strcasecmp(string, S)) return I;

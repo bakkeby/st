@@ -9,7 +9,6 @@
 #include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
-#include "patches.h"
 
 /* macros */
 #define MIN(a, b)		((a) < (b) ? (a) : (b))
@@ -28,10 +27,6 @@
 
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)		(1 << 24 & (x))
-
-#define HEX_TO_INT(c)  ((c) >= '0' && (c) <= '9' ? (c) - '0' : \
-                        (c) >= 'a' && (c) <= 'f' ? (c) - 'a' + 10 : \
-                        (c) >= 'A' && (c) <= 'F' ? (c) - 'A' + 10 : -1)
 
 enum glyph_attribute {
 	ATTR_NULL           = 0,
@@ -171,9 +166,7 @@ typedef struct {
 	ImageList *images;     /* sixel images */
 	ImageList *images_alt; /* sixel images for alternate screen */
 	Rune lastc;   /* last printed char outside of sequence, 0 if control */
-	#if OSC7_PATCH
 	char* cwd;    /* current working directory */
-	#endif // OSC7_PATCH
 } Term;
 
 typedef union {
