@@ -62,19 +62,6 @@
  */
 #define EXTERNALPIPEIN_PATCH 0
 
-/* This patch adds synchronized-updates/application-sync support in st.
- * This will have no effect except when an application uses the synchronized-update escape
- * sequences. With this patch nearly all cursor flicker is eliminated in tmux, and tmux detects
- * it automatically via terminfo.
- *
- * Note: this patch alters st.info to promote support for extra escape sequences, which can
- * potentially cause application misbehaviour if you do not use this patch. Try removing or
- * commenting out the corresponding line in st.info if this is causing issues.
- *
- * https://st.suckless.org/patches/sync/
- */
-#define SYNC_PATCH 0
-
 /* Adds support for special underlines.
  *
  * Example test command:

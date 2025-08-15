@@ -422,7 +422,6 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
 	config_lookup_strdup(cfg, "drag_and_drop_escape_characters", &xdndescchar);
 
-
 	config_lookup_wcsdup(cfg, "word_delimiters", &worddelimiters);
 	config_lookup_wcsdup(cfg, "keyboardselect.short_delimiter", &kbds_sdelim);
 	config_lookup_wcsdup(cfg, "keyboardselect.long_delimiter", &kbds_ldelim);
@@ -440,6 +439,7 @@ load_misc(config_t *cfg)
 
 	config_lookup_unsigned_int(cfg, "double_click_timeout", &doubleclicktimeout);
 	config_lookup_unsigned_int(cfg, "triple_click_timeout", &tripleclicktimeout);
+	config_lookup_unsigned_int(cfg, "synchronized_update_timeout", &su_timeout);
 
 	config_lookup_float(cfg, "minlatency", &minlatency);
 	config_lookup_float(cfg, "maxlatency", &maxlatency);

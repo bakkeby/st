@@ -9,7 +9,5 @@
 #include "rightclicktoplumb_st.c"
 #include "newterm.c"
 #include "reflow.c"
-#if SYNC_PATCH
 #include "sync.c"
-#endif
 #include "osc7.c"

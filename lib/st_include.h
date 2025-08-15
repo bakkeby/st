@@ -10,7 +10,5 @@
 #include "rightclicktoplumb_st.h"
 #include "newterm.h"
 #include "reflow.h"
-#if SYNC_PATCH
 #include "sync.h"
-#endif
 #include "osc7.h"
