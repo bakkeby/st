@@ -6,9 +6,7 @@
 #include "externalpipe.h"
 #endif
 #include "keyboardselect_reflow_st.h"
-#if OPENURLONCLICK_PATCH
 #include "openurlonclick.h"
-#endif
 #include "rightclicktoplumb_st.h"
 #include "newterm.h"
 #include "reflow.h"

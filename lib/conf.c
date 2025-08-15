@@ -18,6 +18,7 @@ char *shell = NULL;
 char *stty_args = NULL;
 char *termname = NULL;
 char *utmp = NULL;
+char *url_opener_cmd = NULL;
 char *window_icon = NULL;
 char *xdndescchar = NULL;
 wchar_t *kbds_sdelim = NULL;
@@ -388,6 +389,8 @@ load_fallback_config(void)
 		stty_args = strdup(stty_def_args);
 	if (!termname)
 		termname = strdup(terminal_name);
+	if (!url_opener_cmd)
+		url_opener_cmd = strdup(url_opener_def);
 	if (!worddelimiters)
 		worddelimiters = wcsdup(worddelimiters_def);
 	if (!kbds_sdelim)
@@ -414,6 +417,7 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "plumb_cmd", &plumb_cmd);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
+	config_lookup_strdup(cfg, "url_opener_cmd", &url_opener_cmd);
 	config_lookup_strdup(cfg, "scroll", &scroll);
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
 	config_lookup_strdup(cfg, "drag_and_drop_escape_characters", &xdndescchar);
@@ -425,6 +429,10 @@ load_misc(config_t *cfg)
 
 	if (config_lookup_string(cfg, "sixelbyteorder", &string)) {
 		sixelbyteorder = parse_byteorder(string);
+	}
+
+	if (config_lookup_string(cfg, "url_opener_modkey", &string)) {
+		url_opener_modkey = parse_modkey(string);
 	}
 
 	config_lookup_simple_float(cfg, "cwscale", &cwscale);
@@ -582,6 +590,25 @@ parse_byteorder(const char *string)
 }
 
 unsigned int
+parse_modkey(const char *string)
+{
+	map("Any", XK_ANY_MOD);
+	map("ANY_MOD", XK_ANY_MOD);
+	map("XK_ANY_MOD", XK_ANY_MOD);
+	map("Ctrl", ControlMask);
+	map("ControlMask", ControlMask);
+	map("Shift", ShiftMask);
+	map("ShiftMask", ShiftMask);
+	map("Alt", Mod1Mask);
+	map("Mod1Mask", Mod1Mask);
+	map("Super", Mod4Mask);
+	map("Mod4Mask", Mod4Mask);
+
+	fprintf(stderr, "Warning: config could not find modkey with name %s\n", string);
+	return XK_ANY_MOD;
+}
+
+unsigned int
 parse_cursor_shape(const char *string)
 {
 	map("arrow", XC_arrow);
@@ -676,9 +703,8 @@ pseudotransparency
 
 vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
 
-# openurlonclick
 url_opener_modkey
-url_opener
+
 
 
 # sync patch

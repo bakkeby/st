@@ -62,13 +62,6 @@
  */
 #define EXTERNALPIPEIN_PATCH 0
 
-/* This patch allows for URLs to be opened directly when you click on them. This may not work with
- * all terminal applications.
- *
- * https://www.reddit.com/r/suckless/comments/cc83om/st_open_url/
- */
-#define OPENURLONCLICK_PATCH 0
-
 /* This patch adds synchronized-updates/application-sync support in st.
  * This will have no effect except when an application uses the synchronized-update escape
  * sequences. With this patch nearly all cursor flicker is eliminated in tmux, and tmux detects

@@ -223,9 +223,7 @@ typedef struct {
 	 * a green rectangle where text would be entered. */
 	Cursor vpointer, bpointer; /* visible and hidden pointers */
 	int pointerisvisible;
-	#if OPENURLONCLICK_PATCH
-	Cursor upointer;
-	#endif // OPENURLONCLICK_PATCH
+	Cursor upointer; /* url pointer */
 	int scr;
 	int isfixed; /* is fixed geometry? */
 	int depth; /* bit depth */

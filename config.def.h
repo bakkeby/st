@@ -31,11 +31,9 @@ static const int pseudotransparency = 0;
 static int borderperc = -1;
 static int borderpx = 2;
 
-#if OPENURLONCLICK_PATCH
 /* modkey options: ControlMask, ShiftMask or XK_ANY_MOD */
 static uint url_opener_modkey = XK_ANY_MOD;
-static char *url_opener = "xdg-open";
-#endif // OPENURLONCLICK_PATCH
+static char *url_opener_def = "xdg-open";
 
 char *stty_def_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 

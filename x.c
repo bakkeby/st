@@ -22,7 +22,6 @@ char *argv0;
 #include "st.h"
 #include "win.h"
 #include "hb.h"
-
 #include "sixel.h"
 
 #if UNDERCURL_PATCH
@@ -483,10 +482,8 @@ bpress(XEvent *e)
 
 		selstart(evcol(e), evrow(e), snap);
 
-		#if OPENURLONCLICK_PATCH
 		clearurl();
 		url_click = 1;
-		#endif // OPENURLONCLICK_PATCH
 	}
 }
 
@@ -748,10 +745,8 @@ brelease(XEvent *e)
 
 	if (btn == Button1) {
 		mousesel(e, 1);
-		#if OPENURLONCLICK_PATCH
 		if (url_click && e->xkey.state & url_opener_modkey)
 			openUrlOnClick(evcol(e), evrow(e), url_opener);
-		#endif // OPENURLONCLICK_PATCH
 	}
 }
 
@@ -771,7 +766,6 @@ bmotion(XEvent *e)
 			xsetpointermotion(0);
 	}
 
-	#if OPENURLONCLICK_PATCH
 	if (!X_IS_SET(MODE_MOUSE)) {
 		if (!(e->xbutton.state & Button1Mask) && detecturl(evcol(e), evrow(e), 1))
 			XDefineCursor(xw.dpy, xw.win, xw.upointer);
@@ -779,7 +773,6 @@ bmotion(XEvent *e)
 			XDefineCursor(xw.dpy, xw.win, xw.vpointer);
 	}
 	url_click = 0;
-	#endif // OPENURLONCLICK_PATCH
 
 	if (X_IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
 		mousereport(e);
@@ -1335,9 +1328,7 @@ xinit(int cols, int rows)
 		| ExposureMask | VisibilityChangeMask | StructureNotifyMask
 		| ButtonMotionMask | ButtonPressMask | ButtonReleaseMask;
 	xw.attrs.colormap = xw.cmap;
-	#if OPENURLONCLICK_PATCH
 	xw.attrs.event_mask |= PointerMotionMask;
-	#endif // OPENURLONCLICK_PATCH
 
 	root = XRootWindow(xw.dpy, xw.scr);
 	xw.win = XCreateWindow(xw.dpy, root, xw.l, xw.t,
@@ -1401,9 +1392,7 @@ xinit(int cols, int rows)
 	xw.bpointer = XCreatePixmapCursor(xw.dpy, blankpm, blankpm,
 					  &xmousefg, &xmousebg, 0, 0);
 
-	#if OPENURLONCLICK_PATCH
 	xw.upointer = XCreateFontCursor(xw.dpy, XC_hand2);
-	#endif // OPENURLONCLICK_PATCH
 
 	xw.xembed = XInternAtom(xw.dpy, "_XEMBED", False);
 	xw.wmdeletewin = XInternAtom(xw.dpy, "WM_DELETE_WINDOW", False);
@@ -2204,7 +2193,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	}
 	#endif // WIDE_GLYPHS_PATCH
 
-	#if OPENURLONCLICK_PATCH
 	/* underline url (openurlonclick patch) */
 	if (url_draw && y >= url_y1 && y <= url_y2) {
 		int x1 = (y == url_y1) ? url_x1 : 0;
@@ -2217,7 +2205,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 			url_draw = (y != url_y2 || x + charlen <= x2);
 		}
 	}
-	#endif // OPENURLONCLICK_PATCH
 
 	/* Reset clip to none. */
 	XftDrawSetClip(xw.draw, 0);
@@ -2712,9 +2699,7 @@ xsetpointermotion(int set)
 	if (!set && !xw.pointerisvisible)
 		return;
 
-	#if OPENURLONCLICK_PATCH
 	set = 1; /* keep MotionNotify event enabled */
-	#endif // OPENURLONCLICK_PATCH
 	MODBIT(xw.attrs.event_mask, set, PointerMotionMask);
 	XChangeWindowAttributes(xw.dpy, xw.win, CWEventMask, &xw.attrs);
 }
@@ -2857,7 +2842,6 @@ kpress(XEvent *ev)
 	Shortcut *bp;
 
 	if (xw.pointerisvisible && enabled(HideMouseCursor)) {
-		#if OPENURLONCLICK_PATCH
 		int x = e->x - borderpx;
 		int y = e->y - borderpx;
 		LIMIT(x, 0, win.tw - 1);
@@ -2867,11 +2851,6 @@ kpress(XEvent *ev)
 			xsetpointermotion(1);
 			xw.pointerisvisible = 0;
 		}
-		#else
-		XDefineCursor(xw.dpy, xw.win, xw.bpointer);
-		xsetpointermotion(1);
-		xw.pointerisvisible = 0;
-		#endif // OPENURLONCLICK_PATCH
 	}
 
 	if (X_IS_SET(MODE_KBDLOCK))

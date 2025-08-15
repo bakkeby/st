@@ -386,10 +386,8 @@ kscrolldown(const Arg* a)
 
 	scroll_images(-1*n);
 
-	#if OPENURLONCLICK_PATCH
 	if (n > 0)
 		restoremousecursor();
-	#endif // OPENURLONCLICK_PATCH
 }
 
 void
@@ -416,18 +414,14 @@ kscrollup(const Arg* a)
 
 	scroll_images(n);
 
-	#if OPENURLONCLICK_PATCH
 	if (n > 0)
 		restoremousecursor();
-	#endif // OPENURLONCLICK_PATCH
 }
 
 void
 tscrollup(int top, int bot, int n, int mode)
 {
-	#if OPENURLONCLICK_PATCH
 	restoremousecursor();
-	#endif //OPENURLONCLICK_PATCH
 
 	int i, j, s;
 	Line temp;
@@ -513,9 +507,7 @@ tscrollup(int top, int bot, int n, int mode)
 void
 tscrolldown(int top, int n)
 {
-	#if OPENURLONCLICK_PATCH
 	restoremousecursor();
-	#endif //OPENURLONCLICK_PATCH
 
 	int i, bot = term.bot;
 	int scr = IS_SET(MODE_ALTSCREEN) ? 0 : term.scr;
