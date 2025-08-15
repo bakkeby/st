@@ -14,9 +14,7 @@
 #include "keyboardinput.c"
 #include "keyboardselect_reflow_x.c"
 #include "netwmicon_ff.c"
-#if OPEN_SELECTED_TEXT_PATCH
 #include "openselectedtext.c"
-#endif
 #if OPENURLONCLICK_PATCH
 #include "openurlonclick.c"
 #endif

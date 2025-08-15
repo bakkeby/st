@@ -13,9 +13,7 @@
 #include "keyboardselect_reflow_st.h"
 #include "keyboardselect_reflow_x.h"
 #include "netwmicon.h"
-#if OPEN_SELECTED_TEXT_PATCH
 #include "openselectedtext.h"
-#endif
 #if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_x.h"
 #endif
