@@ -21,24 +21,6 @@
  */
 #define BACKGROUND_IMAGE_RELOAD_PATCH 0
 
-/* By default st only sets PRIMARY on selection.
- * This patch makes st set CLIPBOARD on selection.
- * https://st.suckless.org/patches/clipboard/
- */
-#define CLIPBOARD_PATCH 0
-
-/* Select and copy the last URL displayed with Mod+l. Multiple invocations cycle through the
- * available URLs.
- * https://st.suckless.org/patches/copyurl/
- */
-#define COPYURL_PATCH 0
-
-/* Select and copy the last URL displayed with Mod+l. Multiple invocations cycle through the
- * available URLs. This variant also highlights the selected URLs.
- * https://st.suckless.org/patches/copyurl/
- */
-#define COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH 0
-
 /* Reading and writing st's screen through a pipe, e.g. pass info to dmenu.
  * https://st.suckless.org/patches/externalpipe/
  */

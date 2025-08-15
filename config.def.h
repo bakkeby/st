@@ -313,9 +313,7 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_Y,           paste,           {.i =  0} },
 	{ ShiftMask,            XK_Insert,      paste,           {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,         {.i =  0} },
-	#if COPYURL_PATCH || COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH
 	{ MODKEY,               XK_l,           copyurl,         {.i =  0} },
-	#endif // COPYURL_PATCH
 	{ MODKEY,               XK_o,           opencopied,      {.v = "xdg-open"} },
 	{ TERMMOD,              XK_Return,      newterm,         {.i =  0} },
 	#if EXTERNALPIPE_PATCH
