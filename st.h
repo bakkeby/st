@@ -340,9 +340,7 @@ extern unsigned int tabspaces;
 extern unsigned int defaultfg;
 extern unsigned int defaultbg;
 extern unsigned int defaultcs;
-#if EXTERNALPIPE_PATCH
 extern int extpipeactive;
-#endif // EXTERNALPIPE_PATCH
 
 extern uint64_t settings;
 extern float alpha;

@@ -250,17 +250,15 @@ static MouseShortcut mshortcuts[] = {
 #define MODKEY Mod1Mask
 #define TERMMOD (ControlMask|ShiftMask)
 
-#if EXTERNALPIPE_PATCH // example command
+/* Example externalpipe and externalpipein commands
 static char *openurlcmd[] = { "/bin/sh", "-c",
 	"xurls | dmenu -l 10 -w $WINDOWID | xargs -r open",
 	"externalpipe", NULL };
 
-#if EXTERNALPIPEIN_PATCH // example command
 static char *setbgcolorcmd[] = { "/bin/sh", "-c",
 	"printf '\033]11;#008000\007'",
 	"externalpipein", NULL };
-#endif // EXTERNALPIPEIN_PATCH
-#endif // EXTERNALPIPE_PATCH
+*/
 
 static Shortcut shortcuts[] = {
 	/* mask                 keysym          function         argument   screen */
@@ -287,12 +285,8 @@ static Shortcut shortcuts[] = {
 	{ MODKEY,               XK_l,           copyurl,         {.i =  0} },
 	{ MODKEY,               XK_o,           opencopied,      {.v = "xdg-open"} },
 	{ TERMMOD,              XK_Return,      newterm,         {.i =  0} },
-	#if EXTERNALPIPE_PATCH
-	{ TERMMOD,              XK_U,           externalpipe,    { .v = openurlcmd } },
-	#if EXTERNALPIPEIN_PATCH
-	{ TERMMOD,              XK_M,           externalpipein,  { .v = setbgcolorcmd } },
-	#endif // EXTERNALPIPEIN_PATCH
-	#endif // EXTERNALPIPE_PATCH
+//	{ TERMMOD,              XK_U,           externalpipe,    { .v = openurlcmd } },
+//	{ TERMMOD,              XK_M,           externalpipein,  { .v = setbgcolorcmd } },
 	{ TERMMOD,              XK_Escape,      keyboard_select, { 0 } },
 	{ TERMMOD,              XK_F,           searchforward,   { 0 } },
 	{ TERMMOD,              XK_B,           searchbackward,  { 0 } },

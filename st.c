@@ -214,9 +214,7 @@ static CSIEscape csiescseq;
 static STREscape strescseq;
 static int iofd = 1;
 static int cmdfd;
-#if EXTERNALPIPEIN_PATCH && EXTERNALPIPE_PATCH
 static int csdfd;
-#endif // EXTERNALPIPEIN_PATCH
 static pid_t pid;
 sixel_state_t sixel_st;
 
@@ -564,9 +562,7 @@ sigchld(int a)
 
 	while ((p = waitpid(-1, &stat, WNOHANG)) > 0) {
 		if (p == pid) {
-			#if EXTERNALPIPEIN_PATCH && EXTERNALPIPE_PATCH
 			close(csdfd);
-			#endif // EXTERNALPIPEIN_PATCH
 
 			if (WIFEXITED(stat) && WEXITSTATUS(stat))
 				die("child exited with status %d\n", WEXITSTATUS(stat));
@@ -656,13 +652,8 @@ ttynew(const char *line, char *cmd, const char *out, char **args)
 		if (pledge("stdio rpath tty proc ps exec", NULL) == -1)
 			die("pledge\n");
 #endif
-		#if EXTERNALPIPEIN_PATCH && EXTERNALPIPE_PATCH
 		csdfd = s;
 		cmdfd = m;
-		#else
-		close(s);
-		cmdfd = m;
-		#endif // EXTERNALPIPEIN_PATCH
 		memset(&sa, 0, sizeof(sa));
 		sigemptyset(&sa.sa_mask);
 		sa.sa_handler = sigchld;

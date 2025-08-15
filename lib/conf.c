@@ -716,19 +716,7 @@ parse_understyle(const char *string)
 
 /* Not done
 
-# background image patch
-bgfile
-pseudotransparency
-
 vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
-
-url_opener_modkey
-
-
-
-# sync patch
-su_timeout
-
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
 
 # colorname (have to decide how to handle colors)
@@ -757,6 +745,7 @@ mousebg
 defaultattr
 
 # xresources
+resources - because it does not make sense defining resources via runtime config
 
 forcemousemod
 
@@ -764,10 +753,10 @@ mshortcuts <-- will be a big one
 shortcuts
 
 # externalpipe
-openurlcmd
+openurlcmd <--- To be replaced with command array like in dusk
 
 #externalpipein
-setbgcolorcmd
+setbgcolorcmd <--- To be replaced with command array like in dusk
 
 
 ignoremod
