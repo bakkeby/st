@@ -15,7 +15,5 @@
 #include "netwmicon.h"
 #include "openselectedtext.h"
 #include "rightclicktoplumb_x.h"
-#if XRESOURCES_PATCH
 #include "xresources.h"
-#endif
 #include "osc133.h"

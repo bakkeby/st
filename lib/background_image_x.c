@@ -92,4 +92,4 @@ reload_image()
 	bginit();
 	redraw();
 }
-#endif // XRESOURCES_RELOAD_PATCH
+#endif // BACKGROUND_IMAGE_RELOAD_PATCH

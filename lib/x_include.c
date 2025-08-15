@@ -17,7 +17,5 @@
 #include "openselectedtext.c"
 #include "openurlonclick.c"
 #include "rightclicktoplumb_x.c"
-#if XRESOURCES_PATCH
 #include "xresources.c"
-#endif
 #include "osc133.c"

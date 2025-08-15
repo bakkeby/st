@@ -124,9 +124,7 @@ static void selnotify(XEvent *);
 static void selclear_(XEvent *);
 static void selrequest(XEvent *);
 static void setsel(char *, Time);
-#if XRESOURCES_PATCH && XRESOURCES_RELOAD_PATCH || BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH
 static void sigusr1_reload(int sig);
-#endif // XRESOURCES_RELOAD_PATCH | BACKGROUND_IMAGE_RELOAD_PATCH
 static int mouseaction(XEvent *, uint);
 static void mousesel(XEvent *, int);
 static void mousereport(XEvent *);
@@ -723,19 +721,17 @@ setsel(char *str, Time t)
 	}
 }
 
-#if XRESOURCES_PATCH && XRESOURCES_RELOAD_PATCH || BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH
 void
 sigusr1_reload(int sig)
 {
-	#if XRESOURCES_PATCH && XRESOURCES_RELOAD_PATCH
-	reload_config(sig);
-	#endif // XRESOURCES_RELOAD_PATCH
+	if (enabled(Xresources)) {
+		reload_config(sig);
+	}
 	#if BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH
 	reload_image();
 	#endif // BACKGROUND_IMAGE_RELOAD_PATCH
 	signal(SIGUSR1, sigusr1_reload);
 }
-#endif // XRESOURCES_RELOAD_PATCH | BACKGROUND_IMAGE_RELOAD_PATCH
 
 void
 xsetsel(char *str)
@@ -975,13 +971,8 @@ xclearwin(void)
 void
 xhints(void)
 {
-	#if XRESOURCES_PATCH
-	XClassHint class = {opt_name ? opt_name : "st",
-	                    opt_class ? opt_class : "St"};
-	#else
 	XClassHint class = {opt_name ? opt_name : termname,
 	                    opt_class ? opt_class : termname};
-	#endif // XRESOURCES_PATCH
 	XWMHints wm = {.flags = InputHint, .input = 1};
 	XSizeHints *sizeh;
 
@@ -1288,10 +1279,6 @@ xinit(int cols, int rows)
 	XWindowAttributes attr;
 	XVisualInfo vis;
 
-	#if !XRESOURCES_PATCH
-	if (!(xw.dpy = XOpenDisplay(NULL)))
-		die("can't open display\n");
-	#endif // XRESOURCES_PATCH
 	xw.scr = XDefaultScreen(xw.dpy);
 
 	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0)))) {
@@ -3195,15 +3182,14 @@ run:
 
 	setlocale(LC_CTYPE, "");
 	XSetLocaleModifiers("");
-	#if XRESOURCES_PATCH && XRESOURCES_RELOAD_PATCH || BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH
 	signal(SIGUSR1, sigusr1_reload);
-	#endif // XRESOURCES_RELOAD_PATCH | BACKGROUND_IMAGE_RELOAD_PATCH
-	#if XRESOURCES_PATCH
+
 	if (!(xw.dpy = XOpenDisplay(NULL)))
 		die("Can't open display\n");
 
-	xrdb_init(xw.dpy);
-	#endif // XRESOURCES_PATCH
+	if (enabled(Xresources))
+		xrdb_init(xw.dpy);
+
 	hbcreatebuffer();
 
 	switch (geometry) {

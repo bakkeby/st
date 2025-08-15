@@ -51,7 +51,6 @@ xrdb_init(Display *dpy)
 		resource_load(db, p->name, p->type, p->dst);
 }
 
-#if XRESOURCES_RELOAD_PATCH
 void
 reload_config(int sig)
 {
@@ -73,4 +72,3 @@ reload_config(int sig)
 
 	XCloseDisplay(dpy);
 }
-#endif // XRESOURCES_RELOAD_PATCH

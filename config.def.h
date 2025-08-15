@@ -209,12 +209,10 @@ static unsigned int mousebg = 0;
  */
 static unsigned int defaultattr = 11;
 
-#if XRESOURCES_PATCH
 /*
  * Xresources preferences to load at startup
  */
 ResourcePref resources[] = {
-		{ "font",         STRING,  &font },
 		{ "color0",       STRING,  &colorname[0] },
 		{ "color1",       STRING,  &colorname[1] },
 		{ "color2",       STRING,  &colorname[2] },
@@ -234,24 +232,7 @@ ResourcePref resources[] = {
 		{ "background",   STRING,  &colorname[258] },
 		{ "foreground",   STRING,  &colorname[259] },
 		{ "cursorColor",  STRING,  &colorname[256] },
-		{ "termname",     STRING,  &termname },
-		{ "shell",        STRING,  &shell },
-		{ "minlatency",   INTEGER, &minlatency },
-		{ "maxlatency",   INTEGER, &maxlatency },
-		{ "blinktimeout", INTEGER, &blinktimeout },
-		{ "bellvolume",   INTEGER, &bellvolume },
-		{ "tabspaces",    INTEGER, &tabspaces },
-		#if RELATIVEBORDER_PATCH
-		{ "borderperc",   INTEGER, &borderperc },
-		#else
-		{ "borderpx",     INTEGER, &borderpx },
-		#endif // RELATIVEBORDER_PATCH
-		{ "cwscale",      FLOAT,   &cwscale },
-		{ "chscale",      FLOAT,   &chscale },
-		{ "highlightfg",  INTEGER, &highlightfg },
-		{ "highlightbg",  INTEGER, &highlightbg },
 };
-#endif // XRESOURCES_PATCH
 
 /*
  * Force mouse select/shortcuts while mask is active (when MODE_MOUSE is set).
