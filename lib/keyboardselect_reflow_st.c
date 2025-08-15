@@ -194,9 +194,9 @@ kbds_copytoclipboard(void)
 	}
 	xsetsel(getsel());
 
-	#if !CLIPBOARD_PATCH
-	xclipcopy();
-	#endif // CLIPBOARD_PATCH
+	if (disabled(CopySelectionToClipboard)) {
+		xclipcopy();
+	}
 }
 
 void

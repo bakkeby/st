@@ -267,11 +267,7 @@ static uint forcemousemod = ShiftMask;
 static MouseShortcut mshortcuts[] = {
 	/* mask                 button   function        argument       release  screen */
 	{ ControlMask,          Button2, selopen,        {.i = 0},      1 },
-	#if CLIPBOARD_PATCH
-	{ XK_ANY_MOD,           Button2, clippaste,      {.i = 0},      1 },
-	#else
-	{ XK_ANY_MOD,           Button2, selpaste,       {.i = 0},      1 },
-	#endif // CLIPBOARD_PATCH
+	{ XK_ANY_MOD,           Button2, paste,          {.i = 0},      1 },
 	{ XK_ANY_MOD,           Button3, plumb,          {.i = 0},      1 },
 	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 1},      0, S_PRI },
@@ -314,13 +310,8 @@ static Shortcut shortcuts[] = {
 	{ MODKEY,               XK_Return,      fullscreen,      {.i =  0} },
 	{ ShiftMask,            XK_Page_Up,     kscrollup,       {.i = -1}, S_PRI },
 	{ ShiftMask,            XK_Page_Down,   kscrolldown,     {.i = -1}, S_PRI },
-	#if CLIPBOARD_PATCH
-	{ TERMMOD,              XK_Y,           clippaste,       {.i =  0} },
-	{ ShiftMask,            XK_Insert,      clippaste,       {.i =  0} },
-	#else
-	{ TERMMOD,              XK_Y,           selpaste,        {.i =  0} },
-	{ ShiftMask,            XK_Insert,      selpaste,        {.i =  0} },
-	#endif // CLIPBOARD_PATCH
+	{ TERMMOD,              XK_Y,           paste,           {.i =  0} },
+	{ ShiftMask,            XK_Insert,      paste,           {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,         {.i =  0} },
 	#if COPYURL_PATCH || COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH
 	{ MODKEY,               XK_l,           copyurl,         {.i =  0} },

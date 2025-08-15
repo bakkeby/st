@@ -48,6 +48,7 @@ typedef enum {
 static void clipcopy(const Arg *);
 static void clippaste(const Arg *);
 static void numlock(const Arg *);
+static void paste(const Arg *);
 static void selpaste(const Arg *);
 static void ttysend(const Arg *);
 static void zoom(const Arg *);
@@ -234,6 +235,16 @@ void
 numlock(const Arg *dummy)
 {
 	win.mode ^= MODE_NUMLOCK;
+}
+
+void
+paste(const Arg *arg)
+{
+	if (enabled(CopySelectionToClipboard)) {
+		clippaste(arg);
+	} else {
+		selpaste(arg);
+	}
 }
 
 void
@@ -702,9 +713,9 @@ setsel(char *str, Time t)
 	if (XGetSelectionOwner(xw.dpy, XA_PRIMARY) != xw.win)
 		selclear();
 
-	#if CLIPBOARD_PATCH
-	clipcopy(NULL);
-	#endif // CLIPBOARD_PATCH
+	if (enabled(CopySelectionToClipboard)) {
+		clipcopy(NULL);
+	}
 }
 
 #if XRESOURCES_PATCH && XRESOURCES_RELOAD_PATCH || BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH
@@ -746,7 +757,7 @@ brelease(XEvent *e)
 	if (btn == Button1) {
 		mousesel(e, 1);
 		if (url_click && e->xkey.state & url_opener_modkey)
-			openUrlOnClick(evcol(e), evrow(e), url_opener);
+			openUrlOnClick(evcol(e), evrow(e), url_opener_cmd);
 	}
 }
 
@@ -2869,7 +2880,7 @@ kpress(XEvent *ev)
 			for (bp = shortcuts; bp < shortcuts + LEN(shortcuts); bp++) {
 				if (ksym == bp->keysym && match(bp->mod, e->state) &&
 						(!bp->screen || bp->screen == screen) &&
-						(bp->func == clippaste || bp->func == selpaste)) {
+						(bp->func == clippaste || bp->func == selpaste || bp->func == paste)) {
 					bp->func(&(bp->arg));
 					return;
 				}

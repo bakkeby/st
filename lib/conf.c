@@ -70,6 +70,7 @@ static wchar_t *char_to_wchar(const char *string);
 static wchar_t *wcsdup(const wchar_t *string);
 
 static int parse_byteorder(const char *string);
+static unsigned int parse_modkey(const char *string);
 
 void
 set_config_path(const char* filename, char *config_path, char *config_file)
