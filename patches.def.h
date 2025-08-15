@@ -9,18 +9,6 @@
 
 /* Patches */
 
-/* Draws a background image in farbfeld format in place of the defaultbg color allowing for pseudo
- * transparency.
- * https://st.suckless.org/patches/background_image/
- */
-#define BACKGROUND_IMAGE_PATCH 0
-
-/* This patch adds the ability to reload the background image config when a SIGUSR1 signal is
- * received, e.g.: killall -USR1 st
- * Depends on the BACKGROUND_IMAGE_PATCH.
- */
-#define BACKGROUND_IMAGE_RELOAD_PATCH 0
-
 /* Reading and writing st's screen through a pipe, e.g. pass info to dmenu.
  * https://st.suckless.org/patches/externalpipe/
  */
@@ -50,15 +38,3 @@
  * https://www.reddit.com/r/suckless/comments/jt90ai/update_support_for_proper_glyph_rendering_in_st/
  */
 #define WIDE_GLYPHS_PATCH 0
-
-/* This patch adds the ability to configure st via Xresources. At startup, st will read and
- * apply the resources named in the resources[] array in config.h.
- * https://st.suckless.org/patches/xresources/
- */
-#define XRESOURCES_PATCH 0
-
-/* This patch adds the ability to reload the Xresources config when a SIGUSR1 signal is received
- * e.g.: killall -USR1 st
- * Depends on the XRESOURCES_PATCH.
- */
-#define XRESOURCES_RELOAD_PATCH 0

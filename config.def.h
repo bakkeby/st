@@ -13,16 +13,6 @@ static char *font2[] = {
 /*	"Hack Nerd Font Mono:pixelsize=11:antialias=true:autohint=true", */
 };
 
-#if BACKGROUND_IMAGE_PATCH
-/*
- * background image
- * expects farbfeld format
- * pseudo transparency fixes coordinates to the screen origin
- */
-static const char *bgfile = "/path/to/image.ff";
-static const int pseudotransparency = 0;
-#endif // BACKGROUND_IMAGE_PATCH
-
 /* borderperc: percentage of cell width to use as a border
  *     -1 = use fixed borderpx,
  *      0 = no border

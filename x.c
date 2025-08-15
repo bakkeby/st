@@ -513,14 +513,6 @@ propnotify(XEvent *e)
 			 xpev->atom == clipboard)) {
 		selnotify(e);
 	}
-
-	#if BACKGROUND_IMAGE_PATCH
-	if (pseudotransparency &&
-		!strncmp(XGetAtomName(xw.dpy, e->xproperty.atom), "_NET_WM_STATE", 13)) {
-		updatexy();
-		redraw();
-	}
-	#endif // BACKGROUND_IMAGE_PATCH
 }
 
 void
@@ -557,12 +549,7 @@ selnotify(XEvent *e)
 			return;
 		}
 
-		#if BACKGROUND_IMAGE_PATCH
-		if (e->type == PropertyNotify && nitems == 0 && rem == 0 && !pseudotransparency)
-		#else
-		if (e->type == PropertyNotify && nitems == 0 && rem == 0)
-		#endif // BACKGROUND_IMAGE_PATCH
-		{
+		if (e->type == PropertyNotify && nitems == 0 && rem == 0) {
 			/*
 			 * If there is some PropertyNotify with no data, then
 			 * this is the signal of the selection owner that all
@@ -580,15 +567,9 @@ selnotify(XEvent *e)
 			 * when the selection owner does send us the next
 			 * chunk of data.
 			 */
-			#if BACKGROUND_IMAGE_PATCH
-			if (!pseudotransparency) {
-			#endif // BACKGROUND_IMAGE_PATCH
 			MODBIT(xw.attrs.event_mask, 1, PropertyChangeMask);
 			XChangeWindowAttributes(xw.dpy, xw.win, CWEventMask,
 					&xw.attrs);
-			#if BACKGROUND_IMAGE_PATCH
-			}
-			#endif // BACKGROUND_IMAGE_PATCH
 
 			/*
 			 * Deleting the property is the transfer start signal.
@@ -727,9 +708,6 @@ sigusr1_reload(int sig)
 	if (enabled(Xresources)) {
 		reload_config(sig);
 	}
-	#if BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH
-	reload_image();
-	#endif // BACKGROUND_IMAGE_RELOAD_PATCH
 	signal(SIGUSR1, sigusr1_reload);
 }
 
@@ -951,15 +929,9 @@ xsetcolorname(int x, const char *name)
 void
 xclear(int x1, int y1, int x2, int y2)
 {
-	#if BACKGROUND_IMAGE_PATCH
-	if (pseudotransparency)
-		XSetTSOrigin(xw.dpy, xw.bggc, -win.x, -win.y);
-	XFillRectangle(xw.dpy, xw.buf, xw.bggc, x1, y1, x2-x1, y2-y1);
-	#else
 	XftDrawRect(xw.draw,
 			&dc.col[X_IS_SET(MODE_REVERSE)? defaultfg : defaultbg],
 			x1, y1, x2-x1, y2-y1);
-	#endif // BACKGROUND_IMAGE_PATCH
 }
 
 void
@@ -1786,13 +1758,6 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		xclear(winx, 0, winx + width, borderpx);
 	if (winy + win.ch >= borderpx + win.th)
 		xclear(winx, winy + win.ch, winx + width, win.h);
-
-	/* Clean up the region we want to draw to. */
-	#if BACKGROUND_IMAGE_PATCH
-	if (bg == &dc.col[defaultbg])
-		xclear(winx, winy, winx + width, winy + win.ch);
-	else
-	#endif // BACKGROUND_IMAGE_PATCH
 
 	/* Fill the background */
 	XftDrawRect(xw.draw, bg, winx, winy, width, win.ch);
@@ -2947,15 +2912,6 @@ cmessage(XEvent *e)
 void
 resize(XEvent *e)
 {
-	#if BACKGROUND_IMAGE_PATCH
-	if (pseudotransparency) {
-		if (e->xconfigure.width == win.w &&
-			e->xconfigure.height == win.h &&
-			e->xconfigure.x == win.x && e->xconfigure.y == win.y)
-			return;
-		updatexy();
-	} else
-	#endif // BACKGROUND_IMAGE_PATCH
 	if (e->xconfigure.width == win.w && e->xconfigure.height == win.h)
 		return;
 
@@ -3207,9 +3163,6 @@ run:
 	rows = MAX(rows, 1);
 	defaultbg = MAX(LEN(colorname), 256);
 	tnew(cols, rows);
-	#if BACKGROUND_IMAGE_PATCH
-	bginit();
-	#endif // BACKGROUND_IMAGE_PATCH
 	xsetenv();
 	selinit();
 	if (initial_working_directory && chdir(expandhome(initial_working_directory)))

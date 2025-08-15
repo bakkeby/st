@@ -177,9 +177,6 @@ typedef union {
 typedef struct {
 	int tw, th; /* tty width and height */
 	int w, h; /* window width and height */
-	#if BACKGROUND_IMAGE_PATCH
-	int x, y; /* window location */
-	#endif // BACKGROUND_IMAGE_PATCH
 	int ch; /* char height */
 	int cw; /* char width  */
 	int cyo; /* char y offset */
@@ -209,9 +206,6 @@ typedef struct {
 		XVaNestedList spotlist;
 	} ime;
 	Draw draw;
-	#if BACKGROUND_IMAGE_PATCH
-	GC bggc;          /* Graphics Context for background */
-	#endif // BACKGROUND_IMAGE_PATCH
 	Visual *vis;
 	XSetWindowAttributes attrs;
 	/* Here, we use the term *pointer* to differentiate the cursor

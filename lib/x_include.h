@@ -1,8 +1,5 @@
 #include "util.h"
 #include "alpha.h"
-#if BACKGROUND_IMAGE_PATCH
-#include "background_image_x.h"
-#endif
 #include "boxdraw.h"
 #include "drag-n-drop.h"
 #include "iso14755.h"

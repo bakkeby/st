@@ -1,8 +1,5 @@
 #include "util.c"
 #include "alpha.c"
-#if BACKGROUND_IMAGE_PATCH
-#include "background_image_x.c"
-#endif
 #include "boxdraw.c"
 #include "conf.c"
 #include "drag-n-drop.c"
