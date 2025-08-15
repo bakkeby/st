@@ -377,28 +377,22 @@ static char *iso14755cmd_def = "dmenu -w \"$WINDOWID\" -p codepoint: </dev/null"
  */
 static char *plumb_cmd_def = "plumb";
 
-#if UNDERCURL_PATCH
 /**
- * Undercurl style. Set UNDERCURL_STYLE to one of the available styles.
+ * Undercurl style. Set undercurl_style to one of the available styles.
  *
- * Curly: Dunno how to draw it *shrug*
+ * Curly (UNDERCURL_CURLY):
  *  _   _   _   _
  * ( ) ( ) ( ) ( )
- *	 (_) (_) (_) (_)
+ *   (_) (_) (_) (_)
  *
- * Spiky:
- * /\  /\   /\	/\
- *   \/  \/	  \/
+ * Spiky (UNDERCURL_SPIKY):
  *
- * Capped:
- *	 _     _     _
+ * /\  /\  /\  /\
+ *   \/  \/  \/
+ *
+ * Capped (UNDERCURL_CAPPED):
+ *  _     _     _
  * / \   / \   / \
  *    \_/   \_/
  */
-// Available styles
-#define UNDERCURL_CURLY 0
-#define UNDERCURL_SPIKY 1
-#define UNDERCURL_CAPPED 2
-// Active style
-#define UNDERCURL_STYLE UNDERCURL_SPIKY
-#endif // UNDERCURL_PATCH
+static int undercurl_style = UNDERCURL_SPIKY;

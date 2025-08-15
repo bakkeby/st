@@ -40,9 +40,7 @@
 #define UTF_SIZ       4
 #define ESC_BUF_SIZ   (128*UTF_SIZ)
 #define ESC_ARG_SIZ   16
-#if UNDERCURL_PATCH
 #define CAR_PER_ARG   4
-#endif // UNDERCURL_PATCH
 #define STR_BUF_SIZ   ESC_BUF_SIZ
 #define STR_ARG_SIZ   ESC_ARG_SIZ
 #define STR_TERM_ST   "\033\\"
@@ -133,9 +131,7 @@ typedef struct {
 	int arg[ESC_ARG_SIZ];
 	int narg;              /* nb of args */
 	char mode[2];
-	#if UNDERCURL_PATCH
 	int carg[ESC_ARG_SIZ][CAR_PER_ARG]; /* colon args */
-	#endif // UNDERCURL_PATCH
 } CSIEscape;
 
 /* STR Escape sequence structs */
@@ -158,9 +154,7 @@ static void ttywriteraw(const char *, size_t);
 static void csidump(void);
 static void csihandle(void);
 static void dcshandle(void);
-#if UNDERCURL_PATCH
 static void readcolonargs(char **, int, int[][CAR_PER_ARG]);
-#endif // UNDERCURL_PATCH
 static void csiparse(void);
 static void csireset(void);
 static void osc_color_response(int, int, int);
@@ -939,7 +933,6 @@ tnewline(int first_col)
 	tmoveto(first_col ? 0 : term.c.x, y);
 }
 
-#if UNDERCURL_PATCH
 void
 readcolonargs(char **p, int cursor, int params[][CAR_PER_ARG])
 {
@@ -961,7 +954,6 @@ readcolonargs(char **p, int cursor, int params[][CAR_PER_ARG])
 		i++;
 	}
 }
-#endif // UNDERCURL_PATCH
 
 void
 csiparse(void)
@@ -986,9 +978,7 @@ csiparse(void)
 			v = -1;
 		csiescseq.arg[csiescseq.narg++] = v;
 		p = np;
-		#if UNDERCURL_PATCH
 		readcolonargs(&p, csiescseq.narg-1, csiescseq.carg);
-		#endif // UNDERCURL_PATCH
 		if (sep == ';' && *p == ':')
 			sep = ':'; /* allow override to colon once */
 		if (*p != sep || csiescseq.narg == ESC_ARG_SIZ)
@@ -1159,12 +1149,10 @@ tsetattr(const int *attr, int l)
 				ATTR_STRUCK     );
 			term.c.attr.fg = defaultfg;
 			term.c.attr.bg = defaultbg;
-			#if UNDERCURL_PATCH
 			term.c.attr.ustyle = -1;
 			term.c.attr.ucolor[0] = -1;
 			term.c.attr.ucolor[1] = -1;
 			term.c.attr.ucolor[2] = -1;
-			#endif // UNDERCURL_PATCH
 			break;
 		case 1:
 			term.c.attr.mode |= ATTR_BOLD;
@@ -1176,7 +1164,6 @@ tsetattr(const int *attr, int l)
 			term.c.attr.mode |= ATTR_ITALIC;
 			break;
 		case 4:
-			#if UNDERCURL_PATCH
 			term.c.attr.ustyle = csiescseq.carg[i][0];
 
 			if (term.c.attr.ustyle != 0)
@@ -1185,9 +1172,6 @@ tsetattr(const int *attr, int l)
 				term.c.attr.mode &= ~ATTR_UNDERLINE;
 
 			term.c.attr.mode ^= ATTR_DIRTYUNDERLINE;
-			#else
-			term.c.attr.mode |= ATTR_UNDERLINE;
-			#endif // UNDERCURL_PATCH
 			break;
 		case 5: /* slow blink */
 			/* FALLTHROUGH */
@@ -1238,7 +1222,6 @@ tsetattr(const int *attr, int l)
 		case 49: /* set background color to default */
 			term.c.attr.bg = defaultbg;
 			break;
-		#if UNDERCURL_PATCH
 		case 58:
 			term.c.attr.ucolor[0] = csiescseq.carg[i][1];
 			term.c.attr.ucolor[1] = csiescseq.carg[i][2];
@@ -1251,14 +1234,6 @@ tsetattr(const int *attr, int l)
 			term.c.attr.ucolor[2] = -1;
 			term.c.attr.mode ^= ATTR_DIRTYUNDERLINE;
 			break;
-		#else
-		case 58:
-			/* This starts a sequence to change the color of
-			 * "underline" pixels. We don't support that and
-			 * instead eat up a following "5;n" or "2;r;g;b". */
-			tdefcolor(attr, &i, l);
-			break;
-		#endif // UNDERCURL_PATCH
 		default:
 			if (BETWEEN(attr[i], 30, 37)) {
 				term.c.attr.fg = (enabled(Monochrome) ? defaultfg : attr[i] - 30);

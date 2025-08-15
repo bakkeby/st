@@ -71,6 +71,7 @@ static wchar_t *wcsdup(const wchar_t *string);
 
 static int parse_byteorder(const char *string);
 static unsigned int parse_modkey(const char *string);
+static int parse_understyle(const char *string);
 
 void
 set_config_path(const char* filename, char *config_path, char *config_file)
@@ -464,6 +465,9 @@ load_misc(config_t *cfg)
 	config_lookup_simple_float(cfg, "alpha.unfocused", &alpha_unfocused);
 	config_lookup_simple_float(cfg, "alpha.gradient_minimum", &gradient_constant);
 
+	if (config_lookup_string(cfg, "undercurl_style", &string)) {
+		undercurl_style = parse_understyle(string);
+	}
 }
 
 void
@@ -591,25 +595,6 @@ parse_byteorder(const char *string)
 }
 
 unsigned int
-parse_modkey(const char *string)
-{
-	map("Any", XK_ANY_MOD);
-	map("ANY_MOD", XK_ANY_MOD);
-	map("XK_ANY_MOD", XK_ANY_MOD);
-	map("Ctrl", ControlMask);
-	map("ControlMask", ControlMask);
-	map("Shift", ShiftMask);
-	map("ShiftMask", ShiftMask);
-	map("Alt", Mod1Mask);
-	map("Mod1Mask", Mod1Mask);
-	map("Super", Mod4Mask);
-	map("Mod4Mask", Mod4Mask);
-
-	fprintf(stderr, "Warning: config could not find modkey with name %s\n", string);
-	return XK_ANY_MOD;
-}
-
-unsigned int
 parse_cursor_shape(const char *string)
 {
 	map("arrow", XC_arrow);
@@ -692,6 +677,39 @@ parse_cursor_shape(const char *string)
 	return XC_xterm;
 }
 
+unsigned int
+parse_modkey(const char *string)
+{
+	map("Any", XK_ANY_MOD);
+	map("ANY_MOD", XK_ANY_MOD);
+	map("XK_ANY_MOD", XK_ANY_MOD);
+	map("Ctrl", ControlMask);
+	map("ControlMask", ControlMask);
+	map("Shift", ShiftMask);
+	map("ShiftMask", ShiftMask);
+	map("Alt", Mod1Mask);
+	map("Mod1Mask", Mod1Mask);
+	map("Super", Mod4Mask);
+	map("Mod4Mask", Mod4Mask);
+
+	fprintf(stderr, "Warning: config could not find modkey with name %s\n", string);
+	return XK_ANY_MOD;
+}
+
+int
+parse_understyle(const char *string)
+{
+	if (!strncasecmp(string, "UNDERCURL_", 10))
+		string += 10;
+
+	map("CURLY", UNDERCURL_CURLY);
+	map("SPIKY", UNDERCURL_SPIKY);
+	map("CAPPED", UNDERCURL_CAPPED);
+
+	fprintf(stderr, "Warning: config could not find understyle with name %s\n", string);
+	return UNDERCURL_CURLY;
+}
+
 #undef map
 
 
@@ -756,16 +774,5 @@ ignoremod
 
 
 selmasks
-
-# right click to plumb
-plumb_cmd
-
-# undercurl
-#define UNDERCURL_CURLY 0
-#define UNDERCURL_SPIKY 1
-#define UNDERCURL_CAPPED 2
-// Active style
-#define UNDERCURL_STYLE UNDERCURL_SPIKY
-
 
 */

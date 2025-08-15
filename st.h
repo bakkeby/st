@@ -44,9 +44,7 @@ enum glyph_attribute {
 	ATTR_WDUMMY         = 1 << 11,
 	ATTR_SELECTED       = 1 << 12,
 	ATTR_BOXDRAW        = 1 << 13,
-	#if UNDERCURL_PATCH
 	ATTR_DIRTYUNDERLINE = 1 << 14,
-	#endif // UNDERCURL_PATCH
 	ATTR_LIGA           = 1 << 15,
 	ATTR_SIXEL          = 1 << 16,
 	ATTR_HIGHLIGHT      = 1 << 17,
@@ -118,10 +116,8 @@ typedef struct {
 	uint32_t mode;    /* attribute flags */
 	uint32_t fg;      /* foreground  */
 	uint32_t bg;      /* background  */
-	#if UNDERCURL_PATCH
 	int ustyle;	      /* underline style */
 	int ucolor[3];    /* underline color */
-	#endif // UNDERCURL_PATCH
 } Glyph;
 
 typedef Glyph *Line;

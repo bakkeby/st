@@ -44,24 +44,6 @@
  */
 #define EXTERNALPIPEIN_PATCH 0
 
-/* Adds support for special underlines.
- *
- * Example test command:
- *    $ echo -e "\e[4:3m\e[58:5:10munderline\e[0m"
- *                  ^ ^     ^ ^  ^- sets terminal color 10
- *                  | |     |  \- indicates that terminal colors should be used
- *                  | |      \- indicates that underline color is being set
- *                  |  \- sets underline style to curvy
- *                   \- set underline
- *
- * Note: this patch alters st.info to promote support for extra escape sequences, which can
- * potentially cause application misbehaviour if you do not use this patch. Try removing or
- * commenting out the corresponding line in st.info if this is causing issues.
- *
- * https://st.suckless.org/patches/undercurl/
- */
-#define UNDERCURL_PATCH 0
-
 /* Adds proper glyphs rendering in st allowing wide glyphs to be drawn as-is as opposed to
  * smaller or cut glyphs being rendered.
  * https://github.com/Dreomite/st/commit/e3b821dcb3511d60341dec35ee05a4a0abfef7f2
