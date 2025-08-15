@@ -8,9 +8,7 @@
 #include "drag-n-drop.c"
 #include "func.c"
 #include "iso14755.c"
-#if OPENCOPIED_PATCH
 #include "opencopied.c"
-#endif
 #include "font2.c"
 #include "fullscreen_x.c"
 #include "keyboardinput.c"

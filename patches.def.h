@@ -62,11 +62,6 @@
  */
 #define EXTERNALPIPEIN_PATCH 0
 
-/* Open contents of the clipboard in a user-defined browser.
- * https://st.suckless.org/patches/open_copied_url/
- */
-#define OPENCOPIED_PATCH 0
-
 /* Open the selected text using xdg-open.
  * https://st.suckless.org/patches/open_selected_text/
  */

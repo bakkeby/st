@@ -330,9 +330,7 @@ static Shortcut shortcuts[] = {
 	#if COPYURL_PATCH || COPYURL_HIGHLIGHT_SELECTED_URLS_PATCH
 	{ MODKEY,               XK_l,           copyurl,         {.i =  0} },
 	#endif // COPYURL_PATCH
-	#if OPENCOPIED_PATCH
 	{ MODKEY,               XK_o,           opencopied,      {.v = "xdg-open"} },
-	#endif // OPENCOPIED_PATCH
 	{ TERMMOD,              XK_Return,      newterm,         {.i =  0} },
 	#if EXTERNALPIPE_PATCH
 	{ TERMMOD,              XK_U,           externalpipe,    { .v = openurlcmd } },

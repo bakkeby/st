@@ -6,12 +6,8 @@
 #include "boxdraw.h"
 #include "drag-n-drop.h"
 #include "iso14755.h"
-#if OPENCOPIED_PATCH
 #include "opencopied.h"
-#endif
-#if FONT2_PATCH
 #include "font2.h"
-#endif
 #include "fullscreen_x.h"
 #include "func.h"
 #include "keyboardselect_reflow_st.h"
