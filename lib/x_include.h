@@ -5,6 +5,7 @@
 #endif
 #include "boxdraw.h"
 #include "drag-n-drop.h"
+#include "iso14755.h"
 #if OPENCOPIED_PATCH
 #include "opencopied.h"
 #endif

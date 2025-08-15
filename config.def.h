@@ -343,9 +343,7 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_Escape,      keyboard_select, { 0 } },
 	{ TERMMOD,              XK_F,           searchforward,   { 0 } },
 	{ TERMMOD,              XK_B,           searchbackward,  { 0 } },
-	#if ISO14755_PATCH
 	{ TERMMOD,              XK_I,           iso14755,        {.i =  0} },
-	#endif // ISO14755_PATCH
 	{ ControlMask,          XK_Page_Up,     scrolltoprompt,  {.i = -1}, S_PRI },
 	{ ControlMask,          XK_Page_Down,   scrolltoprompt,  {.i =  1}, S_PRI },
 };
@@ -377,6 +375,15 @@ static char ascii_printable_def[] =
 	" !\"#$%&'()*+,-./0123456789:;<=>?"
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
 	"`abcdefghijklmnopqrstuvwxyz{|}~";
+
+/* Triggering the iso14755 command will popup dmenu asking you to
+ * enter a unicode codepoint that will be converted to a glyph and
+ * then pushed to st.
+ *
+ * Below is the command that is executed in case you wish to
+ * repurpose it.
+ */
+static char *iso14755cmd_def = "dmenu -w \"$WINDOWID\" -p codepoint: </dev/null";
 
 #if RIGHTCLICKTOPLUMB_PATCH
 /*

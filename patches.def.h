@@ -62,12 +62,6 @@
  */
 #define EXTERNALPIPEIN_PATCH 0
 
-/* Pressing the default binding Ctrl+Shift-i will popup dmenu, asking you to enter a unicode
- * codepoint that will be converted to a glyph and then pushed to st.
- * https://st.suckless.org/patches/iso14755/
- */
-#define ISO14755_PATCH 0
-
 /* Open contents of the clipboard in a user-defined browser.
  * https://st.suckless.org/patches/open_copied_url/
  */

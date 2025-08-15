@@ -2,10 +2,13 @@ void
 iso14755(const Arg *arg)
 {
 	FILE *p;
-	char *us, *e, codepoint[9], uc[UTF_SIZ];
+	char *us, *e, codepoint[9], uc[4];
 	unsigned long utf32;
 
-	if (!(p = popen(ISO14755CMD, "r")))
+	if (!iso14755cmd)
+		return;
+
+	if (!(p = popen(iso14755cmd, "r")))
 		return;
 
 	us = fgets(codepoint, sizeof(codepoint), p);

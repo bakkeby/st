@@ -5,9 +5,6 @@
 #if EXTERNALPIPE_PATCH
 #include "externalpipe.c"
 #endif
-#if ISO14755_PATCH
-#include "iso14755.c"
-#endif
 #include "keyboardselect_reflow_st.c"
 #if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_st.c"

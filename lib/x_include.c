@@ -7,6 +7,7 @@
 #include "conf.c"
 #include "drag-n-drop.c"
 #include "func.c"
+#include "iso14755.c"
 #if OPENCOPIED_PATCH
 #include "opencopied.c"
 #endif
