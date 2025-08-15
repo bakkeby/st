@@ -186,9 +186,7 @@ typedef struct {
 	#endif // BACKGROUND_IMAGE_PATCH
 	int ch; /* char height */
 	int cw; /* char width  */
-	#if VERTCENTER_PATCH
 	int cyo; /* char y offset */
-	#endif // VERTCENTER_PATCH
 	int mode; /* window state/mode flags */
 	int cursor; /* cursor style */
 } TermWindow;

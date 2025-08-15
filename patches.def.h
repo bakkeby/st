@@ -129,11 +129,6 @@
  */
 #define UNDERCURL_PATCH 0
 
-/* Vertically center lines in the space available if you have set a larger chscale in config.h
- * https://st.suckless.org/patches/vertcenter/
- */
-#define VERTCENTER_PATCH 0
-
 /* Briefly inverts window content on terminal bell event.
  * https://st.suckless.org/patches/visualbell/
  */

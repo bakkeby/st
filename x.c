@@ -1218,9 +1218,7 @@ xloadfonts(const char *fontstr, double fontsize)
 	/* Setting character width and height. */
 	win.cw = ceilf(dc.font.width * cwscale);
 	win.ch = ceilf(dc.font.height * chscale);
-	#if VERTCENTER_PATCH
 	win.cyo = ceilf(dc.font.height * (chscale - 1) / 2);
-	#endif // VERTCENTER_PATCH
 
 	if (borderperc > -1) {
 		borderpx = (int) ceilf(((float)borderperc / 100) * win.cw);
@@ -1514,11 +1512,7 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 
 	/* Initial values. */
 	xresetfontsettings(glyphs[0].mode, &font, &frcflags);
-	#if VERTCENTER_PATCH
 	xp = winx, yp = winy + font->ascent + win.cyo;
-	#else
-	xp = winx, yp = winy + font->ascent;
-	#endif // VERTCENTER_PATCH
 	cluster_xp = xp; cluster_yp = yp;
 	/* Shape the segment. */
 	hbtransform(&shaped, font->match, glyphs, 0, len);
@@ -1906,9 +1900,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 			int wh = dc.font.descent - wlw/2 - 1;//r.height/7;
 			int wx = winx;
 			int wy = winy + win.ch - dc.font.descent;
-			#if VERTCENTER_PATCH
 			wy -= win.cyo;
-			#endif // VERTCENTER_PATCH
 
 #if UNDERCURL_STYLE == UNDERCURL_CURLY
 			// Draw waves
@@ -2211,23 +2203,15 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		}
 
 		XFreeGC(xw.dpy, ugc);
-		#elif VERTCENTER_PATCH
+		#else
 		XftDrawRect(xw.draw, fg, winx, winy + win.cyo + dc.font.ascent * chscale + 1,
 				width, 1);
-		#else
-		XftDrawRect(xw.draw, fg, winx, winy + dc.font.ascent * chscale + 1,
-				width, 1);
-		#endif // UNDERCURL_PATCH | VERTCENTER_PATCH
+		#endif // UNDERCURL_PATCH
 	}
 
 	if (base.mode & ATTR_STRUCK) {
-		#if VERTCENTER_PATCH
 		XftDrawRect(xw.draw, fg, winx, winy + win.cyo + 2 * dc.font.ascent * chscale / 3,
 				width, 1);
-		#else
-		XftDrawRect(xw.draw, fg, winx, winy + 2 * dc.font.ascent * chscale / 3,
-				width, 1);
-		#endif // VERTCENTER_PATCH
 	}
 	#if WIDE_GLYPHS_PATCH
 	}
@@ -2242,11 +2226,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 			int xu = MAX(x, x1);
 			int wu = (x2 - xu + 1) * win.cw;
 			xu = borderpx + xu * win.cw;
-			#if VERTCENTER_PATCH
 			XftDrawRect(xw.draw, fg, xu, winy + win.cyo + dc.font.ascent * chscale + 2, wu, 1);
-			#else
-			XftDrawRect(xw.draw, fg, xu, winy + dc.font.ascent * chscale + 2, wu, 1);
-			#endif // VERTCENTER_PATCH
 			url_draw = (y != url_y2 || x + charlen <= x2);
 		}
 	}
