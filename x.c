@@ -200,9 +200,7 @@ static int focused = 0;
 
 static uint buttons; /* bit field of pressed buttons */
 static int cursorblinks = 0;
-#if VISUALBELL_1_PATCH
-static int bellon = 0;    /* visual bell status */
-#endif // VISUALBELL_1_PATCH
+static int bellon = 0; /* visual bell status */
 static XColor xmousefg, xmousebg;
 
 #include "lib/x_include.c"
@@ -2777,10 +2775,8 @@ xbell(void)
 		xseturgency(1);
 	if (bellvolume)
 		XkbBell(xw.dpy, xw.win, bellvolume, (Atom)NULL);
-	#if VISUALBELL_1_PATCH
-	if (!bellon) /* turn visual bell on */
+	if (enabled(VisualBell) && !bellon) /* turn visual bell on */
 		bellon = 1;
-	#endif // VISUALBELL_1_PATCH
 }
 
 void
@@ -3135,18 +3131,15 @@ run(void)
 			}
 		}
 
-		#if VISUALBELL_1_PATCH
 		if (bellon) {
 			bellon++;
 			bellon %= 3;
 			MODBIT(win.mode, !X_IS_SET(MODE_REVERSE), MODE_REVERSE);
 			redraw();
-		}
-		else
+		} else {
 			draw();
-		#else
-		draw();
-		#endif // VISUALBELL_1_PATCH
+		}
+
 		XFlush(xw.dpy);
 		drawing = 0;
 	}
