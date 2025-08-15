@@ -276,6 +276,7 @@ static MouseShortcut mshortcuts[] = {
 	#else
 	{ XK_ANY_MOD,           Button2, selpaste,       {.i = 0},      1 },
 	#endif // CLIPBOARD_PATCH
+	{ XK_ANY_MOD,           Button3, plumb,          {.i = 0},      1 },
 	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"}, 0, S_ALT },
@@ -381,13 +382,15 @@ static char ascii_printable_def[] =
  */
 static char *iso14755cmd_def = "dmenu -w \"$WINDOWID\" -p codepoint: </dev/null";
 
-#if RIGHTCLICKTOPLUMB_PATCH
 /*
- * plumb_cmd is run on mouse button 3 click, with argument set to
- * current selection and with cwd set to the cwd of the active shell
+ * This command is run via the plumb function, typically bound to mouse
+ * right click. The argument will be set to the current selection and with
+ * the current working directory being set to that of the active shell.
+ *
+ * It may be an idea to pass the selection to a shell script that can
+ * further decide what to do with it depending on the content.
  */
-static char *plumb_cmd = "plumb";
-#endif // RIGHTCLICKTOPLUMB_PATCH
+static char *plumb_cmd_def = "plumb";
 
 #if UNDERCURL_PATCH
 /**

@@ -1,9 +1,11 @@
 #include <sys/wait.h>
 
 void
-plumb(char *sel)
+plumb(const Arg *arg)
 {
-	if (sel == NULL)
+	char *sel = (arg->v ? (char*)arg->v : xsel.primary);
+
+	if (sel == NULL || plumb_cmd == NULL)
 		return;
 
 	char cwd[PATH_MAX];

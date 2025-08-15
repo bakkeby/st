@@ -18,9 +18,7 @@
 #if OPENURLONCLICK_PATCH
 #include "openurlonclick.c"
 #endif
-#if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_x.c"
-#endif
 #if XRESOURCES_PATCH
 #include "xresources.c"
 #endif

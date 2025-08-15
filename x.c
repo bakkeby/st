@@ -753,11 +753,6 @@ brelease(XEvent *e)
 			openUrlOnClick(evcol(e), evrow(e), url_opener);
 		#endif // OPENURLONCLICK_PATCH
 	}
-
-	#if RIGHTCLICKTOPLUMB_PATCH
-	else if (btn == Button3)
-		plumb(xsel.primary);
-	#endif // RIGHTCLICKTOPLUMB_PATCH
 }
 
 void

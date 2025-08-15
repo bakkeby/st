@@ -14,9 +14,7 @@
 #include "keyboardselect_reflow_x.h"
 #include "netwmicon.h"
 #include "openselectedtext.h"
-#if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_x.h"
-#endif
 #if XRESOURCES_PATCH
 #include "xresources.h"
 #endif

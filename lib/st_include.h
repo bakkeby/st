@@ -9,9 +9,7 @@
 #if OPENURLONCLICK_PATCH
 #include "openurlonclick.h"
 #endif
-#if RIGHTCLICKTOPLUMB_PATCH
 #include "rightclicktoplumb_st.h"
-#endif
 #include "newterm.h"
 #include "reflow.h"
 #if SYNC_PATCH

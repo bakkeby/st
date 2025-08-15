@@ -69,12 +69,6 @@
  */
 #define OPENURLONCLICK_PATCH 0
 
-/* This patch allows you to right-click on some selected text to send it to the plumbing
- * program of choice, e.g. open a file, view an image, open a URL.
- * https://st.suckless.org/patches/right_click_to_plumb/
- */
-#define RIGHTCLICKTOPLUMB_PATCH 0
-
 /* This patch adds synchronized-updates/application-sync support in st.
  * This will have no effect except when an application uses the synchronized-update escape
  * sequences. With this patch nearly all cursor flicker is eliminated in tmux, and tmux detects

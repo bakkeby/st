@@ -12,6 +12,7 @@ char *ascii_printable = NULL;
 char *initial_working_directory = NULL;
 char *iso14755cmd = NULL;
 char *mouseshape_text = NULL;
+char *plumb_cmd = NULL;
 char *scroll = NULL;
 char *shell = NULL;
 char *stty_args = NULL;
@@ -345,6 +346,7 @@ cleanup_config(void)
 	free(initial_working_directory);
 	free(iso14755cmd);
 	free(mouseshape_text);
+	free(plumb_cmd);
 	free(scroll);
 	free(shell);
 	free(stty_args);
@@ -378,6 +380,8 @@ load_fallback_config(void)
 		ascii_printable = strdup(ascii_printable_def);
 	if (!iso14755cmd)
 		iso14755cmd = strdup(iso14755cmd_def);
+	if (!plumb_cmd)
+		plumb_cmd = strdup(plumb_cmd_def);
 	if (!shell)
 		shell = strdup("/bin/sh");
 	if (!stty_args)
@@ -406,7 +410,8 @@ load_misc(config_t *cfg)
 	config_lookup_int(cfg, "border.width", &borderpx);
 	config_lookup_strdup(cfg, "ascii_printable", &ascii_printable);
 	config_lookup_strdup(cfg, "initial_working_directory", &initial_working_directory);
-	config_lookup_strdup(cfg, "iso14755cmd", &iso14755cmd);
+	config_lookup_strdup(cfg, "iso14755_cmd", &iso14755cmd);
+	config_lookup_strdup(cfg, "plumb_cmd", &plumb_cmd);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "scroll", &scroll);
