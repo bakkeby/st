@@ -197,19 +197,8 @@ static Rune stcursor = 0x2603; /* snowman (U+2603) */
 /*
  * Default columns and rows numbers
  */
-
 static unsigned int cols = 80;
 static unsigned int rows = 24;
-
-#if ANYGEOMETRY_PATCH
-/*
- * Whether to use pixel geometry or cell geometry
- */
-
-static Geometry geometry = CellGeometry; // or PixelGeometry to use the below size
-static unsigned int width = 564;
-static unsigned int height = 364;
-#endif // ANYGEOMETRY_PATCH
 
 /*
  * Default colour and shape of the mouse cursor

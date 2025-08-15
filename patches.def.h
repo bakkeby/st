@@ -9,13 +9,6 @@
 
 /* Patches */
 
-/* Allows for the initial size of the terminal to be specified as pixel width and height
- * using the -G command line option. Can be combined with the anysize patch to also allow
- * the window to be resized to any pixel size.
- * https://st.suckless.org/patches/anygeometry/
- */
-#define ANYGEOMETRY_PATCH 0
-
 /* Draws a background image in farbfeld format in place of the defaultbg color allowing for pseudo
  * transparency.
  * https://st.suckless.org/patches/background_image/

@@ -23,6 +23,9 @@ wchar_t *kbds_ldelim = NULL;
 wchar_t *worddelimiters = NULL;
 int histsize = 2000;
 uint64_t settings = 0;
+static unsigned int width = 0;
+static unsigned int height = 0;
+static Geometry geometry = CellGeometry;
 
 static void set_config_path(const char* filename, char *config_path, char *config_file);
 static int setting_length(const config_setting_t *cfg);
@@ -423,8 +426,14 @@ load_misc(config_t *cfg)
 	config_lookup_float(cfg, "minlatency", &minlatency);
 	config_lookup_float(cfg, "maxlatency", &maxlatency);
 	config_lookup_int(cfg, "bell_volume", &bellvolume);
-	config_lookup_unsigned_int(cfg, "cols", &cols);
-	config_lookup_unsigned_int(cfg, "rows", &rows);
+
+	config_lookup_unsigned_int(cfg, "terminal_size.cols", &cols);
+	config_lookup_unsigned_int(cfg, "terminal_size.rows", &rows);
+	config_lookup_unsigned_int(cfg, "terminal_size.width", &width);
+	config_lookup_unsigned_int(cfg, "terminal_size.height", &height);
+	if (width && height)
+		geometry = PixelGeometry;
+
 	config_lookup_int(cfg, "scrollback_history", &histsize);
 
 	config_lookup_unsigned_int(cfg, "terminal_cursor.blink_timeout", &blinktimeout);
@@ -685,11 +694,6 @@ selectionbg
 # keyboardselect
 highlightfg
 highlightbg
-
-# anygeometry
-geometry - CellGeometry or PixelGeometry
-width
-height
 
 mousefg
 mousebg

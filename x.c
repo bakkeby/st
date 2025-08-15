@@ -35,12 +35,10 @@ enum undercurl_slope_type {
 };
 #endif // UNDERCURL_PATCH
 
-#if ANYGEOMETRY_PATCH
 typedef enum {
 	PixelGeometry,
 	CellGeometry
 } Geometry;
-#endif // ANYGEOMETRY_PATCH
 
 /* X modifiers */
 #define XK_ANY_MOD    UINT_MAX
@@ -1303,7 +1301,7 @@ xinit(int cols, int rows)
 	XMatchVisualInfo(xw.dpy, xw.scr, xw.depth, TrueColor, &vis);
 	xw.vis = vis.visual;
 
-	/* font */
+	/* Font */
 	if (!FcInit())
 		die("could not init fontconfig.\n");
 
@@ -1311,12 +1309,11 @@ xinit(int cols, int rows)
 	xloadfonts(usedfont, 0);
 	xloadsparefonts();
 
-	/* colors */
+	/* Colors */
 	xw.cmap = XCreateColormap(xw.dpy, parent, xw.vis, None);
 	xloadcols();
 
-	/* adjust fixed window geometry */
-	#if ANYGEOMETRY_PATCH
+	/* Adjust fixed window geometry */
 	switch (geometry) {
 	case CellGeometry:
 		win.w = 2 * borderpx + cols * win.cw;
@@ -1329,10 +1326,7 @@ xinit(int cols, int rows)
 		rows = (win.h - 2 * borderpx) / win.ch;
 		break;
 	}
-	#else
-	win.w = 2 * borderpx + cols * win.cw;
-	win.h = 2 * borderpx + rows * win.ch;
-	#endif // ANYGEOMETRY_PATCH
+
 	if (xw.gm & XNegative)
 		xw.l += DisplayWidth(xw.dpy, xw.scr) - win.w - 2;
 	if (xw.gm & YNegative)
@@ -3194,17 +3188,13 @@ main(int argc, char *argv[])
 	case 'g':
 		xw.gm = XParseGeometry(EARGF(usage()),
 				&xw.l, &xw.t, &cols, &rows);
-		#if ANYGEOMETRY_PATCH
 		geometry = CellGeometry;
-		#endif // ANYGEOMETRY_PATCH
 		break;
-	#if ANYGEOMETRY_PATCH
 	case 'G':
 		xw.gm = XParseGeometry(EARGF(usage()),
 		        &xw.l, &xw.t, &width, &height);
 		geometry = PixelGeometry;
 		break;
-	#endif // ANYGEOMETRY_PATCH
 	case 'i':
 		xw.isfixed = 1;
 		break;
@@ -3251,7 +3241,6 @@ run:
 	#endif // XRESOURCES_PATCH
 	hbcreatebuffer();
 
-	#if ANYGEOMETRY_PATCH
 	switch (geometry) {
 	case CellGeometry:
 		xinit(cols, rows);
@@ -3262,15 +3251,11 @@ run:
 		rows = (win.h - 2 * borderpx) / win.ch;
 		break;
 	}
-	#endif // ANYGEOMETRY_PATCH
 
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
 	defaultbg = MAX(LEN(colorname), 256);
 	tnew(cols, rows);
-	#if !ANYGEOMETRY_PATCH
-	xinit(cols, rows);
-	#endif // ANYGEOMETRY_PATCH
 	#if BACKGROUND_IMAGE_PATCH
 	bginit();
 	#endif // BACKGROUND_IMAGE_PATCH
