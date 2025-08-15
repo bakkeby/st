@@ -68,13 +68,11 @@ typedef struct _ImageList {
 	int transparent;
 } ImageList;
 
-#if WIDE_GLYPHS_PATCH
 enum drawing_mode {
 	DRAW_NONE = 0,
 	DRAW_BG   = 1 << 0,
 	DRAW_FG   = 1 << 1,
 };
-#endif // WIDE_GLYPHS_PATCH
 
 /* Used to control which screen(s) keybindings and mouse shortcuts apply to. */
 enum screen {

@@ -28,7 +28,7 @@ static const uint64_t
 	VisualBell = 0x1000000,
 	CopySelectionToClipboard = 0x2000000,
 	Xresources = 0x4000000,
-	FuncPlaceholder0x8000000 = 0x8000000,
+	WideGlyphs = 0x8000000,
 	FuncPlaceholder0x10000000 = 0x10000000,
 	FuncPlaceholder0x20000000 = 0x20000000,
 	FuncPlaceholder0x40000000 = 0x40000000,
@@ -102,6 +102,7 @@ static const struct nv function_names[] = {
 	map(UseSelectionColors),
 	map(UseXftFontMatch),
 	map(VisualBell),
+	map(WideGlyphs),
 	map(Xresources),
 	{ NULL, 0 }
 };
