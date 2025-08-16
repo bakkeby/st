@@ -819,7 +819,6 @@ int
 xloadcolor(int i, const char *name, Color *ncolor)
 {
 	XRenderColor color = { .alpha = 0xffff };
-
 	if (!name) {
 		if (BETWEEN(i, 16, 255)) { /* 256 color */
 			if (i < 6*6*6+16) { /* same colors as xterm */
@@ -832,8 +831,9 @@ xloadcolor(int i, const char *name, Color *ncolor)
 			}
 			return XftColorAllocValue(xw.dpy, xw.vis,
 			                          xw.cmap, &color, ncolor);
-		} else
-			name = colorname[i];
+		}
+
+		name = colorname[i];
 	}
 
 	return XftColorAllocName(xw.dpy, xw.vis, xw.cmap, name, ncolor);
@@ -858,8 +858,8 @@ xloadcols(void)
 	Color *cp;
 
 	if (!loaded) {
-		dc.collen = 1 + (defaultbg = MAX(LEN(colorname), 256));
-		dc.col = xmalloc((dc.collen) * sizeof(Color));
+		dc.collen = 1 + MAX(num_colors, 256);
+		dc.col = calloc(dc.collen, sizeof(Color));
 	}
 
 	for (int i = 0; i+1 < dc.collen; ++i) {
@@ -870,9 +870,11 @@ xloadcols(void)
 				die("could not allocate color %d\n", i);
 		}
 	}
-	if (dc.collen) { // cannot die, as the color is already loaded.
-		color = (enabled(AlphaFocusHighlight) && !focused ? bg_unfocused : bg);
-		xloadcolor(color, NULL, &dc.col[defaultbg]);
+
+	if (dc.collen && enabled(AlphaFocusHighlight)) {
+		color = (focused ? focusedbg : unfocusedbg);
+		defaultbg = MAX(num_colors, 256);
+		xloadcolor(color, NULL, &dc.col[num_colors]);
 	}
 
 	xloadalpha();
@@ -1246,7 +1248,6 @@ xinit(int cols, int rows)
 	XWindowAttributes attr;
 	XVisualInfo vis;
 	XColor xmousefg, xmousebg;
-
 	xw.scr = XDefaultScreen(xw.dpy);
 
 	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0)))) {
@@ -1267,7 +1268,6 @@ xinit(int cols, int rows)
 	usedfont = (opt_font == NULL)? fonts[0] : opt_font;
 	xloadfonts(usedfont, 0);
 	xloadsparefonts();
-
 	/* Colors */
 	xw.cmap = XCreateColormap(xw.dpy, parent, xw.vis, None);
 	xloadcols();
@@ -3042,6 +3042,7 @@ main(int argc, char *argv[])
 {
 	xw.l = xw.t = 0;
 	xw.isfixed = False;
+
 	load_config();
 	xsetcursor(cursorstyle);
 
@@ -3105,7 +3106,6 @@ main(int argc, char *argv[])
 run:
 	if (argc > 0) /* eat all remaining arguments */
 		opt_cmd = argv;
-
 	if (!opt_title)
 		opt_title = (opt_line || !opt_cmd) ? "st" : opt_cmd[0];
 
@@ -3134,7 +3134,7 @@ run:
 
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
-	defaultbg = MAX(LEN(colorname), 256);
+
 	tnew(cols, rows);
 	xsetenv();
 	selinit();

@@ -9,10 +9,10 @@ const char *progname = "st";
 char **fonts = NULL;
 int num_fonts;
 char *ascii_printable = NULL;
+char **colorname = NULL;
 char *initial_working_directory = NULL;
 char *iso14755cmd = NULL;
 char *mouseshape_text = NULL;
-char *plumb_cmd = NULL;
 char *scroll = NULL;
 char *shell = NULL;
 char *stty_args = NULL;
@@ -24,8 +24,11 @@ char *xdndescchar = NULL;
 wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
 wchar_t *worddelimiters = NULL;
+ResourcePref *resources = NULL;
 int histsize = 2000;
 uint64_t settings = 0;
+int num_colors = 0;
+int num_resources = 0;
 static unsigned int width = 0;
 static unsigned int height = 0;
 static Geometry geometry = CellGeometry;
@@ -60,15 +63,19 @@ static void cleanup_config(void);
 static void load_config(void);
 static void load_fallback_config(void);
 static void load_misc(config_t *cfg);
+static void load_colors(config_t *cfg);
+static int load_additional_color(const config_t *cfg, const char *name, int *idx);
 static void load_fonts(config_t *cfg);
 static void load_functionality(config_t *cfg);
 static void load_mouse_cursor(config_t *cfg);
 static void load_window_icon(config_t *cfg);
-static unsigned int parse_cursor_shape(const char *string);
+
+static void generate_resource_strings(void);
 
 static wchar_t *char_to_wchar(const char *string);
 static wchar_t *wcsdup(const wchar_t *string);
 
+static unsigned int parse_cursor_shape(const char *string);
 static int parse_byteorder(const char *string);
 static unsigned int parse_modkey(const char *string);
 static int parse_understyle(const char *string);
@@ -317,9 +324,10 @@ load_config(void)
 	config_set_include_dir(&cfg, config_path);
 
 	if (config_read_file(&cfg, config_file)) {
-		load_misc(&cfg);
-		load_fonts(&cfg);
 		load_functionality(&cfg);
+		load_misc(&cfg);
+		load_colors(&cfg);
+		load_fonts(&cfg);
 		load_mouse_cursor(&cfg);
 		load_window_icon(&cfg);
 	} else if (strcmp(config_error_text(&cfg), "file I/O error")) {
@@ -332,6 +340,7 @@ load_config(void)
 	}
 
 	load_fallback_config();
+	generate_resource_strings();
 	config_destroy(&cfg);
 }
 
@@ -349,7 +358,6 @@ cleanup_config(void)
 	free(initial_working_directory);
 	free(iso14755cmd);
 	free(mouseshape_text);
-	free(plumb_cmd);
 	free(scroll);
 	free(shell);
 	free(stty_args);
@@ -360,6 +368,15 @@ cleanup_config(void)
 	free(kbds_sdelim);
 	free(kbds_ldelim);
 	free(worddelimiters);
+
+	for (i = 0; i < num_colors; i++)
+		free(colorname[i]);
+	free(colorname);
+
+	for (i = 0; i < num_resources; i++)
+		free(resources[i].name);
+	free(resources);
+
 	/* TODO consider what needs to be done to preserve the history if
 	 * we were to introduce live reload of config during runtime. */
 	free(term.hist);
@@ -368,7 +385,7 @@ cleanup_config(void)
 void
 load_fallback_config(void)
 {
-	int i;
+	int i, num_def;
 
 	if (!fonts) {
 		num_fonts = 1 + LEN(font2);
@@ -383,8 +400,6 @@ load_fallback_config(void)
 		ascii_printable = strdup(ascii_printable_def);
 	if (!iso14755cmd)
 		iso14755cmd = strdup(iso14755cmd_def);
-	if (!plumb_cmd)
-		plumb_cmd = strdup(plumb_cmd_def);
 	if (!shell)
 		shell = strdup("/bin/sh");
 	if (!stty_args)
@@ -402,8 +417,95 @@ load_fallback_config(void)
 	if (!xdndescchar)
 		xdndescchar = strdup(xdndescchar_def);
 
+	if (!colorname) {
+		num_colors = LEN(colorname_def);
+		colorname = calloc(num_colors, sizeof(char*));
+	}
+
+	/* Fall back to default color settings if not defined via runtime configuration */
+	num_def = LEN(colorname_def);
+	for (i = 0; i < num_colors; i++) {
+		if (!colorname[i]) {
+			if (i >= num_def || !colorname_def[i]) {
+				colorname[i] = strdup("#FF41AE"); /* Fluorescent pink to indicate config error */
+			} else {
+				colorname[i] = strdup(colorname_def[i]);
+			}
+		}
+		/* Skip generated colors */
+		if (i == 15)
+			i = 255;
+	}
 
 	term.hist = calloc(histsize, sizeof(Line));
+}
+
+void
+generate_resource_strings(void)
+{
+	int i;
+	char resource_name[16] = {0};
+
+	num_resources = 16 + 10; // 16 + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, foc, unfoc
+	resources = calloc(num_resources, sizeof(ResourcePref));
+
+	for (i = 0; i < 16; i++) {
+		snprintf(resource_name, 16, "color%d", i);
+		resources[i].name = strdup(resource_name);
+		resources[i].type = STRING;
+		resources[i].dst = &colorname[i];
+	}
+
+	/* Add additional resource strings */
+	resources[i].name = strdup("cursor");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[defaultcs];
+	i++;
+
+	resources[i].name = strdup("cursor.reverse");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[defaultrcs];
+	i++;
+
+	resources[i].name = strdup("background");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[defaultbg];
+	i++;
+
+	resources[i].name = strdup("foreground");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[defaultfg];
+	i++;
+
+	resources[i].name = strdup("selection.foreground");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[selectionfg];
+	i++;
+
+	resources[i].name = strdup("selection.background");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[selectionbg];
+	i++;
+
+	resources[i].name = strdup("highlight.foreground");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[highlightfg];
+	i++;
+
+	resources[i].name = strdup("highlight.background");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[highlightbg];
+	i++;
+
+	resources[i].name = strdup("focused.background");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[focusedbg];
+	i++;
+
+	resources[i].name = strdup("unfocused.background");
+	resources[i].type = STRING;
+	resources[i].dst = &colorname[unfocusedbg];
+	i++;
 }
 
 void
@@ -416,7 +518,6 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "ascii_printable", &ascii_printable);
 	config_lookup_strdup(cfg, "initial_working_directory", &initial_working_directory);
 	config_lookup_strdup(cfg, "iso14755_cmd", &iso14755cmd);
-	config_lookup_strdup(cfg, "plumb_cmd", &plumb_cmd);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "url_opener_cmd", &url_opener_cmd);
@@ -469,6 +570,93 @@ load_misc(config_t *cfg)
 		undercurl_style = parse_understyle(string);
 	}
 }
+
+void
+load_colors(config_t *cfg)
+{
+	int i;
+
+	num_colors = 256 + 10; // 256 + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, focused, unfocused
+	colorname = calloc(num_colors, sizeof(char*));
+
+	char lookup_name[16];
+
+	for (i = 0; i < 16; i++) {
+		snprintf(lookup_name, 16, "colors.color%d", i);
+		config_lookup_strdup(cfg, lookup_name, &colorname[i]);
+	}
+
+	defaultcs = 256;
+	defaultrcs = 257;
+	defaultbg = 258;
+	defaultfg = 259;
+	selectionfg = 260;
+	selectionbg = 261;
+	highlightfg = 262;
+	highlightbg = 263;
+	focusedbg = 264;
+	unfocusedbg = 265;
+
+	if (enabled(AlphaFocusHighlight)) {
+		defaultbg = num_colors;
+	}
+
+	load_additional_color(cfg, "colors.cursor", &defaultcs);
+	load_additional_color(cfg, "colors.cursor_reverse", &defaultrcs);
+	load_additional_color(cfg, "colors.background", &defaultbg);
+	load_additional_color(cfg, "colors.foreground", &defaultfg);
+	load_additional_color(cfg, "colors.selection_foreground", &selectionfg);
+	load_additional_color(cfg, "colors.selection_background", &selectionbg);
+	load_additional_color(cfg, "colors.highlight_foreground", &highlightfg);
+	load_additional_color(cfg, "colors.highlight_background", &highlightbg);
+	load_additional_color(cfg, "colors.focused_background", &focusedbg);
+	load_additional_color(cfg, "colors.unfocused_background", &unfocusedbg);
+}
+
+#define map(S, I) \
+	if (!strcasecmp(string, S)) { \
+		colorname[*idx] = strdup("#000000"); \
+		*idx = I; \
+		break; \
+	}
+
+int
+load_additional_color(const config_t *cfg, const char *name, int *idx)
+{
+	const char *string;
+	const config_setting_t *color_t = config_lookup(cfg, name);
+	if (!color_t)
+		return 0;
+
+	switch (config_setting_type(color_t)) {
+	case CONFIG_TYPE_INT:
+		colorname[*idx] = strdup("#000000");
+		*idx = config_setting_get_int(color_t);
+		break;
+	case CONFIG_TYPE_STRING:
+		string = config_setting_get_string(color_t);
+
+		map("cursor", defaultcs);
+		map("cursor_reverse", defaultrcs);
+		map("background", defaultbg);
+		map("foreground", defaultfg);
+		map("selection_background", selectionbg);
+		map("selection_foreground", selectionfg);
+		map("highlight_background", highlightbg);
+		map("highlight_foreground", highlightfg);
+		map("focused_background", focusedbg);
+		map("unfocused_background", unfocusedbg);
+
+		colorname[*idx] = strdup(string);
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
+}
+
+#undef map
 
 void
 load_fonts(config_t *cfg)
@@ -737,32 +925,8 @@ parse_understyle(const char *string)
 vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
 
-colorname (have to decide how to handle colors)
-
-
-defaultbg
-bg
-bgUnfocused
-defaultfg
-defaultcs
-defaultrcs
-
-# selection colors
-selectionfg
-selectionbg
-
-
-# keyboardselect
-highlightfg
-highlightbg
-
 
 defaultattr
-
-# xresources
-resources - because it does not make sense defining resources via runtime config
-   - actually, it might be an idea to generate this based on what we
-     set selectionbg to etc. as part of runtime config
 
 forcemousemod
 

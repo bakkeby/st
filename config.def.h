@@ -117,7 +117,7 @@ float gradient_constant = 0.46; // constant alpha value that will get added to g
 char *xdndescchar_def = " !\"#$&'()*;<>?[\\]^`{|}~";
 
 /* Terminal colors (16 first used in escape sequence) */
-static const char *colorname[] = {
+static const char *colorname_def[] = {
 	/* 8 normal colors */
 	"black",
 	"red3",
@@ -147,22 +147,19 @@ static const char *colorname[] = {
 	"#e5e5e5", /* 259 -> fg */
 };
 
-
 /*
  * Default colors (colorname index)
- * foreground, background, cursor, reverse cursor
  */
-unsigned int bg = 17, bg_unfocused = 16;
-unsigned int defaultbg = 0;
-unsigned int defaultfg = 259;
-unsigned int defaultcs = 256;
-unsigned int defaultrcs = 257;
-unsigned int selectionfg = 258;
+unsigned int defaultbg = 0;     /* Background */
+unsigned int defaultfg = 259;   /* Foreground */
+unsigned int defaultcs = 256;   /* Cursor */
+unsigned int defaultrcs = 257;  /* Reverse cursor */
+unsigned int selectionfg = 258; /* Foreground and background color for selections */
 unsigned int selectionbg = 259;
-
-/* Foreground and background color of search results */
-unsigned int highlightfg = 15;
+unsigned int highlightfg = 15;  /* Foreground and background color of search results */
 unsigned int highlightbg = 160;
+unsigned int focusedbg = 17;    /* Background color for alpha focus highlight */
+unsigned int unfocusedbg = 16;
 
 /*
  * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h4-Functions-using-CSI-_-ordered-by-the-final-character-lparen-s-rparen:CSI-Ps-SP-q.1D81
@@ -199,31 +196,6 @@ static unsigned int mouseshape_url = XC_hand2;
 static unsigned int defaultattr = 11;
 
 /*
- * Xresources preferences to load at startup
- */
-ResourcePref resources[] = {
-		{ "color0",       STRING,  &colorname[0] },
-		{ "color1",       STRING,  &colorname[1] },
-		{ "color2",       STRING,  &colorname[2] },
-		{ "color3",       STRING,  &colorname[3] },
-		{ "color4",       STRING,  &colorname[4] },
-		{ "color5",       STRING,  &colorname[5] },
-		{ "color6",       STRING,  &colorname[6] },
-		{ "color7",       STRING,  &colorname[7] },
-		{ "color8",       STRING,  &colorname[8] },
-		{ "color9",       STRING,  &colorname[9] },
-		{ "color10",      STRING,  &colorname[10] },
-		{ "color11",      STRING,  &colorname[11] },
-		{ "color12",      STRING,  &colorname[12] },
-		{ "color13",      STRING,  &colorname[13] },
-		{ "color14",      STRING,  &colorname[14] },
-		{ "color15",      STRING,  &colorname[15] },
-		{ "background",   STRING,  &colorname[258] },
-		{ "foreground",   STRING,  &colorname[259] },
-		{ "cursor",       STRING,  &colorname[256] },
-};
-
-/*
  * Force mouse select/shortcuts while mask is active (when MODE_MOUSE is set).
  * Note that if you want to use ShiftMask with selmasks, set this to an other
  * modifier, set to 0 to not use it.
@@ -238,7 +210,7 @@ static MouseShortcut mshortcuts[] = {
 	/* mask                 button   function        argument       release  screen */
 	{ ControlMask,          Button2, selopen,        {.i = 0},      1 },
 	{ XK_ANY_MOD,           Button2, paste,          {.i = 0},      1 },
-	{ XK_ANY_MOD,           Button3, plumb,          {.i = 0},      1 },
+	{ XK_ANY_MOD,           Button3, plumb,          {.v = "nsxiv"}, 1 },
 	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 1},      0, S_PRI },
 	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"}, 0, S_ALT },
@@ -330,16 +302,6 @@ static char ascii_printable_def[] =
  * repurpose it.
  */
 static char *iso14755cmd_def = "dmenu -w \"$WINDOWID\" -p codepoint: </dev/null";
-
-/*
- * This command is run via the plumb function, typically bound to mouse
- * right click. The argument will be set to the current selection and with
- * the current working directory being set to that of the active shell.
- *
- * It may be an idea to pass the selection to a shell script that can
- * further decide what to do with it depending on the content.
- */
-static char *plumb_cmd_def = "plumb";
 
 /**
  * Undercurl style. Set undercurl_style to one of the available styles.
