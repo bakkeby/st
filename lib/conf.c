@@ -509,25 +509,43 @@ void
 load_mouse_cursor(config_t *cfg)
 {
 	const char *string;
-	config_setting_t *shape_t = config_lookup(cfg, "mouse_cursor.shape");
-	if (!shape_t)
-		return;
+	config_setting_t *shape_t, *url_shape_t;
 
-	switch (config_setting_type(shape_t)) {
-	case CONFIG_TYPE_INT:
-		_config_setting_get_unsigned_int(shape_t, &mouseshape);
-		break;
-	case CONFIG_TYPE_STRING:
-		string = config_setting_get_string(shape_t);
-		if (startswith("XC_", string))
-			string += 3;
+	shape_t = config_lookup(cfg, "mouse_cursor.shape");
+	if (shape_t) {
+		switch (config_setting_type(shape_t)) {
+		case CONFIG_TYPE_INT:
+			_config_setting_get_unsigned_int(shape_t, &mouseshape);
+			break;
+		case CONFIG_TYPE_STRING:
+			string = config_setting_get_string(shape_t);
+			if (startswith("XC_", string))
+				string += 3;
 
-		if (strlen(string)) {
-			mouseshape = parse_cursor_shape(string);
-			mouseshape_text = strdup(string);
+			if (strlen(string)) {
+				mouseshape = parse_cursor_shape(string);
+				mouseshape_text = strdup(string);
+			}
+			break;
 		}
+	}
 
-		break;
+	url_shape_t = config_lookup(cfg, "mouse_cursor.url_shape");
+	if (url_shape_t) {
+		switch (config_setting_type(url_shape_t)) {
+		case CONFIG_TYPE_INT:
+			_config_setting_get_unsigned_int(url_shape_t, &mouseshape_url);
+			break;
+		case CONFIG_TYPE_STRING:
+			string = config_setting_get_string(url_shape_t);
+			if (startswith("XC_", string))
+				string += 3;
+
+			if (strlen(string)) {
+				mouseshape_url = parse_cursor_shape(string);
+			}
+			break;
+		}
 	}
 }
 
@@ -719,7 +737,7 @@ parse_understyle(const char *string)
 vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
 
-# colorname (have to decide how to handle colors)
+colorname (have to decide how to handle colors)
 
 
 defaultbg
@@ -738,14 +756,13 @@ selectionbg
 highlightfg
 highlightbg
 
-mousefg
-mousebg
-
 
 defaultattr
 
 # xresources
 resources - because it does not make sense defining resources via runtime config
+   - actually, it might be an idea to generate this based on what we
+     set selectionbg to etc. as part of runtime config
 
 forcemousemod
 

@@ -198,7 +198,6 @@ static int focused = 0;
 static uint buttons; /* bit field of pressed buttons */
 static int cursorblinks = 0;
 static int bellon = 0; /* visual bell status */
-static XColor xmousefg, xmousebg;
 
 #include "lib/x_include.c"
 
@@ -661,9 +660,7 @@ selrequest(XEvent *e)
 		} else if (xsre->selection == clipboard) {
 			seltext = xsel.clipboard;
 		} else {
-			fprintf(stderr,
-				"Unhandled clipboard selection 0x%lx\n",
-				xsre->selection);
+			fprintf(stderr,	"Unhandled clipboard selection 0x%lx\n", xsre->selection);
 			return;
 		}
 		if (seltext != NULL) {
@@ -857,7 +854,7 @@ xloadalpha(void)
 void
 xloadcols(void)
 {
-	static int loaded;
+	static int loaded, color;
 	Color *cp;
 
 	if (!loaded) {
@@ -873,8 +870,10 @@ xloadcols(void)
 				die("could not allocate color %d\n", i);
 		}
 	}
-	if (dc.collen) // cannot die, as the color is already loaded.
-		xloadcolor((enabled(AlphaFocusHighlight) && !focused ? bg_unfocused : bg), NULL, &dc.col[defaultbg]);
+	if (dc.collen) { // cannot die, as the color is already loaded.
+		color = (enabled(AlphaFocusHighlight) && !focused ? bg_unfocused : bg);
+		xloadcolor(color, NULL, &dc.col[defaultbg]);
+	}
 
 	xloadalpha();
 	loaded = 1;
@@ -1246,6 +1245,7 @@ xinit(int cols, int rows)
 	pid_t thispid = getpid();
 	XWindowAttributes attr;
 	XVisualInfo vis;
+	XColor xmousefg, xmousebg;
 
 	xw.scr = XDefaultScreen(xw.dpy);
 
@@ -1343,27 +1343,11 @@ xinit(int cols, int rows)
 	} else {
 		xw.vpointer = XCreateFontCursor(xw.dpy, mouseshape);
 		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
-
-		if (XParseColor(xw.dpy, xw.cmap, colorname[mousefg], &xmousefg) == 0) {
-			xmousefg.red   = 0xffff;
-			xmousefg.green = 0xffff;
-			xmousefg.blue  = 0xffff;
-		}
-
-		if (XParseColor(xw.dpy, xw.cmap, colorname[mousebg], &xmousebg) == 0) {
-			xmousebg.red   = 0x0000;
-			xmousebg.green = 0x0000;
-			xmousebg.blue  = 0x0000;
-		}
-
-		XRecolorCursor(xw.dpy, xw.vpointer, &xmousefg, &xmousebg);
 	}
 
 	blankpm = XCreateBitmapFromData(xw.dpy, xw.win, &(char){0}, 1, 1);
-	xw.bpointer = XCreatePixmapCursor(xw.dpy, blankpm, blankpm,
-					  &xmousefg, &xmousebg, 0, 0);
-
-	xw.upointer = XCreateFontCursor(xw.dpy, XC_hand2);
+	xw.bpointer = XCreatePixmapCursor(xw.dpy, blankpm, blankpm, &xmousefg, &xmousebg, 0, 0);
+	xw.upointer = XCreateFontCursor(xw.dpy, mouseshape_url);
 
 	xw.xembed = XInternAtom(xw.dpy, "_XEMBED", False);
 	xw.wmdeletewin = XInternAtom(xw.dpy, "WM_DELETE_WINDOW", False);
