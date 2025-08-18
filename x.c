@@ -833,7 +833,7 @@ xloadcolor(int i, const char *name, Color *ncolor)
 			                          xw.cmap, &color, ncolor);
 		}
 
-		name = colorname[i];
+		name = colors[i];
 	}
 
 	return XftColorAllocName(xw.dpy, xw.vis, xw.cmap, name, ncolor);
@@ -858,14 +858,14 @@ xloadcols(void)
 	Color *cp;
 
 	if (!loaded) {
-		dc.collen = 1 + MAX(num_colors, 256);
+		dc.collen = MAX(num_colors, 256);
 		dc.col = calloc(dc.collen, sizeof(Color));
 	}
 
 	for (int i = 0; i+1 < dc.collen; ++i) {
 		if (!xloadcolor(i, NULL, &dc.col[i])) {
-			if (colorname[i])
-				die("could not allocate color '%s'\n", colorname[i]);
+			if (colors[i])
+				die("could not allocate color '%s'\n", colors[i]);
 			else
 				die("could not allocate color %d\n", i);
 		}
@@ -873,8 +873,8 @@ xloadcols(void)
 
 	if (dc.collen && enabled(AlphaFocusHighlight)) {
 		color = (focused ? focusedbg : unfocusedbg);
-		defaultbg = MAX(num_colors, 256);
-		xloadcolor(color, NULL, &dc.col[num_colors]);
+		defaultbg = defaultfg_idx;
+		xloadcolor(color, NULL, &dc.col[defaultfg_idx]);
 	}
 
 	xloadalpha();
@@ -1617,10 +1617,10 @@ xdrawglyphfontspecs(
 	/* Fallback on color display for attributes not supported by the font */
 	if (base.mode & ATTR_ITALIC && base.mode & ATTR_BOLD) {
 		if (dc.ibfont.badslant || dc.ibfont.badweight)
-			base.fg = defaultattr;
+			base.fg = badattributefg;
 	} else if ((base.mode & ATTR_ITALIC && dc.ifont.badslant) ||
-	    (base.mode & ATTR_BOLD && dc.bfont.badweight)) {
-		base.fg = defaultattr;
+			(base.mode & ATTR_BOLD && dc.bfont.badweight)) {
+		base.fg = badattributefg;
 	}
 
 	if (IS_TRUECOL(base.fg)) {

@@ -117,7 +117,7 @@ float gradient_constant = 0.46; // constant alpha value that will get added to g
 char *xdndescchar_def = " !\"#$&'()*;<>?[\\]^`{|}~";
 
 /* Terminal colors (16 first used in escape sequence) */
-static const char *colorname_def[] = {
+static const char *colorname[] = {
 	/* 8 normal colors */
 	"black",
 	"red3",
@@ -160,6 +160,7 @@ unsigned int highlightfg = 15;  /* Foreground and background color of search res
 unsigned int highlightbg = 160;
 unsigned int focusedbg = 17;    /* Background color for alpha focus highlight */
 unsigned int unfocusedbg = 16;
+unsigned int badattributefg = 11; /* Foreground color used when font does not support bold or italic */
 
 /*
  * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h4-Functions-using-CSI-_-ordered-by-the-final-character-lparen-s-rparen:CSI-Ps-SP-q.1D81
@@ -188,12 +189,6 @@ static unsigned int rows = 24;
  */
 static unsigned int mouseshape = XC_xterm;
 static unsigned int mouseshape_url = XC_hand2;
-
-/*
- * Color used to display font attributes when fontconfig selected a font which
- * doesn't match the ones requested.
- */
-static unsigned int defaultattr = 11;
 
 /*
  * Force mouse select/shortcuts while mask is active (when MODE_MOUSE is set).
@@ -269,7 +264,7 @@ static Shortcut shortcuts[] = {
 /* Refer to lib/keyboardinput.c for mapped keys and the key array. */
 
 /*
- * State bits to ignore when matching key or button events.  By default,
+ * State bits to ignore when matching key or button events. By default,
  * numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
  */
 static uint ignoremod = Mod2Mask|XK_SWITCH_MOD;

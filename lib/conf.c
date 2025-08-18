@@ -9,7 +9,7 @@ const char *progname = "st";
 char **fonts = NULL;
 int num_fonts;
 char *ascii_printable = NULL;
-char **colorname = NULL;
+char **colors = NULL;
 char *initial_working_directory = NULL;
 char *iso14755cmd = NULL;
 char *mouseshape_text = NULL;
@@ -29,6 +29,20 @@ int histsize = 2000;
 uint64_t settings = 0;
 int num_colors = 0;
 int num_resources = 0;
+
+/* Fixed indexes for additional colors, used in the context of Xresources */
+unsigned int defaultcs_idx;
+unsigned int defaultrcs_idx;
+unsigned int defaultbg_idx;
+unsigned int defaultfg_idx;
+unsigned int selectionfg_idx;
+unsigned int selectionbg_idx;
+unsigned int highlightfg_idx;
+unsigned int highlightbg_idx;
+unsigned int focusedbg_idx;
+unsigned int unfocusedbg_idx;
+unsigned int badattributefg_idx;
+
 static unsigned int width = 0;
 static unsigned int height = 0;
 static Geometry geometry = CellGeometry;
@@ -362,6 +376,7 @@ cleanup_config(void)
 	free(shell);
 	free(stty_args);
 	free(termname);
+	free(url_opener_cmd);
 	free(utmp);
 	free(window_icon);
 	free(xdndescchar);
@@ -370,8 +385,8 @@ cleanup_config(void)
 	free(worddelimiters);
 
 	for (i = 0; i < num_colors; i++)
-		free(colorname[i]);
-	free(colorname);
+		free(colors[i]);
+	free(colors);
 
 	for (i = 0; i < num_resources; i++)
 		free(resources[i].name);
@@ -417,19 +432,19 @@ load_fallback_config(void)
 	if (!xdndescchar)
 		xdndescchar = strdup(xdndescchar_def);
 
-	if (!colorname) {
-		num_colors = LEN(colorname_def);
-		colorname = calloc(num_colors, sizeof(char*));
+	if (!colors) {
+		num_colors = LEN(colorname);
+		colors = calloc(num_colors, sizeof(char*));
 	}
 
 	/* Fall back to default color settings if not defined via runtime configuration */
-	num_def = LEN(colorname_def);
+	num_def = LEN(colorname);
 	for (i = 0; i < num_colors; i++) {
-		if (!colorname[i]) {
-			if (i >= num_def || !colorname_def[i]) {
-				colorname[i] = strdup("#FF41AE"); /* Fluorescent pink to indicate config error */
+		if (!colors[i]) {
+			if (i >= num_def || !colorname[i]) {
+				colors[i] = strdup("#FF41AE"); /* Fluorescent pink to indicate config error */
 			} else {
-				colorname[i] = strdup(colorname_def[i]);
+				colors[i] = strdup(colorname[i]);
 			}
 		}
 		/* Skip generated colors */
@@ -446,65 +461,71 @@ generate_resource_strings(void)
 	int i;
 	char resource_name[16] = {0};
 
-	num_resources = 16 + 10; // 16 + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, foc, unfoc
+	/* 16 + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, foc, unfoc, def attr */
+	num_resources = 16 + 11;
 	resources = calloc(num_resources, sizeof(ResourcePref));
 
 	for (i = 0; i < 16; i++) {
 		snprintf(resource_name, 16, "color%d", i);
 		resources[i].name = strdup(resource_name);
 		resources[i].type = STRING;
-		resources[i].dst = &colorname[i];
+		resources[i].dst = &colors[i];
 	}
 
 	/* Add additional resource strings */
 	resources[i].name = strdup("cursor");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[defaultcs];
+	resources[i].dst = &colors[defaultcs_idx];
 	i++;
 
 	resources[i].name = strdup("cursor.reverse");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[defaultrcs];
+	resources[i].dst = &colors[defaultrcs_idx];
 	i++;
 
 	resources[i].name = strdup("background");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[defaultbg];
+	resources[i].dst = &colors[defaultbg_idx];
 	i++;
 
 	resources[i].name = strdup("foreground");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[defaultfg];
+	resources[i].dst = &colors[defaultfg_idx];
 	i++;
 
-	resources[i].name = strdup("selection.foreground");
+	resources[i].name = strdup("selection.fg.color");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[selectionfg];
+	resources[i].dst = &colors[selectionfg_idx];
 	i++;
 
-	resources[i].name = strdup("selection.background");
+	resources[i].name = strdup("selection.bg.color");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[selectionbg];
+	resources[i].dst = &colors[selectionbg_idx];
 	i++;
 
-	resources[i].name = strdup("highlight.foreground");
+	resources[i].name = strdup("highlight.fg.color");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[highlightfg];
+	resources[i].dst = &colors[highlightfg_idx];
 	i++;
 
-	resources[i].name = strdup("highlight.background");
+	resources[i].name = strdup("highlight.bg.color");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[highlightbg];
+	resources[i].dst = &colors[highlightbg_idx];
 	i++;
 
-	resources[i].name = strdup("focused.background");
+	resources[i].name = strdup("focused.bg.color");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[focusedbg];
+	resources[i].dst = &colors[focusedbg_idx];
 	i++;
 
-	resources[i].name = strdup("unfocused.background");
+	resources[i].name = strdup("unfocused.bg.color");
 	resources[i].type = STRING;
-	resources[i].dst = &colorname[unfocusedbg];
+	resources[i].dst = &colors[unfocusedbg_idx];
+	i++;
+
+	resources[i].name = strdup("badattribute.fg.color");
+	resources[i].type = STRING;
+	resources[i].dst = &colors[badattributefg_idx];
 	i++;
 }
 
@@ -533,8 +554,14 @@ load_misc(config_t *cfg)
 		sixelbyteorder = parse_byteorder(string);
 	}
 
-	if (config_lookup_string(cfg, "url_opener_modkey", &string)) {
+	if (config_lookup_string(cfg, "url_opener_modifier", &string)) {
 		url_opener_modkey = parse_modkey(string);
+	}
+
+	if (config_lookup_string(cfg, "rectangular_selection_modifier", &string)) {
+		if (LEN(selmasks) > SEL_RECTANGULAR) {
+			selmasks[SEL_RECTANGULAR] = parse_modkey(string);
+		}
 	}
 
 	config_lookup_simple_float(cfg, "cwscale", &cwscale);
@@ -576,30 +603,28 @@ load_colors(config_t *cfg)
 {
 	int i;
 
-	num_colors = 256 + 10; // 256 + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, focused, unfocused
-	colorname = calloc(num_colors, sizeof(char*));
+	/* 256 color palette + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, focused, unfocused, attr */
+	num_colors = 256 + 11;
+	colors = calloc(num_colors, sizeof(char*));
 
 	char lookup_name[16];
 
 	for (i = 0; i < 16; i++) {
 		snprintf(lookup_name, 16, "colors.color%d", i);
-		config_lookup_strdup(cfg, lookup_name, &colorname[i]);
+		config_lookup_strdup(cfg, lookup_name, &colors[i]);
 	}
 
-	defaultcs = 256;
-	defaultrcs = 257;
-	defaultbg = 258;
-	defaultfg = 259;
-	selectionfg = 260;
-	selectionbg = 261;
-	highlightfg = 262;
-	highlightbg = 263;
-	focusedbg = 264;
-	unfocusedbg = 265;
-
-	if (enabled(AlphaFocusHighlight)) {
-		defaultbg = num_colors;
-	}
+	defaultcs_idx = defaultcs = 256;
+	defaultrcs_idx = defaultrcs = 257;
+	defaultbg_idx = defaultbg = 258;
+	defaultfg_idx = defaultfg = 259;
+	selectionfg_idx = selectionfg = 260;
+	selectionbg_idx = selectionbg = 261;
+	highlightfg_idx = highlightfg = 262;
+	highlightbg_idx = highlightbg = 263;
+	focusedbg_idx = focusedbg = 264;
+	unfocusedbg_idx = unfocusedbg = 265;
+	badattributefg_idx = badattributefg = 266;
 
 	load_additional_color(cfg, "colors.cursor", &defaultcs);
 	load_additional_color(cfg, "colors.cursor_reverse", &defaultrcs);
@@ -611,11 +636,16 @@ load_colors(config_t *cfg)
 	load_additional_color(cfg, "colors.highlight_background", &highlightbg);
 	load_additional_color(cfg, "colors.focused_background", &focusedbg);
 	load_additional_color(cfg, "colors.unfocused_background", &unfocusedbg);
+	load_additional_color(cfg, "colors.badattribute_foreground", &badattributefg);
+
+	if (enabled(AlphaFocusHighlight)) {
+		defaultbg = defaultfg_idx;
+	}
 }
 
 #define map(S, I) \
 	if (!strcasecmp(string, S)) { \
-		colorname[*idx] = strdup("#000000"); \
+		colors[*idx] = strdup("#000000"); \
 		*idx = I; \
 		break; \
 	}
@@ -630,7 +660,7 @@ load_additional_color(const config_t *cfg, const char *name, int *idx)
 
 	switch (config_setting_type(color_t)) {
 	case CONFIG_TYPE_INT:
-		colorname[*idx] = strdup("#000000");
+		colors[*idx] = strdup("#000000");
 		*idx = config_setting_get_int(color_t);
 		break;
 	case CONFIG_TYPE_STRING:
@@ -646,8 +676,9 @@ load_additional_color(const config_t *cfg, const char *name, int *idx)
 		map("highlight_foreground", highlightfg);
 		map("focused_background", focusedbg);
 		map("unfocused_background", unfocusedbg);
+		map("badattribute_foreground", badattributefg);
 
-		colorname[*idx] = strdup(string);
+		colors[*idx] = strdup(string);
 		break;
 	default:
 		return 0;
@@ -889,14 +920,19 @@ parse_modkey(const char *string)
 	map("Any", XK_ANY_MOD);
 	map("ANY_MOD", XK_ANY_MOD);
 	map("XK_ANY_MOD", XK_ANY_MOD);
+	map("XK_SWITCH_MOD", XK_SWITCH_MOD);
 	map("Ctrl", ControlMask);
+	map("Control", ControlMask);
 	map("ControlMask", ControlMask);
 	map("Shift", ShiftMask);
 	map("ShiftMask", ShiftMask);
 	map("Alt", Mod1Mask);
-	map("Mod1Mask", Mod1Mask);
 	map("Super", Mod4Mask);
+	map("Mod1Mask", Mod1Mask);
+	map("Mod2Mask", Mod2Mask);
+	map("Mod3Mask", Mod3Mask);
 	map("Mod4Mask", Mod4Mask);
+	map("Mod5Mask", Mod5Mask);
 
 	fprintf(stderr, "Warning: config could not find modkey with name %s\n", string);
 	return XK_ANY_MOD;
@@ -925,11 +961,6 @@ parse_understyle(const char *string)
 vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
 tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
 
-
-defaultattr
-
-forcemousemod
-
 mshortcuts <-- will be a big one
 shortcuts
 
@@ -940,9 +971,9 @@ openurlcmd <--- To be replaced with command array like in dusk
 setbgcolorcmd <--- To be replaced with command array like in dusk
 
 
+# TODO move iso14755cmd_def to be a command name passed to the iso14755 function, like we
+# did with plumb, in combination with the command array possibly
+
 ignoremod
-
-
-selmasks
 
 */
