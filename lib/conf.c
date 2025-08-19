@@ -11,7 +11,6 @@ int num_fonts;
 char *ascii_printable = NULL;
 char **colors = NULL;
 char *initial_working_directory = NULL;
-char *iso14755cmd = NULL;
 char *mouseshape_text = NULL;
 char *scroll = NULL;
 char *shell = NULL;
@@ -25,10 +24,16 @@ wchar_t *kbds_sdelim = NULL;
 wchar_t *kbds_ldelim = NULL;
 wchar_t *worddelimiters = NULL;
 ResourcePref *resources = NULL;
+Command *commands = NULL;
+MouseShortcut *mouse_bindings = NULL;
+Shortcut *keybindings = NULL;
 int histsize = 2000;
 uint64_t settings = 0;
 int num_colors = 0;
 int num_resources = 0;
+int num_commands = 0;
+int num_mouse_bindings = 0;
+int num_keybindings = 0;
 
 /* Fixed indexes for additional colors, used in the context of Xresources */
 unsigned int defaultcs_idx;
@@ -75,6 +80,7 @@ static int _config_setting_get_unsigned_int(const config_setting_t *cfg_item, un
 
 static void cleanup_config(void);
 static void load_config(void);
+static void load_commands(config_t *cfg);
 static void load_fallback_config(void);
 static void load_misc(config_t *cfg);
 static void load_colors(config_t *cfg);
@@ -82,6 +88,8 @@ static int load_additional_color(const config_t *cfg, const char *name, int *idx
 static void load_fonts(config_t *cfg);
 static void load_functionality(config_t *cfg);
 static void load_mouse_cursor(config_t *cfg);
+static void load_mouse_bindings(config_t *cfg);
+static void load_keybindings(config_t *cfg);
 static void load_window_icon(config_t *cfg);
 
 static void generate_resource_strings(void);
@@ -92,7 +100,12 @@ static wchar_t *wcsdup(const wchar_t *string);
 static unsigned int parse_cursor_shape(const char *string);
 static int parse_byteorder(const char *string);
 static unsigned int parse_modkey(const char *string);
+static unsigned int parse_modifier(const char *string);
+static int parse_screen(const config_setting_t *screen_t);
 static int parse_understyle(const char *string);
+static ArgFunc parse_function(const char *string);
+static void parse_and_set_argument(const config_setting_t *arg_t, Arg *arg);
+static int parse_command_reference(const char *string, void **ptr);
 
 void
 set_config_path(const char* filename, char *config_path, char *config_file)
@@ -341,7 +354,10 @@ load_config(void)
 		load_functionality(&cfg);
 		load_misc(&cfg);
 		load_colors(&cfg);
+		load_commands(&cfg);
 		load_fonts(&cfg);
+		load_keybindings(&cfg);
+		load_mouse_bindings(&cfg);
 		load_mouse_cursor(&cfg);
 		load_window_icon(&cfg);
 	} else if (strcmp(config_error_text(&cfg), "file I/O error")) {
@@ -359,6 +375,43 @@ load_config(void)
 }
 
 void
+load_commands(config_t *cfg)
+{
+	int i, j, num_cmd_elements;
+	config_setting_t *commands_list, *command_entry, *command;
+
+	commands_list = config_lookup(cfg, "commands");
+	if (!commands_list || !config_setting_is_list(commands_list))
+		return;
+
+	num_commands = config_setting_length(commands_list);
+	if (!num_commands)
+		return;
+
+	commands = calloc(num_commands, sizeof(Command));
+	for (i = 0; i < num_commands; i++) {
+		command_entry = config_setting_get_elem(commands_list, i);
+		commands[i].name = NULL;
+		commands[i].argv = NULL;
+
+		config_setting_lookup_strdup(command_entry, "name", &commands[i].name);
+
+		command = config_setting_lookup(command_entry, "command");
+		num_cmd_elements = config_setting_length(command);
+		commands[i].argv = calloc(num_cmd_elements + 1, sizeof(char*));
+
+		for (j = 0; j < num_cmd_elements; j++) {
+			commands[i].argv[j] = strdup(config_setting_get_string_elem(command, j));
+		}
+		commands[i].argv[j] = NULL;
+
+		if (commands[i].name == NULL || commands[i].argv == NULL) {
+			fprintf(stderr, "Warning: config found incomplete command at line %d\n", config_setting_source_line(command_entry));
+		}
+	}
+}
+
+void
 cleanup_config(void)
 {
 	int i;
@@ -370,7 +423,6 @@ cleanup_config(void)
 
 	free(ascii_printable);
 	free(initial_working_directory);
-	free(iso14755cmd);
 	free(mouseshape_text);
 	free(scroll);
 	free(shell);
@@ -391,6 +443,12 @@ cleanup_config(void)
 	for (i = 0; i < num_resources; i++)
 		free(resources[i].name);
 	free(resources);
+
+	/* Note that we do not free strings passed as arguments here; we
+	 * do not have a way to track whether an argument refers to a string
+	 * pointer or not */
+	free(keybindings);
+	free(mouse_bindings);
 
 	/* TODO consider what needs to be done to preserve the history if
 	 * we were to introduce live reload of config during runtime. */
@@ -413,8 +471,6 @@ load_fallback_config(void)
 
 	if (!ascii_printable)
 		ascii_printable = strdup(ascii_printable_def);
-	if (!iso14755cmd)
-		iso14755cmd = strdup(iso14755cmd_def);
 	if (!shell)
 		shell = strdup("/bin/sh");
 	if (!stty_args)
@@ -450,6 +506,31 @@ load_fallback_config(void)
 		/* Skip generated colors */
 		if (i == 15)
 			i = 255;
+	}
+
+	if (!keybindings) {
+		num_keybindings = LEN(shortcuts);
+		keybindings = calloc(num_keybindings, sizeof(Shortcut));
+		for (i = 0; i < num_keybindings; i++) {
+			keybindings[i].mod = shortcuts[i].mod;
+			keybindings[i].keysym = shortcuts[i].keysym;
+			keybindings[i].screen = shortcuts[i].screen;
+			keybindings[i].func = shortcuts[i].func;
+			keybindings[i].arg.v = shortcuts[i].arg.v;
+		}
+	}
+
+	if (!mouse_bindings) {
+		num_mouse_bindings = LEN(mshortcuts);
+		mouse_bindings = calloc(num_mouse_bindings, sizeof(MouseShortcut));
+		for (i = 0; i < num_mouse_bindings; i++) {
+			mouse_bindings[i].mod = mshortcuts[i].mod;
+			mouse_bindings[i].button = mshortcuts[i].button;
+			mouse_bindings[i].screen = mshortcuts[i].screen;
+			mouse_bindings[i].release = mshortcuts[i].release;
+			mouse_bindings[i].func = mshortcuts[i].func;
+			mouse_bindings[i].arg.v = mshortcuts[i].arg.v;
+		}
 	}
 
 	term.hist = calloc(histsize, sizeof(Line));
@@ -538,7 +619,6 @@ load_misc(config_t *cfg)
 	config_lookup_int(cfg, "border.width", &borderpx);
 	config_lookup_strdup(cfg, "ascii_printable", &ascii_printable);
 	config_lookup_strdup(cfg, "initial_working_directory", &initial_working_directory);
-	config_lookup_strdup(cfg, "iso14755_cmd", &iso14755cmd);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
 	config_lookup_strdup(cfg, "url_opener_cmd", &url_opener_cmd);
@@ -557,6 +637,9 @@ load_misc(config_t *cfg)
 	if (config_lookup_string(cfg, "url_opener_modifier", &string)) {
 		url_opener_modkey = parse_modkey(string);
 	}
+
+	if (config_lookup_string(cfg, "modifiers_to_ignore", &string))
+		ignoremod = parse_modifier(string);
 
 	if (config_lookup_string(cfg, "rectangular_selection_modifier", &string)) {
 		if (LEN(selmasks) > SEL_RECTANGULAR) {
@@ -639,7 +722,7 @@ load_colors(config_t *cfg)
 	load_additional_color(cfg, "colors.badattribute_foreground", &badattributefg);
 
 	if (enabled(AlphaFocusHighlight)) {
-		defaultbg = defaultfg_idx;
+		defaultbg = defaultbg_idx;
 	}
 }
 
@@ -721,6 +804,67 @@ load_functionality(config_t *cfg)
 		if (config_setting_lookup_sloppy_bool(func_t, function_names[i].name, &enabled)) {
 			setenabled(function_names[i].value, enabled);
 		}
+	}
+}
+
+void
+load_keybindings(config_t *cfg)
+{
+	int i;
+	const char *string;
+
+	const config_setting_t *bindings_t, *binding_t;
+
+	bindings_t = config_lookup(cfg, "keybindings");
+	if (!bindings_t)
+		return;
+
+	num_keybindings = config_setting_length(bindings_t);
+	keybindings = calloc(num_keybindings, sizeof(Shortcut));
+
+	for (i = 0; i < num_keybindings; i++) {
+		binding_t = config_setting_get_elem(bindings_t, i);
+		if (config_setting_lookup_string(binding_t, "modifier", &string))
+			keybindings[i].mod = parse_modifier(string);
+
+		if (config_setting_lookup_string(binding_t, "key", &string)) {
+			keybindings[i].keysym = XStringToKeysym(string);
+			if (keybindings[i].keysym == NoSymbol)
+				fprintf(stderr, "Warning: config could not look up keysym for key %s\n", string);
+		}
+
+		if (config_setting_lookup_string(binding_t, "function", &string))
+			keybindings[i].func = parse_function(string);
+		keybindings[i].screen = parse_screen(config_setting_lookup(binding_t, "screen"));
+		parse_and_set_argument(config_setting_lookup(binding_t, "argument"), &keybindings[i].arg);
+	}
+}
+
+void
+load_mouse_bindings(config_t *cfg)
+{
+	int i;
+	const char *string;
+
+	const config_setting_t *bindings_t, *binding_t;
+
+	bindings_t = config_lookup(cfg, "mouse_bindings");
+	if (!bindings_t)
+		return;
+
+	num_mouse_bindings = config_setting_length(bindings_t);
+	mouse_bindings = calloc(num_mouse_bindings, sizeof(MouseShortcut));
+
+	for (i = 0; i < num_mouse_bindings; i++) {
+		binding_t = config_setting_get_elem(bindings_t, i);
+		if (config_setting_lookup_string(binding_t, "modifier", &string))
+			mouse_bindings[i].mod = parse_modifier(string);
+		config_setting_lookup_unsigned_int(binding_t, "button", &mouse_bindings[i].button);
+		config_setting_lookup_sloppy_bool(binding_t, "release", &mouse_bindings[i].release);
+		if (config_setting_lookup_string(binding_t, "function", &string))
+			mouse_bindings[i].func = parse_function(string);
+		mouse_bindings[i].screen = parse_screen(config_setting_lookup(binding_t, "screen"));
+		parse_and_set_argument(config_setting_lookup(binding_t, "argument"), &mouse_bindings[i].arg);
 	}
 }
 
@@ -920,22 +1064,158 @@ parse_modkey(const char *string)
 	map("Any", XK_ANY_MOD);
 	map("ANY_MOD", XK_ANY_MOD);
 	map("XK_ANY_MOD", XK_ANY_MOD);
+	map("No", XK_NO_MOD)
+	map("None", XK_NO_MOD);
+	map("XK_NO_MOD", XK_NO_MOD);
 	map("XK_SWITCH_MOD", XK_SWITCH_MOD);
 	map("Ctrl", ControlMask);
-	map("Control", ControlMask);
-	map("ControlMask", ControlMask);
 	map("Shift", ShiftMask);
-	map("ShiftMask", ShiftMask);
 	map("Alt", Mod1Mask);
 	map("Super", Mod4Mask);
+	map("Control", ControlMask);
+	map("ControlMask", ControlMask);
+	map("ShiftMask", ShiftMask);
 	map("Mod1Mask", Mod1Mask);
 	map("Mod2Mask", Mod2Mask);
 	map("Mod3Mask", Mod3Mask);
 	map("Mod4Mask", Mod4Mask);
 	map("Mod5Mask", Mod5Mask);
 
-	fprintf(stderr, "Warning: config could not find modkey with name %s\n", string);
-	return XK_ANY_MOD;
+	fprintf(stderr, "Warning: config could not find modkey with name \"%s\"\n", string);
+	return XK_NO_MOD;
+}
+
+unsigned int
+parse_modifier(const char *string)
+{
+	int i, len;
+	unsigned int mask = 0;
+	len = strlen(string) + 1;
+	char buffer[len];
+	strlcpy(buffer, string, len);
+
+	const char *delims = "+-|:;, ";
+
+	char *token = strtok(buffer, delims);
+	while (token) {
+		mask |= parse_modkey(token);
+		token = strtok(NULL, delims);
+	}
+
+	return mask;
+}
+
+int
+parse_screen(const config_setting_t *screen_t)
+{
+	const char *string;
+
+	if (screen_t) {
+		switch (config_setting_type(screen_t)) {
+		case CONFIG_TYPE_INT:
+			return config_setting_get_int(screen_t);
+		case CONFIG_TYPE_STRING:
+			string = config_setting_get_string(screen_t);
+			if (startswith("S_", string))
+				string += 2;
+
+			if (!strncasecmp(string, "PRI", 3))
+				return S_PRI;
+			if (!strncasecmp(string, "ALT", 3))
+				return S_ALT;
+			if (!strncasecmp(string, "ALL", 3))
+				return S_ALL;
+			if (!strcasecmp(string, "BOTH"))
+				return S_ALL;
+
+			break;
+		}
+	}
+
+	return S_ALL;
+}
+
+void
+parse_and_set_argument(const config_setting_t *arg_t, Arg *arg)
+{
+	const char *string;
+
+	if (arg_t) {
+		switch (config_setting_type(arg_t)) {
+		case CONFIG_TYPE_INT:
+			arg->i = config_setting_get_int(arg_t);
+			break;
+		case CONFIG_TYPE_FLOAT:
+			_config_setting_get_simple_float(arg_t, &arg->f);
+			break;
+		case CONFIG_TYPE_STRING:
+			string = config_setting_get_string(arg_t);
+			if (parse_command_reference(string, &arg->v))
+				break;
+
+			arg->s = strdup(string);
+			break;
+		}
+	}
+}
+
+int
+parse_command_reference(const char *string, void **ptr)
+{
+	int i;
+
+	for (i = 0; i < num_commands; i++) {
+		if (!strcasecmp(string, commands[i].name)) {
+			*ptr = commands[i].argv;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+ArgFunc
+parse_function(const char *string)
+{
+	map("changealpha", changealpha);
+	map("changealphaunfocused", changealphaunfocused);
+	map("clipcopy", clipcopy);
+	map("clippaste", clippaste);
+	map("copyurl", copyurl);
+	map("externalpipe_screen_out", externalpipe_screen_out);
+	map("externalpipe_screen_in", externalpipe_screen_in);
+	map("externalpipe_screen_inject", externalpipe_screen_inject);
+	map("externalpipe_hist_out", externalpipe_hist_out);
+	map("externalpipe_hist_in", externalpipe_hist_in);
+	map("externalpipe_hist_inject", externalpipe_hist_inject);
+	map("externalpipe_osc133_out", externalpipe_osc133_out);
+	map("externalpipe_osc133_in", externalpipe_osc133_in);
+	map("externalpipe_osc133_inject", externalpipe_osc133_inject);
+	map("fullscreen", fullscreen);
+	map("keyboard_select", keyboard_select);
+	map("kscrolldown", kscrolldown);
+	map("kscrollup", kscrollup);
+	map("newterm", newterm);
+	map("numlock", numlock);
+	map("opencopied", opencopied);
+	map("paste", paste);
+	map("plumb", plumb);
+	map("printscreen", printscreen);
+	map("printsel", printsel);
+	map("scrolltoprompt", scrolltoprompt);
+	map("searchbackward", searchbackward);
+	map("searchforward", searchforward);
+	map("selopen", selopen);
+	map("selpaste", selpaste);
+	map("sendbreak", sendbreak);
+	map("toggleprinter", toggleprinter);
+	map("ttysend", ttysend);
+	map("zoom", zoom);
+	map("zoomabs", zoomabs);
+	map("zoomreset", zoomreset);
+
+	fprintf(stderr, "Warning: config could not find function with name \"%s\"\n", string);
+	return NULL;
 }
 
 int
@@ -954,26 +1234,9 @@ parse_understyle(const char *string)
 
 #undef map
 
-
-
-/* Not done
-
-vtiden - because of trouble with the octal \033, st was very slow to parse UTF-8-demo.txt
-tabspaces - because you need to change st.info as well, doesn't make sense as a runtime config
-
-mshortcuts <-- will be a big one
-shortcuts
-
-# externalpipe
-openurlcmd <--- To be replaced with command array like in dusk
-
-#externalpipein
-setbgcolorcmd <--- To be replaced with command array like in dusk
-
-
-# TODO move iso14755cmd_def to be a command name passed to the iso14755 function, like we
-# did with plumb, in combination with the command array possibly
-
-ignoremod
-
-*/
+/* Configuration options that are not covered:
+ *
+ *    vtiden    - this is not something that general users should play around with
+ *    tabspaces - because you need to change st.info as well, as such it doesn't make
+ *                sense as a runtime config
+ */

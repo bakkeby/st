@@ -167,9 +167,14 @@ typedef union {
 	int i;
 	uint ui;
 	float f;
-	const void *v;
-	const char *s;
+	void *v;
+	char *s;
 } Arg;
+
+typedef struct {
+	char *name;  /* string key */
+	char **argv;  /* pointer to execv argument list */
+} Command;
 
 /* Purely graphic info */
 typedef struct {
@@ -231,7 +236,7 @@ typedef struct {
 	uint mod;
 	KeySym keysym;
 	void (*func)(const Arg *);
-	const Arg arg;
+	Arg arg;
 	int screen;
 } Shortcut;
 
@@ -239,8 +244,8 @@ typedef struct {
 	uint mod;
 	uint button;
 	void (*func)(const Arg *);
-	const Arg arg;
-	uint release;
+	Arg arg;
+	int release;
 	int screen;
 } MouseShortcut;
 

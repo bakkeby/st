@@ -216,7 +216,7 @@ static MouseShortcut mshortcuts[] = {
 #define MODKEY Mod1Mask
 #define TERMMOD (ControlMask|ShiftMask)
 
-/* Example externalpipe and externalpipein commands
+/* Example externalpipe commands
 static char *openurlcmd[] = { "/bin/sh", "-c",
 	"xurls | dmenu -l 10 -w $WINDOWID | xargs -r open",
 	"externalpipe", NULL };
@@ -251,12 +251,11 @@ static Shortcut shortcuts[] = {
 	{ MODKEY,               XK_l,           copyurl,         {.i =  0} },
 	{ MODKEY,               XK_o,           opencopied,      {.v = "xdg-open"} },
 	{ TERMMOD,              XK_Return,      newterm,         {.i =  0} },
-//	{ TERMMOD,              XK_U,           externalpipe,    { .v = openurlcmd } },
-//	{ TERMMOD,              XK_M,           externalpipein,  { .v = setbgcolorcmd } },
+//	{ TERMMOD,              XK_U,           externalpipe_screen_out,    { .v = openurlcmd } },
+//	{ TERMMOD,              XK_M,           externalpipe_screen_in,  { .v = setbgcolorcmd } },
 	{ TERMMOD,              XK_Escape,      keyboard_select, { 0 } },
 	{ TERMMOD,              XK_F,           searchforward,   { 0 } },
 	{ TERMMOD,              XK_B,           searchbackward,  { 0 } },
-	{ TERMMOD,              XK_I,           iso14755,        {.i =  0} },
 	{ ControlMask,          XK_Page_Up,     scrolltoprompt,  {.i = -1}, S_PRI },
 	{ ControlMask,          XK_Page_Down,   scrolltoprompt,  {.i =  1}, S_PRI },
 };
@@ -288,15 +287,6 @@ static char ascii_printable_def[] =
 	" !\"#$%&'()*+,-./0123456789:;<=>?"
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
 	"`abcdefghijklmnopqrstuvwxyz{|}~";
-
-/* Triggering the iso14755 command will popup dmenu asking you to
- * enter a unicode codepoint that will be converted to a glyph and
- * then pushed to st.
- *
- * Below is the command that is executed in case you wish to
- * repurpose it.
- */
-static char *iso14755cmd_def = "dmenu -w \"$WINDOWID\" -p codepoint: </dev/null";
 
 /**
  * Undercurl style. Set undercurl_style to one of the available styles.

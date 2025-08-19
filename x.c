@@ -44,6 +44,8 @@ typedef enum {
 	CellGeometry
 } Geometry;
 
+typedef void (*ArgFunc)(const Arg *);
+
 /* X modifiers */
 #define XK_ANY_MOD    UINT_MAX
 #define XK_NO_MOD     0
@@ -345,8 +347,8 @@ mouseaction(XEvent *e, uint release)
 	/* ignore Button<N>mask for Button<N> - it's set on release */
 	uint state = e->xbutton.state & ~buttonmask(e->xbutton.button);
 
-	for (ms = mshortcuts; ms < mshortcuts + LEN(mshortcuts); ms++) {
-		if (ms->release == release &&
+	for (ms = mouse_bindings; ms < mouse_bindings + num_mouse_bindings; ms++) {
+		if (ms->func != NULL && ms->release == release &&
 				ms->button == e->xbutton.button &&
 				(!ms->screen || (ms->screen == screen)) &&
 				(match(ms->mod, state) ||  /* exact or forced */
@@ -873,8 +875,8 @@ xloadcols(void)
 
 	if (dc.collen && enabled(AlphaFocusHighlight)) {
 		color = (focused ? focusedbg : unfocusedbg);
-		defaultbg = defaultfg_idx;
-		xloadcolor(color, NULL, &dc.col[defaultfg_idx]);
+		defaultbg = defaultbg_idx;
+		xloadcolor(color, NULL, &dc.col[defaultbg_idx]);
 	}
 
 	xloadalpha();
@@ -2798,7 +2800,7 @@ kpress(XEvent *ev)
 
 	if (X_IS_SET(MODE_KBDSELECT) ) {
 		if (kbds_issearchmode()) {
-			for (bp = shortcuts; bp < shortcuts + LEN(shortcuts); bp++) {
+			for (bp = keybindings; bp < keybindings + num_keybindings; bp++) {
 				if (ksym == bp->keysym && match(bp->mod, e->state) &&
 						(!bp->screen || bp->screen == screen) &&
 						(bp->func == clippaste || bp->func == selpaste || bp->func == paste)) {
@@ -2816,8 +2818,8 @@ kpress(XEvent *ev)
 	screen = tisaltscr() ? S_ALT : S_PRI;
 
 	/* 1. shortcuts */
-	for (bp = shortcuts; bp < shortcuts + LEN(shortcuts); bp++) {
-		if (ksym == bp->keysym && match(bp->mod, e->state) &&
+	for (bp = keybindings; bp < keybindings + num_keybindings; bp++) {
+		if (bp->func != NULL && ksym == bp->keysym && match(bp->mod, e->state) &&
 				(!bp->screen || bp->screen == screen)) {
 			bp->func(&(bp->arg));
 			return;
