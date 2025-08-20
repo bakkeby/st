@@ -27,13 +27,16 @@ ResourcePref *resources = NULL;
 Command *commands = NULL;
 MouseShortcut *mouse_bindings = NULL;
 Shortcut *keybindings = NULL;
-int histsize = 2000;
+int histsize = 0;
+int histsize_max = 100000;
+int histsize_incr = 2000;
 uint64_t settings = 0;
 int num_colors = 0;
 int num_resources = 0;
 int num_commands = 0;
 int num_mouse_bindings = 0;
 int num_keybindings = 0;
+int reload = 0;
 
 /* Fixed indexes for additional colors, used in the context of Xresources */
 unsigned int defaultcs_idx;
@@ -80,6 +83,7 @@ static int _config_setting_get_unsigned_int(const config_setting_t *cfg_item, un
 
 static void cleanup_config(void);
 static void load_config(void);
+static void reload_config(const Arg *arg);
 static void load_commands(config_t *cfg);
 static void load_fallback_config(void);
 static void load_misc(config_t *cfg);
@@ -375,6 +379,18 @@ load_config(void)
 }
 
 void
+reload_config(const Arg *arg)
+{
+	reload = 1;
+	cleanup_config();
+	load_config();
+	if (enabled(Xresources)) {
+		reload_xresources(0);
+	}
+	reload = 0;
+}
+
+void
 load_commands(config_t *cfg)
 {
 	int i, j, num_cmd_elements;
@@ -411,6 +427,7 @@ load_commands(config_t *cfg)
 	}
 }
 
+#define FREENULL(A) free(A); A = NULL;
 void
 cleanup_config(void)
 {
@@ -419,41 +436,40 @@ cleanup_config(void)
 	/* Cleanup fonts */
 	for (i = 0; i < num_fonts; i++)
 		free(fonts[i]);
-	free(fonts);
+	FREENULL(fonts);
 
-	free(ascii_printable);
-	free(initial_working_directory);
-	free(mouseshape_text);
-	free(scroll);
-	free(shell);
-	free(stty_args);
-	free(termname);
-	free(url_opener_cmd);
-	free(utmp);
-	free(window_icon);
-	free(xdndescchar);
-	free(kbds_sdelim);
-	free(kbds_ldelim);
-	free(worddelimiters);
+
+	FREENULL(ascii_printable);
+	FREENULL(initial_working_directory);
+	FREENULL(mouseshape_text);
+	FREENULL(scroll);
+	FREENULL(shell);
+	FREENULL(stty_args);
+	FREENULL(termname);
+	FREENULL(url_opener_cmd);
+	FREENULL(utmp);
+	FREENULL(window_icon);
+	FREENULL(xdndescchar);
+	FREENULL(kbds_sdelim);
+	FREENULL(kbds_ldelim);
+	FREENULL(worddelimiters);
 
 	for (i = 0; i < num_colors; i++)
 		free(colors[i]);
-	free(colors);
+	FREENULL(colors);
 
 	for (i = 0; i < num_resources; i++)
 		free(resources[i].name);
-	free(resources);
+	FREENULL(resources);
 
 	/* Note that we do not free strings passed as arguments here; we
 	 * do not have a way to track whether an argument refers to a string
 	 * pointer or not */
-	free(keybindings);
-	free(mouse_bindings);
-
-	/* TODO consider what needs to be done to preserve the history if
-	 * we were to introduce live reload of config during runtime. */
-	free(term.hist);
+	FREENULL(keybindings);
+	FREENULL(mouse_bindings);
 }
+
+#undef FREENULL
 
 void
 load_fallback_config(void)
@@ -533,7 +549,10 @@ load_fallback_config(void)
 		}
 	}
 
-	term.hist = calloc(histsize, sizeof(Line));
+	if (!reload) {
+		term.hist = calloc(histsize_incr, sizeof(Line));
+		histsize = histsize_incr;
+	}
 }
 
 void
@@ -621,11 +640,11 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "initial_working_directory", &initial_working_directory);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
+
 	config_lookup_strdup(cfg, "url_opener_cmd", &url_opener_cmd);
 	config_lookup_strdup(cfg, "scroll", &scroll);
 	config_lookup_strdup(cfg, "stty_args", &stty_args);
 	config_lookup_strdup(cfg, "drag_and_drop_escape_characters", &xdndescchar);
-
 	config_lookup_wcsdup(cfg, "word_delimiters", &worddelimiters);
 	config_lookup_wcsdup(cfg, "keyboardselect.short_delimiter", &kbds_sdelim);
 	config_lookup_wcsdup(cfg, "keyboardselect.long_delimiter", &kbds_ldelim);
@@ -665,7 +684,8 @@ load_misc(config_t *cfg)
 	if (width && height)
 		geometry = PixelGeometry;
 
-	config_lookup_int(cfg, "scrollback_history", &histsize);
+	config_lookup_int(cfg, "scrollback_history", &histsize_max);
+	config_lookup_int(cfg, "scrollback_history_increment", &histsize_incr);
 
 	config_lookup_unsigned_int(cfg, "terminal_cursor.blink_timeout", &blinktimeout);
 	config_lookup_unsigned_int(cfg, "terminal_cursor.thickness", &cursorthickness);
@@ -1202,6 +1222,7 @@ parse_function(const char *string)
 	map("plumb", plumb);
 	map("printscreen", printscreen);
 	map("printsel", printsel);
+	map("reload_config", reload_config);
 	map("scrolltoprompt", scrolltoprompt);
 	map("searchbackward", searchbackward);
 	map("searchforward", searchforward);

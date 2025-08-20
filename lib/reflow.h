@@ -31,6 +31,7 @@ static void tscrollup(int, int, int, int);
 static void tclearregion(int, int, int, int, int);
 static void tdeletechar(int);
 static int tlinelen(Line len);
+static int growhist(size_t newsize);
 static char * tgetglyphs(char *buf, const Glyph *gp, const Glyph *lgp);
 static void selscroll(int, int, int);
 
@@ -42,3 +43,9 @@ typedef struct {
 } MouseKey;
 
 extern MouseKey mkeys[];
+
+
+
+
+
+

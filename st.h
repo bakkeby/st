@@ -355,3 +355,5 @@ extern XSelection xsel;
 extern TermWindow win;
 extern Term term;
 extern int histsize;
+extern int histsize_max;
+extern int histsize_incr;

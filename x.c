@@ -76,10 +76,10 @@ static void zoomreset(const Arg *);
 #define XEMBED_FOCUS_OUT 5
 
 /* macros */
-#define X_IS_SET(flag)		((win.mode & (flag)) != 0)
-#define TRUERED(x)		(((x) & 0xff0000) >> 8)
-#define TRUEGREEN(x)		(((x) & 0xff00))
-#define TRUEBLUE(x)		(((x) & 0xff) << 8)
+#define X_IS_SET(flag)  ((win.mode & (flag)) != 0)
+#define TRUERED(x)      (((x) & 0xff0000) >> 8)
+#define TRUEGREEN(x)    (((x) & 0xff00))
+#define TRUEBLUE(x)     (((x) & 0xff) << 8)
 
 static inline ushort sixd_to_16bit(int);
 static int xmakeglyphfontspecs(XftGlyphFontSpec *, const Glyph *, int, int, int);
@@ -701,7 +701,7 @@ void
 sigusr1_reload(int sig)
 {
 	if (enabled(Xresources)) {
-		reload_config(sig);
+		reload_xresources(sig);
 	}
 	signal(SIGUSR1, sigusr1_reload);
 }
@@ -2827,9 +2827,11 @@ kpress(XEvent *ev)
 	}
 
 	/* 2. custom keys from config.h */
-	if ((customkey = kmap(ksym, e->state))) {
-		ttywrite(customkey, strlen(customkey), 1);
-		return;
+	if (screen == S_ALT) {
+		if ((customkey = kmap(ksym, e->state))) {
+			ttywrite(customkey, strlen(customkey), 1);
+			return;
+		}
 	}
 
 	/* 3. composed string from input method */

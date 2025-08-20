@@ -84,7 +84,7 @@ treflow(int col, int row)
 
 	/* y coordinate of cursor line end */
 	for (oce = term.c.y; oce < term.row - 1 &&
-	                     tiswrapped(term.line[oce]); oce++);
+						 tiswrapped(term.line[oce]); oce++);
 
 	nlines = histsize + row;
 	buf = xmalloc(nlines * sizeof(Line));
@@ -186,6 +186,15 @@ treflow(int col, int row)
 	}
 	term.histf = -i - 1;
 	term.scr = MIN(term.scr, term.histf);
+
+	/* Check if we need to grow history */
+	if (term.histf >= histsize - 1 && histsize < histsize_max) {
+		size_t target = MIN(term.histf + histsize_incr, histsize_max);
+		if (!growhist(target)) {
+			fprintf(stderr, "Warning: Failed to increment history\n");
+		}
+	}
+
 	/* resize rest of the history lines */
 	for (/*i = -term.histf - 1 */; i >= -histsize; i--) {
 		j = (term.histi + i + 1 + histsize) % histsize;
@@ -436,14 +445,24 @@ tscrollup(int top, int bot, int n, int mode)
 	n = MIN(n, bot-top+1);
 
 	if (savehist) {
+
+		if (term.histf + n >= histsize - 1 && histsize < histsize_max) {
+			size_t target = MIN(term.histf + n + histsize_incr, histsize_max);
+			if (!growhist(target)) {
+				fprintf(stderr, "Warning: failed to increment history\n");
+			}
+		}
+
 		for (i = 0; i < n; i++) {
 			term.histi = (term.histi + 1) % histsize;
 			temp = term.hist[term.histi];
-			for (j = 0; j < term.col; j++)
+			for (j = 0; j < term.col; j++) {
 				tclearglyph(&temp[j], 1);
+			}
 			term.hist[term.histi] = term.line[i];
 			term.line[i] = temp;
 		}
+
 		term.histf = MIN(term.histf + n, histsize);
 		s = n;
 		if (term.scr) {
@@ -613,7 +632,7 @@ tdeletechar(int n)
 	src = MIN(term.c.x + n, term.col);
 	size = term.col - src;
 	if (size > 0) { /* otherwise src would point beyond the array
-	                   https://stackoverflow.com/questions/29844298 */
+					   https://stackoverflow.com/questions/29844298 */
 		line = term.line[term.c.y];
 		memmove(&line[dst], &line[src], size * sizeof(Glyph));
 	}
@@ -695,7 +714,7 @@ int
 regionselected(int x1, int y1, int x2, int y2)
 {
 	if (sel.ob.x == -1 || sel.mode == SEL_EMPTY ||
-	    sel.alt != IS_SET(MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
+		sel.alt != IS_SET(MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
 		return 0;
 
 	return (sel.type == SEL_RECTANGULAR) ? sel.nb.x <= x2 && sel.ne.x >= x1
@@ -856,11 +875,41 @@ getsel(void)
 		 * FIXME: Fix the computer world.
 		 */
 		if ((y < sel.ne.y || lastx >= linelen) &&
-		    (!(lgp->mode & ATTR_WRAP) || sel.type == SEL_RECTANGULAR))
+			(!(lgp->mode & ATTR_WRAP) || sel.type == SEL_RECTANGULAR))
 			*ptr++ = '\n';
 	}
 	*ptr = '\0';
 	return str;
+}
+
+static int
+growhist(size_t newsize)
+{
+    if (newsize <= histsize)
+        return 1;
+
+    Line *newhist = calloc(newsize, sizeof(Line));
+    if (!newhist)
+        return 0;
+
+    /* Re-map existing entries so that logical order is preserved.
+       Keep newest at term.histi (same logical position). */
+    size_t used = MIN(term.histf, histsize);
+
+    for (size_t k = 0; k < used; k++) {
+        size_t j_old = (term.histi + histsize - k) % histsize;  // newest, newer, ...
+        size_t j_new = (term.histi + newsize  - k) % newsize;
+        newhist[j_new] = term.hist[j_old];  // just move the pointer; do not touch Glyph data
+    }
+	for (size_t k = 0; k < newsize; k++) {
+		if (newhist[k] == NULL)
+			newhist[k] = calloc(term.col, sizeof(Glyph));
+	}
+
+    free(term.hist);
+    term.hist = newhist;
+    histsize = newsize;
+    return 1;
 }
 
 void

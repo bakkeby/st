@@ -15,3 +15,4 @@ typedef struct {
 
 int resource_load(XrmDatabase, char *, enum resource_type, void *);
 void xrdb_init(Display *dpy);
+void reload_xresources(int sig);

@@ -54,7 +54,7 @@ xrdb_init(Display *dpy)
 }
 
 void
-reload_config(int sig)
+reload_xresources(int sig)
 {
 	/* Recreate a Display object to have up to date Xresources entries */
 	Display *dpy;
