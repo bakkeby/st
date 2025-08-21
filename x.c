@@ -700,6 +700,7 @@ setsel(char *str, Time t)
 void
 sigusr1_reload(int sig)
 {
+	reload_config(NULL);
 	if (enabled(Xresources)) {
 		reload_xresources(sig);
 	}

@@ -830,7 +830,7 @@ load_functionality(config_t *cfg)
 void
 load_keybindings(config_t *cfg)
 {
-	int i;
+	int i, keysym;
 	const char *string;
 
 	const config_setting_t *bindings_t, *binding_t;
@@ -848,9 +848,17 @@ load_keybindings(config_t *cfg)
 			keybindings[i].mod = parse_modifier(string);
 
 		if (config_setting_lookup_string(binding_t, "key", &string)) {
-			keybindings[i].keysym = XStringToKeysym(string);
-			if (keybindings[i].keysym == NoSymbol)
+			keysym = XStringToKeysym(string);
+
+			/* Allow lower case keybindings to automatically be converted to upper
+			 * case if the shift modifier is involved. An alternative would be to
+			 * match on both in kpress, but this is simpler. */
+			if (isalpha(keysym) && (keybindings[i].mod & ShiftMask))
+				keysym = toupper(keysym);
+
+			if (keysym == NoSymbol)
 				fprintf(stderr, "Warning: config could not look up keysym for key %s\n", string);
+			keybindings[i].keysym = keysym;
 		}
 
 		if (config_setting_lookup_string(binding_t, "function", &string))
