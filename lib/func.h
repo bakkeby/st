@@ -1,5 +1,5 @@
 static const uint64_t
-	Monochrome = 0x1,
+	Alpha = 0x1,
 	AlphaFocusHighlight = 0x2,
 	BoxDraw = 0x4,
 	BoxDrawBoldAffectsLineThickness = 0x8,
@@ -29,7 +29,7 @@ static const uint64_t
 	CopySelectionToClipboard = 0x2000000,
 	Xresources = 0x4000000,
 	WideGlyphs = 0x8000000,
-	FuncPlaceholder0x10000000 = 0x10000000,
+	Monochrome = 0x10000000,
 	FuncPlaceholder0x20000000 = 0x20000000,
 	FuncPlaceholder0x40000000 = 0x40000000,
 	FuncPlaceholder0x80000000 = 0x80000000,
@@ -80,6 +80,7 @@ static const struct nv function_names[] = {
 	map(AllowItalicBold),
 	map(AllowBold),
 	map(AllowWindowOperations),
+	map(Alpha),
 	map(AlphaFocusHighlight),
 	map(AlphaGradient),
 	map(AlphaInverseGradient),

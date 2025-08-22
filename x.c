@@ -845,7 +845,13 @@ xloadcolor(int i, const char *name, Color *ncolor)
 void
 xloadalpha(void)
 {
-	float const usedAlpha = enabled(AlphaFocusHighlight) && !focused ? alpha_unfocused : alpha;
+	float const usedAlpha = (
+		disabled(Alpha)
+		? 1.0
+		: enabled(AlphaFocusHighlight) && !focused
+		? alpha_unfocused
+		: alpha
+	);
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
 	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
@@ -865,7 +871,7 @@ xloadcols(void)
 		dc.col = calloc(dc.collen, sizeof(Color));
 	}
 
-	for (int i = 0; i+1 < dc.collen; ++i) {
+	for (int i = 0; i < dc.collen; ++i) {
 		if (!xloadcolor(i, NULL, &dc.col[i])) {
 			if (colors[i])
 				die("could not allocate color '%s'\n", colors[i]);

@@ -150,7 +150,7 @@ static const char *colorname[] = {
 /*
  * Default colors (colorname index)
  */
-unsigned int defaultbg = 0;     /* Background */
+unsigned int defaultbg = 258;   /* Background */
 unsigned int defaultfg = 259;   /* Foreground */
 unsigned int defaultcs = 256;   /* Cursor */
 unsigned int defaultrcs = 257;  /* Reverse cursor */
@@ -202,14 +202,14 @@ static uint forcemousemod = ShiftMask;
  * Beware that overloading Button1 will disable the selection.
  */
 static MouseShortcut mshortcuts[] = {
-	/* mask                 button   function        argument       release  screen */
-	{ ControlMask,          Button2, selopen,        {.i = 0},      1 },
-	{ XK_ANY_MOD,           Button2, paste,          {.i = 0},      1 },
+	/* mask                 button   function        argument        release  screen */
+	{ ControlMask,          Button2, selopen,        {.i = 0},       1 },
+	{ XK_ANY_MOD,           Button2, paste,          {.i = 0},       1 },
 	{ XK_ANY_MOD,           Button3, plumb,          {.v = "nsxiv"}, 1 },
-	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 1},      0, S_PRI },
-	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 1},      0, S_PRI },
-	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"}, 0, S_ALT },
-	{ XK_ANY_MOD,           Button5, ttysend,        {.s = "\005"}, 0, S_ALT },
+	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 1},       0, S_PRI },
+	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 1},       0, S_PRI },
+	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"},  0, S_ALT },
+	{ XK_ANY_MOD,           Button5, ttysend,        {.s = "\005"},  0, S_ALT },
 };
 
 /* Internal keyboard shortcuts. */

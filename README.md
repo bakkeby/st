@@ -8,6 +8,12 @@ Refer to [https://st.suckless.org/](https://st.suckless.org/) for details on the
 
 ---
 
+### Notable additions to st (beyond patches)
+
+   - runtime configuration that can also be reloaded using USR1 signal
+   - incremental scrollback history meaning less space reserved upfront
+   - additional externalpipe options (full history, treat pipe output as text input)
+
 ### Patches incorporated:
 
    - [alpha](https://st.suckless.org/patches/alpha/)
@@ -178,5 +184,4 @@ Refer to [https://st.suckless.org/](https://st.suckless.org/) for details on the
       - allows user to specify the initial path st should use as the working directory
 
    - [xresources](https://st.suckless.org/patches/xresources/)
-      - adds the ability to configure st via Xresources
-      - during startup, st will read and apply the resources named in the resources[] array in config.h
+      - adds the ability to override colour settings via Xresources
