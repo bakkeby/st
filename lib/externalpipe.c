@@ -19,6 +19,7 @@ extpipe(const Arg *arg, ExternalPipeScope scope, ExternalPipeMode mode)
 	int to[2], from[2], startline = -1, endline = -1;
 	int foundprompts = 0;
 	char buf[BUFSIZ];
+	char cwd[PATH_MAX];
 	void (*oldsigpipe)(int);
 	Glyph *bp, *end;
 	int lastpos, n, x, newline;
@@ -32,6 +33,9 @@ extpipe(const Arg *arg, ExternalPipeScope scope, ExternalPipeMode mode)
 		return;
 	}
 
+	if (subprocwd(cwd) != 0)
+		return;
+
 	switch (fork()) {
 	case -1:
 		close(to[0]);
@@ -40,8 +44,12 @@ extpipe(const Arg *arg, ExternalPipeScope scope, ExternalPipeMode mode)
 			close(from[0]);
 			close(from[1]);
 		}
+		free(cmd);
 		return;
 	case 0:
+		if (chdir(cwd) != 0)
+			exit(1);
+
 		dup2(to[0], STDIN_FILENO);
 		if (mode == EXTERNAL_PIPE_PRINT) {
 			dup2(csdfd, STDOUT_FILENO);
@@ -63,6 +71,7 @@ extpipe(const Arg *arg, ExternalPipeScope scope, ExternalPipeMode mode)
 		execvp(cmd[0], cmd);
 		fprintf(stderr, "st: execvp %s\n", cmd[0]);
 		perror("failed");
+		free(cmd);
 		exit(0);
 	}
 
