@@ -822,7 +822,6 @@ load_functionality(config_t *cfg)
 
 	for (i = 0; function_names[i].name != NULL; i++) {
 		if (config_setting_lookup_sloppy_bool(func_t, function_names[i].name, &enabled)) {
-		fprintf(stderr, "setting function %s to %d\n", function_names[i].name, enabled);
 			setenabled(function_names[i].value, enabled);
 		}
 	}

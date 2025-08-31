@@ -66,5 +66,3 @@ getnamebyfunc(const uint64_t functionality)
 
 	return 0;
 }
-
-
