@@ -820,9 +820,9 @@ load_functionality(config_t *cfg)
 	if (!func_t)
 		return;
 
-	for (i = 0; function_names[i].name != NULL; i++) {
-		if (config_setting_lookup_sloppy_bool(func_t, function_names[i].name, &enabled)) {
-			setenabled(function_names[i].value, enabled);
+	for (i = 0; functionality_names[i].name != NULL; i++) {
+		if (config_setting_lookup_sloppy_bool(func_t, functionality_names[i].name, &enabled)) {
+			setenabled(functionality_names[i].value, enabled);
 		}
 	}
 }

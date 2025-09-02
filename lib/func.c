@@ -46,9 +46,9 @@ getfuncbyname(const char *name)
 	if (!name)
 		return 0;
 
-	for (i = 0; function_names[i].name != NULL; i++) {
-		if (strcmp(function_names[i].name, name) == 0)
-			return function_names[i].value;
+	for (i = 0; functionality_names[i].name != NULL; i++) {
+		if (strcmp(functionality_names[i].name, name) == 0)
+			return functionality_names[i].value;
 	}
 
 	return 0;
@@ -59,9 +59,9 @@ getnamebyfunc(const uint64_t functionality)
 {
 	int i;
 
-	for (i = 0; function_names[i].name != NULL; i++) {
-		if (function_names[i].value == functionality)
-			return function_names[i].name;
+	for (i = 0; functionality_names[i].name != NULL; i++) {
+		if (functionality_names[i].value == functionality)
+			return functionality_names[i].name;
 	}
 
 	return 0;

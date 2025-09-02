@@ -73,7 +73,7 @@ struct nv {
 
 #define map(F) { #F, F }
 
-static const struct nv function_names[] = {
+static const struct nv functionality_names[] = {
 	map(AllowAltScreen),
 	map(AllowItalic),
 	map(AllowBoldItalic),
