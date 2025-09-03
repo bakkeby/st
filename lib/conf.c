@@ -97,6 +97,7 @@ static void load_keybindings(config_t *cfg);
 static void load_window_icon(config_t *cfg);
 
 static void generate_resource_strings(void);
+static void add_resource_binding(const char *string, void *ptr);
 
 static wchar_t *char_to_wchar(const char *string);
 static wchar_t *wcsdup(const wchar_t *string);
@@ -558,75 +559,37 @@ load_fallback_config(void)
 void
 generate_resource_strings(void)
 {
-	int i;
 	char resource_name[16] = {0};
 
-	/* 16 + cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, foc, unfoc, def attr */
-	num_resources = 16 + 11;
-	resources = calloc(num_resources, sizeof(ResourcePref));
+	/* 16 + 11 (cs, rcs, fg, bg, sel fg, sel bg, hl fg, hl bg, foc, unfoc, def attr) */
+	resources = calloc(16 + 11, sizeof(ResourcePref));
 
-	for (i = 0; i < 16; i++) {
-		snprintf(resource_name, 16, "color%d", i);
-		resources[i].name = strdup(resource_name);
-		resources[i].type = STRING;
-		resources[i].dst = &colors[i];
+	while (num_resources < 16) {
+		snprintf(resource_name, 16, "color%d", num_resources);
+		add_resource_binding(resource_name, &colors[num_resources]);
 	}
 
 	/* Add additional resource strings */
-	resources[i].name = strdup("cursor");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[defaultcs_idx];
-	i++;
+	add_resource_binding("cursor", &colors[defaultcs_idx]);
+	add_resource_binding("cursor.reverse", &colors[defaultrcs_idx]);
+	add_resource_binding("background", &colors[defaultbg_idx]);
+	add_resource_binding("foreground", &colors[defaultfg_idx]);
+	add_resource_binding("selection.fg.color", &colors[selectionfg_idx]);
+	add_resource_binding("selection.bg.color", &colors[selectionbg_idx]);
+	add_resource_binding("highlight.fg.color", &colors[highlightfg_idx]);
+	add_resource_binding("highlight.bg.color", &colors[highlightbg_idx]);
+	add_resource_binding("focused.bg.color", &colors[focusedbg_idx]);
+	add_resource_binding("unfocused.bg.color", &colors[unfocusedbg_idx]);
+	add_resource_binding("badattribute.fg.color", &colors[badattributefg_idx]);
+}
 
-	resources[i].name = strdup("cursor.reverse");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[defaultrcs_idx];
-	i++;
-
-	resources[i].name = strdup("background");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[defaultbg_idx];
-	i++;
-
-	resources[i].name = strdup("foreground");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[defaultfg_idx];
-	i++;
-
-	resources[i].name = strdup("selection.fg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[selectionfg_idx];
-	i++;
-
-	resources[i].name = strdup("selection.bg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[selectionbg_idx];
-	i++;
-
-	resources[i].name = strdup("highlight.fg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[highlightfg_idx];
-	i++;
-
-	resources[i].name = strdup("highlight.bg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[highlightbg_idx];
-	i++;
-
-	resources[i].name = strdup("focused.bg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[focusedbg_idx];
-	i++;
-
-	resources[i].name = strdup("unfocused.bg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[unfocusedbg_idx];
-	i++;
-
-	resources[i].name = strdup("badattribute.fg.color");
-	resources[i].type = STRING;
-	resources[i].dst = &colors[badattributefg_idx];
-	i++;
+void
+add_resource_binding(const char *string, void *ptr)
+{
+	resources[num_resources].name = strdup(string);
+	resources[num_resources].type = STRING;
+	resources[num_resources].dst = ptr;
+	num_resources++;
 }
 
 void
@@ -640,7 +603,6 @@ load_misc(config_t *cfg)
 	config_lookup_strdup(cfg, "initial_working_directory", &initial_working_directory);
 	config_lookup_strdup(cfg, "shell", &shell);
 	config_lookup_strdup(cfg, "utmp", &utmp);
-
 	config_lookup_strdup(cfg, "url_opener_cmd", &url_opener_cmd);
 	config_lookup_strdup(cfg, "scroll", &scroll);
 	config_lookup_strdup(cfg, "stty_args", &stty_args);

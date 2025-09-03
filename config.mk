@@ -30,7 +30,7 @@ SIXEL_LIBS = `$(PKG_CONFIG) --libs imlib2`
 
 CONFIG = `$(PKG_CONFIG) --libs libconfig`
 
-# includes and libs, uncomment harfbuzz for the ligatures patch
+# includes and libs
 INCS = -I$(X11INC) \
        `$(PKG_CONFIG) --cflags fontconfig` \
        `$(PKG_CONFIG) --cflags freetype2` \
