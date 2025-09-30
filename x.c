@@ -2834,11 +2834,9 @@ kpress(XEvent *ev)
 	}
 
 	/* 2. custom keys from config.h */
-	if (screen == S_ALT) {
-		if ((customkey = kmap(ksym, e->state))) {
-			ttywrite(customkey, strlen(customkey), 1);
-			return;
-		}
+	if ((customkey = kmap(ksym, e->state))) {
+		ttywrite(customkey, strlen(customkey), 1);
+		return;
 	}
 
 	/* 3. composed string from input method */
