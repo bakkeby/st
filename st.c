@@ -1656,9 +1656,20 @@ csihandle(void)
 	case '$': /* DECRQM -- DEC Request Mode (private) */
 		if (csiescseq.mode[1] == 'p' && csiescseq.priv) {
 			switch (csiescseq.arg[0]) {
+			case 80:
+				/* Sixel Display Mode  */
+				ttywrite(IS_SET(MODE_SIXEL_SDM) ? "\033[?80;1$y"
+				                                : "\033[?80;2$y", 9, 0);
+				break;
 			case 2026:
 				/* https://gist.github.com/christianparpart/d8a62cc1ab659194337d73e399004036 */
-				ttywrite(su ? "\033[?2026;1$y" : "\033[?2026;2$y", 11, 0);
+				ttywrite(su ? "\033[?2026;1$y"
+				            : "\033[?2026;2$y", 11, 0);
+				break;
+			case 8452:
+				/* Sixel scrolling leaves cursor to right of graphic */
+				ttywrite(IS_SET(MODE_SIXEL_CUR_RT) ? "\033[?8452;1$y"
+				                                   : "\033[?8452;2$y", 11, 0);
 				break;
 			default:
 				goto unknown;
