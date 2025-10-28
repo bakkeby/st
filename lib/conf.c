@@ -656,6 +656,7 @@ load_misc(config_t *cfg)
 
 	config_lookup_simple_float(cfg, "alpha.focused", &alpha);
 	config_lookup_simple_float(cfg, "alpha.unfocused", &alpha_unfocused);
+	config_lookup_simple_float(cfg, "alpha.selection_background", &alpha_selection_background);
 	config_lookup_simple_float(cfg, "alpha.gradient_minimum", &gradient_constant);
 
 	if (config_lookup_string(cfg, "undercurl_style", &string)) {

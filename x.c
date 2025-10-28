@@ -185,6 +185,7 @@ static int frccap = 0;
 static char *usedfont = NULL;
 static double usedfontsize = 0;
 static double defaultfontsize = 0;
+float alpha_selection_background = 1.0;
 
 static char *opt_class = NULL;
 static char **opt_cmd  = NULL;
@@ -1709,6 +1710,7 @@ xdrawglyphfontspecs(
 	if (base.mode & ATTR_SELECTED) {
 		if (enabled(UseSelectionBackgroundColor)) {
 			bg = &dc.col[selectionbg];
+			bg->color.alpha = (unsigned short)(alpha_selection_background * 0xffff);
 		}
 		if (enabled(UseSelectionForegroundColor)) {
 			fg = &dc.col[selectionfg];

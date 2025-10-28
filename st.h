@@ -348,6 +348,7 @@ extern int extpipeactive;
 extern uint64_t settings;
 extern float alpha;
 extern float alpha_unfocused;
+extern float alpha_selection_background;
 
 extern DC dc;
 extern XWindow xw;
