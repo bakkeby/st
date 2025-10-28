@@ -859,6 +859,10 @@ xloadalpha(void)
 	dc.col[defaultbg].color.red   *= usedAlpha;
 	dc.col[defaultbg].color.green *= usedAlpha;
 	dc.col[defaultbg].color.blue  *= usedAlpha;
+
+	dc.col[selectionbg].color.alpha = (unsigned short)(0xffff * alpha_selection_background);
+	dc.col[selectionbg].pixel &= 0x00FFFFFF;
+	dc.col[selectionbg].pixel |= (unsigned char)(0xff * alpha_selection_background) << 24;
 }
 
 void
@@ -1710,7 +1714,6 @@ xdrawglyphfontspecs(
 	if (base.mode & ATTR_SELECTED) {
 		if (enabled(UseSelectionBackgroundColor)) {
 			bg = &dc.col[selectionbg];
-			bg->color.alpha = (unsigned short)(alpha_selection_background * 0xffff);
 		}
 		if (enabled(UseSelectionForegroundColor)) {
 			fg = &dc.col[selectionfg];
