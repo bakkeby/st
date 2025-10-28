@@ -126,7 +126,7 @@ static void sigusr1_reload(int sig);
 static int mouseaction(XEvent *, uint);
 static void mousesel(XEvent *, int);
 static void mousereport(XEvent *);
-static char *kmap(KeySym, uint);
+static char *kmap(KeySym, uint, int);
 static int match(uint, uint);
 
 static void run(void);
@@ -2740,17 +2740,26 @@ match(uint mask, uint state)
 }
 
 char*
-kmap(KeySym k, uint state)
+kmap(KeySym k, uint state, int screen)
 {
 	Key *kp;
-	int i;
+	KeySym *mappedkeys;
+	int i, len;
+
+	if (screen == S_PRI) {
+		mappedkeys = priMappedKeys;
+		len = LEN(priMappedKeys);
+	} else {
+		mappedkeys = altMappedKeys;
+		len = LEN(altMappedKeys);
+	}
 
 	/* Check for mapped keys out of X11 function keys. */
-	for (i = 0; i < LEN(mappedkeys); i++) {
+	for (i = 0; i < len; i++) {
 		if (mappedkeys[i] == k)
 			break;
 	}
-	if (i == LEN(mappedkeys)) {
+	if (i == len) {
 		if ((k & 0xFFFF) < 0xFD00)
 			return NULL;
 	}
@@ -2839,7 +2848,7 @@ kpress(XEvent *ev)
 	}
 
 	/* 2. custom keys from config.h */
-	if ((customkey = kmap(ksym, e->state))) {
+	if ((customkey = kmap(ksym, e->state, screen))) {
 		ttywrite(customkey, strlen(customkey), 1);
 		return;
 	}

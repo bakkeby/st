@@ -21,9 +21,14 @@
 
 /*
  * If you want keys other than the X11 function keys (0xFD00 - 0xFFFF)
- * to be mapped below, add them to this array.
+ * to be mapped below then add them to the desired array to be available
+ * on the primary and/or alternate screen.
  */
-static KeySym mappedkeys[] = {
+static KeySym priMappedKeys[] = {
+	-1
+};
+
+static KeySym altMappedKeys[] = {
 	XK_space,
 	XK_m,
 	XK_i,
