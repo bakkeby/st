@@ -855,14 +855,14 @@ xloadalpha(void)
 	);
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
-	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
+	dc.col[defaultbg].pixel |= (unsigned long)(0xff * usedAlpha) << 24;
 	dc.col[defaultbg].color.red   *= usedAlpha;
 	dc.col[defaultbg].color.green *= usedAlpha;
 	dc.col[defaultbg].color.blue  *= usedAlpha;
 
 	dc.col[selectionbg].color.alpha = (unsigned short)(0xffff * alpha_selection_background);
 	dc.col[selectionbg].pixel &= 0x00FFFFFF;
-	dc.col[selectionbg].pixel |= (unsigned char)(0xff * alpha_selection_background) << 24;
+	dc.col[selectionbg].pixel |= (unsigned long)(0xff * alpha_selection_background) << 24;
 }
 
 void
