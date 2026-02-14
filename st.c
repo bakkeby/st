@@ -2567,6 +2567,9 @@ check_control_code:
 			}
 			return;
 		} else if (term.esc & ESC_DCS) {
+			if (csiescseq.len >= sizeof(csiescseq.buf) - 1) {
+				return;
+			}
 			csiescseq.buf[csiescseq.len++] = u;
 			if (BETWEEN(u, 0x40, 0x7E)
 					|| csiescseq.len >= \
