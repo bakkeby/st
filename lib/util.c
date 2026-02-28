@@ -68,3 +68,53 @@ strlcpy(char * __restrict dst, const char * __restrict src, size_t dsize)
 
 	return (src - osrc - 1);	/* count does not include NUL */
 }
+
+/* Like sprintf but allocates memory as needed */
+char *
+xasprintf(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	int n = vsnprintf(NULL, 0, fmt, ap);
+	va_end(ap);
+
+	if (n < 0)
+		return NULL;
+
+	char *buf = malloc(n + 1);
+	if (!buf)
+		return NULL;
+
+	va_start(ap, fmt);
+	vsnprintf(buf, n + 1, fmt, ap);
+	va_end(ap);
+
+	return buf;
+}
+
+char *
+path_dirname(const char *path)
+{
+	if (!path || !*path)
+		return strdup(".");
+
+	const char *slash = strrchr(path, '/');
+
+	if (!slash)
+		return strdup(".");
+
+	/* handle root */
+	if (slash == path)
+		return strdup("/");
+
+	size_t len = slash - path;
+
+	char *out = malloc(len + 1);
+	if (!out)
+		return NULL;
+
+	memcpy(out, path, len);
+	out[len] = '\0';
+
+	return out;
+}

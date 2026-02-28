@@ -4,6 +4,7 @@
 #include <wchar.h>
 
 const char *progname = "st";
+static char *cfg_filename = "st.cfg";
 
 /* Configuration variables */
 char **fonts = NULL;
@@ -55,7 +56,7 @@ static unsigned int width = 0;
 static unsigned int height = 0;
 static Geometry geometry = CellGeometry;
 
-static void set_config_path(const char* filename, char *config_path, char *config_file);
+static char *get_config_path(const char* filename);
 static int setting_length(const config_setting_t *cfg);
 static const char *setting_get_string_elem(const config_setting_t *cfg, int i);
 static int setting_get_int_elem(const config_setting_t *cfg, int i);
@@ -112,21 +113,27 @@ static ArgFunc parse_function(const char *string);
 static void parse_and_set_argument(const config_setting_t *arg_t, Arg *arg);
 static int parse_command_reference(const char *string, void **ptr);
 
-void
-set_config_path(const char* filename, char *config_path, char *config_file)
+char *
+get_config_path(const char *filename)
 {
-	const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
-	const char *home = getenv("HOME");
+	if (!filename)
+		return NULL;
 
-	if (xdg_config_home && xdg_config_home[0] != '\0') {
-		snprintf(config_path, PATH_MAX, "%s/%s/", xdg_config_home, progname);
-	} else if (home) {
-		snprintf(config_path, PATH_MAX, "%s/.config/%s/", home, progname);
-	} else {
-		return;
+	if (startswith("/", filename)) {
+		return strdup(filename);
 	}
 
-	snprintf(config_file, PATH_MAX, "%s/%s.cfg", config_path, filename);
+	const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
+	if (xdg_config_home && xdg_config_home[0] != '\0') {
+		return xasprintf("%s/%s/%s", xdg_config_home, progname, filename);
+	}
+
+	const char *home = getenv("HOME");
+	if (home && home[0] != '\0') {
+		return xasprintf("%s/.config/%s/%s", home, progname, filename);
+	}
+
+	return NULL;
 }
 
 int
@@ -348,10 +355,13 @@ void
 load_config(void)
 {
 	config_t cfg;
-	char config_path[PATH_MAX] = {0};
-	char config_file[PATH_MAX] = {0};
 
-	set_config_path(progname, config_path, config_file);
+	const char *envcfg = getenv("ST_CONFIG_PATH");
+	const char *filename = (envcfg && strlen(envcfg) ? envcfg : cfg_filename);
+
+	char *config_file = get_config_path(filename);
+	char *config_path = path_dirname(config_file);
+
 	config_init(&cfg);
 	config_set_include_dir(&cfg, config_path);
 
@@ -373,6 +383,9 @@ load_config(void)
 			config_error_text(&cfg)
 		);
 	}
+
+	free(config_file);
+	free(config_path);
 
 	load_fallback_config();
 	generate_resource_strings();

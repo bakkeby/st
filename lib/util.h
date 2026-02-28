@@ -7,3 +7,5 @@ static int hex2int(char c);
 static inline int startswith(const char *needle, const char *haystack);
 static char *expandhome(const char *string);
 static size_t strlcpy(char * __restrict dst, const char * __restrict src, size_t dsize);
+static char *xasprintf(const char *fmt, ...);
+static char *path_dirname(const char *path);
